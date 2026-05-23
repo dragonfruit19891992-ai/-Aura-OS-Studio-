@@ -1609,6 +1609,79 @@ export default App;`,"utf-8");
   res.json(newProject);
 });
 
+// AGENTIC HANDOVER PIPELINE
+app.post("/api/agent/handover", requireAuth, async (req, res) => {
+  const { name, description } = req.body;
+  if (!name) return res.status(400).json({ error: "Name is required" });
+  
+  const projects = readJSON("projects_meta.json", []);
+  const id = "proj_" + Math.random().toString(36).substring(2, 10);
+  const newProject = {
+    id,
+    name,
+    userId: req.user!.userId,
+    createdAt: new Date().toISOString(),
+    appCount: 1,
+  };
+  projects.push(newProject);
+  writeJSON("projects_meta.json", projects);
+
+  const projPath = path.join(PROJECTS_DIR, id);
+  fs.mkdirSync(projPath, { recursive: true });
+
+  // Fast scaffold the base Vite React template
+  fs.writeFileSync(path.join(projPath, "package.json"), JSON.stringify({
+    name: name.toLowerCase().replace(/[^a-z0-9]/g, "-"),
+    private: true,
+    version: "1.0.0",
+    type: "module",
+    scripts: { "dev": "vite", "build": "vite build" },
+    dependencies: { "react": "^18.3.1", "react-dom": "^18.3.1", "lucide-react": "^0.344.0" },
+    devDependencies: { "vite": "^5.3.1", "tailwindcss": "^3.4.4", "@vitejs/plugin-react": "^4.3.1" }
+  }, null, 2));
+
+  fs.writeFileSync(path.join(projPath, "vite.config.ts"), `import { defineConfig } from 'vite'\nimport react from '@vitejs/plugin-react'\nexport default defineConfig({ plugins: [react()] })`);
+
+  fs.writeFileSync(path.join(projPath, "index.html"), `<!DOCTYPE html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>${name}</title></head>
+  <body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body>
+</html>`);
+
+  fs.mkdirSync(path.join(projPath, "src"), { recursive: true });
+  fs.writeFileSync(path.join(projPath, "src/main.tsx"), `import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode><App /></React.StrictMode>,
+)`);
+
+  fs.writeFileSync(path.join(projPath, "src/index.css"), `@tailwind base;\n@tailwind components;\n@tailwind utilities;\nbody { background-color: #000; color: #fff; }`);
+
+  // Write a basic App.tsx that acknowledges the agent plan
+  fs.writeFileSync(path.join(projPath, "src/App.tsx"), `import React from 'react';
+import { Sparkles } from 'lucide-react';
+
+export default function App() {
+  return (
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 text-white font-sans">
+      <Sparkles className="w-12 h-12 text-cyan-400 mb-6 animate-pulse" />
+      <h1 className="text-4xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-emerald-400">
+        Agentic Scaffolding Complete
+      </h1>
+      <div className="max-w-2xl text-zinc-400 text-left leading-relaxed whitespace-pre-wrap bg-zinc-900/50 p-6 rounded-xl border border-zinc-800 text-xs font-mono h-64 overflow-y-auto">
+        {${JSON.stringify(description || "No plan provided.")}}
+      </div>
+      <p className="mt-8 text-sm text-zinc-600">Open the Composer to fully execute the remaining architecture.</p>
+    </div>
+  );
+}`);
+
+  res.json(newProject);
+});
+
 app.delete("/api/projects/:id", async (req, res) => {
   const { id } = req.params;
   let projects = readJSON("projects_meta.json", []);
@@ -2169,6 +2242,62 @@ app.post('/api/deploy/dockerize/:projectId', async (req, res) => {
   } catch (error: any) {
     console.error("Docker build pipeline failed:", error);
     res.status(500).json({ error: error.message || "Failed to execute Docker daemon." });
+  }
+});
+
+// REAL FIREBASE LIVE DEPLOYMENT
+app.post('/api/deploy/live/:projectId', async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const projectPath = path.join(PROJECTS_DIR, projectId);
+    
+    if (!fs.existsSync(projectPath)) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    // Write a base firebase.json if it doesn't exist
+    if (!fs.existsSync(path.join(projectPath, 'firebase.json'))) {
+      fs.writeFileSync(path.join(projectPath, 'firebase.json'), JSON.stringify({
+        hosting: {
+          public: "dist",
+          ignore: ["firebase.json", "**/.*", "**/node_modules/**"],
+          rewrites: [{ source: "**", destination: "/index.html" }]
+        }
+      }, null, 2));
+    }
+
+    const util = require('util');
+    const exec = util.promisify(require('child_process').exec);
+    
+    let fullLog = "Initializing real Firebase Deployment...\n";
+    
+    try {
+      fullLog += "Installing dependencies...\n";
+      await exec('npm install', { cwd: projectPath });
+      
+      fullLog += "Building production bundle...\n";
+      const { stdout: buildOut } = await exec('npm run build', { cwd: projectPath });
+      fullLog += buildOut + "\n";
+      
+      fullLog += "Deploying to Firebase Global CDN...\n";
+      const { stdout: deployOut } = await exec('firebase deploy --only hosting', { cwd: projectPath });
+      fullLog += deployOut + "\n";
+      
+      fullLog += "✅ LIVE DEPLOYMENT SUCCESSFUL!";
+    } catch (cmdErr: any) {
+      fullLog += "\n❌ ERROR: " + cmdErr.message + "\n" + (cmdErr.stdout || "") + "\n" + (cmdErr.stderr || "");
+      throw new Error(fullLog);
+    }
+
+    res.json({ 
+      message: `Successfully deployed to production!`, 
+      stack: "Firebase Hosting",
+      log: fullLog 
+    });
+
+  } catch (error: any) {
+    console.error("Live deploy failed:", error);
+    res.status(500).json({ error: error.message || "Failed to execute deployment." });
   }
 });
 

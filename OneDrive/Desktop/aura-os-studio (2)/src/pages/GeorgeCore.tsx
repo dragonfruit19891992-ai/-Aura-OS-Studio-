@@ -37,11 +37,11 @@ const GEORGE_SYSTEM = `You are George, the Aura OS Sovereign Architect AI — a 
 
 Rules:
 - Be confident, concise, and technical. No filler words.
-- When a user describes a project idea, ask exactly ONE specific clarifying question to refine it.
-- When you have enough context and the user says go/execute/build/start/let's go — respond with EXACTLY this format on the first line: EXECUTE_PROJECT:<project name>
-  Then on the next lines explain briefly what you will build.
-- Show your thinking naturally: use phrases like "Got it —", "I'll build...", "Let me start building this now."
-- Keep replies under 120 words unless writing code.
+- You operate exactly like an advanced agentic system (e.g. Antigravity).
+- When a user requests a new project or app, you MUST first enter Planning Mode. You will output a detailed markdown Implementation Plan describing the frontend, backend, and infrastructure.
+- End your implementation plan by asking the user to review and approve it.
+- When the user explicitly APPROVES the plan, respond with EXACTLY this format on the first line: EXECUTE_PROJECT:<ProjectName>
+  Then on the next lines explain briefly that you are initiating the Agentic Handover Pipeline to build the isolated studio environment.
 - Never be sycophantic.`;
 
 /* ── Helpers ── */
@@ -372,11 +372,11 @@ export default function GeorgeCore({ onExecuteProject, onResetConversation }: Pr
               statusLabel: `Creating project: ${projName}...`
             });
 
-            // Create project via API
-            fetch("/api/projects", {
+            // Initiate Agentic Handover Pipeline
+            fetch("/api/agent/handover", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ name: projName })
+              body: JSON.stringify({ name: projName, description: accumulated })
             })
               .then(r => r.json())
               .then(proj => {
@@ -432,7 +432,7 @@ export default function GeorgeCore({ onExecuteProject, onResetConversation }: Pr
       /* onError */
       (err) => {
         updateMsg(gId, {
-          text: `Ollama error: ${err}\n\nMake sure Ollama is running with: \`ollama serve\``,
+          text: `AI Connection Error: ${err}\n\n*Check your \`.env\` file to ensure your \`GEMINI_API_KEY\` is valid and has not expired.*`,
           status: "done"
         });
         setBusy(false);
