@@ -1,0 +1,40 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Secrets - CRITICAL: These files should NEVER be committed
+.aura_os_secrets/
+.aura_os_data/
+*.key
+*.pem
+*.private
+.secrets/
+secrets/
+
+# IDE and OS
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+Thumbs.db
+*.iml
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+debug/
+
+.gemini/
+data/
+Aurame-Os/
+scratch/
+intergration/
+.system_generated/
+.george/

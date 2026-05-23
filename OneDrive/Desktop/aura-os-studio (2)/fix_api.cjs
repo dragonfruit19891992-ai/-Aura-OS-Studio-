@@ -1,0 +1,10 @@
+const fs = require('fs');
+let c = fs.readFileSync('src/pages/StudioCore.tsx', 'utf8');
+c = c.replace(/import \{ Panel, PanelGroup, PanelResizeHandle \} from "react-resizable-panels";/g, 'import { Panel, Group, Separator } from "react-resizable-panels";');
+c = c.replace(/PanelGroup/g, 'Group');
+c = c.replace(/direction=/g, 'orientation=');
+c = c.replace(/PanelResizeHandle/g, 'Separator');
+c = c.replace(/order=\{\d+\} /g, '');
+c = c.replace(/autoSaveId/g, 'id');
+fs.writeFileSync('src/pages/StudioCore.tsx', c);
+console.log('Fixed API');
