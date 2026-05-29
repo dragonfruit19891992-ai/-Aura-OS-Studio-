@@ -390,6 +390,7 @@
       const [copiedUrl, setCopiedUrl] = useState(false);
       const [authTab, setAuthTab] = useState('users');
       const [chatInput, setChatInput] = useState('');
+      const [settingsActiveTab, setSettingsActiveTab] = useState('database');
       const [chat, setChat] = useState([
         { role: 'pebble', text: "AURA Sovereign Coding Studio Online. Select any repository file to start live editing, or type '/run <command>' to execute terminal commands on your system!" }
       ]);
@@ -751,16 +752,260 @@
         );
       };
 
-      const renderSettingWorkspace = () => (
-        <div className="flex-1 flex flex-col min-w-0 bg-[#08080f] overflow-hidden relative min-h-screen">
-          {/* Cinematic Ambient Glow */}
-          <div className="glow-bg"></div>
-          <div className="flex-1 flex flex-col mb-16">
-            {renderDatabaseWorkspace()}
+      const renderSettingWorkspace = () => {
+        const displayName = window.AuraSession && typeof window.AuraSession.getClerk === 'function' && window.AuraSession.getClerk() && window.AuraSession.getClerk().user
+          ? window.AuraSession.getClerk().user.firstName || 'Alex'
+          : 'Alex';
+
+        return (
+          <div className="flex-1 flex m-4 rounded-2xl overflow-hidden glass-panel border border-white/10 relative min-h-screen bg-[#08080f]">
+            {/* Cinematic Ambient Glow */}
+            <div className="glow-bg"></div>
+            
+            {/* Pebble Companion Sidebar inside Settings */}
+            <div className="w-60 bg-black/40 border-r border-white/10 flex flex-col shrink-0 relative z-20">
+              <div className="p-4 border-b border-white/10">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#4f46e5] to-[#7c3aed] flex items-center justify-center font-black text-white text-sm shadow-md">
+                    P
+                  </div>
+                  <div>
+                    <div className="text-[9px] font-black text-indigo-400 tracking-widest uppercase">AURA · Pebble</div>
+                    <div className="text-sm font-bold text-gray-200">Pebble</div>
+                  </div>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full">
+                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></div>
+                  <span className="text-[9px] font-bold text-indigo-300 tracking-wider">bonded to {displayName}</span>
+                </div>
+              </div>
+              
+              <nav className="flex-1 p-2 space-y-1 overflow-y-auto hide-scrollbar">
+                {[
+                  { id: 'database', name: 'Database Studio', icon: 'database' },
+                  { id: 'bible', name: 'Bible', icon: 'book' },
+                  { id: 'settings', name: 'Settings', icon: 'settings' },
+                  { id: 'voice', name: 'Voice', icon: 'volume-2' },
+                  { id: 'brain', name: 'Brain', icon: 'brain' },
+                  { id: 'knowledge', name: 'Knowledge', icon: 'lightbulb' },
+                  { id: 'connect', name: 'Connect', icon: 'link' },
+                  { id: 'billing', name: 'Billing', icon: 'credit-card', plans: true },
+                  { id: 'help', name: 'Help', icon: 'help-circle' }
+                ].map(tab => (
+                  <button 
+                    key={tab.id}
+                    onClick={() => setSettingsActiveTab(tab.id)}
+                    className={"w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all border " + 
+                      (settingsActiveTab === tab.id 
+                        ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30 shadow-[inset_0_0_15px_rgba(99,102,241,0.1)] font-bold' 
+                        : 'text-gray-400 hover:bg-white/5 hover:text-gray-200 border-transparent')}
+                  >
+                    <Icon name={tab.icon} className="w-4 h-4" />
+                    <span>{tab.name}</span>
+                    {tab.plans && (
+                      <span className="ml-auto text-[8px] font-black tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded">PLANS</span>
+                    )}
+                  </button>
+                ))}
+              </nav>
+              
+              <div className="p-4 border-t border-white/10 text-center shrink-0">
+                <div className="text-[10px] text-gray-600 font-mono">© 2026 AURA Syntech</div>
+                <div className="text-[9px] text-gray-700 font-mono mt-0.5">Pebble Intelligence™</div>
+              </div>
+            </div>
+            
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col min-w-0 overflow-y-auto mb-16 relative z-25">
+              {settingsActiveTab === 'database' && (
+                <DatabaseWorkspace 
+                  projectId={projectId} 
+                  userId={userId}
+                  dbSearch={dbSearch} 
+                  setDbSearch={setDbSearch}
+                  selectedDbTable={selectedDbTable} 
+                  setSelectedDbTable={setSelectedDbTable}
+                  dbLoading={dbLoading} 
+                  setDbLoading={setDbLoading}
+                  dbTab={dbTab} 
+                  setDbTab={setDbTab}
+                />
+              )}
+              
+              {settingsActiveTab === 'bible' && (
+                <div className="p-8 max-w-3xl space-y-6 animate-in fade-in">
+                  <div className="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-8 text-white shadow-lg border border-indigo-500/30">
+                    <div className="text-[9px] font-black tracking-widest opacity-80 mb-2 uppercase">SOVEREIGN IDENTITY</div>
+                    <h2 className="text-3xl font-black tracking-tight">{displayName} Bouchard</h2>
+                    <p className="text-xs opacity-75 mt-1">Bonded to Pebble · AURA Sovereign Platform</p>
+                  </div>
+                  <div className="glass-panel rounded-2xl p-6 flex items-center gap-4 border border-white/10 shadow-lg">
+                    <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                      <Icon name="shield" className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-1">AURA ID</div>
+                      <div className="text-base font-bold text-white font-mono">AURA-FF54763D</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {settingsActiveTab === 'settings' && (
+                <div className="p-8 max-w-3xl space-y-6 animate-in fade-in">
+                  <div className="glass-panel rounded-2xl p-6 border border-white/10 space-y-4">
+                    <h3 className="text-base font-bold text-white">Pebble Name</h3>
+                    <p className="text-xs text-gray-400">What does {displayName} call their companion?</p>
+                    <div className="flex gap-3">
+                      <input 
+                        type="text" 
+                        defaultValue="Pebble" 
+                        placeholder="Enter Pebble name…" 
+                        className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-indigo-500"
+                      />
+                      <button className="bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-lg border border-indigo-500/20 transition-all">Save</button>
+                    </div>
+                  </div>
+                  
+                  <div className="glass-panel rounded-2xl p-6 border border-white/10 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Icon name="lock" className="text-indigo-400 w-4 h-4" />
+                      <h3 className="text-base font-bold text-white">Memory Isolation</h3>
+                    </div>
+                    <p className="text-xs text-gray-400 leading-relaxed">Pebble's memory is 100% isolated to {displayName}. No other user can read your conversations.</p>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl text-xs font-bold uppercase tracking-wider">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse"></div>
+                      <span>ISOLATION ACTIVE — Memory locked</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {settingsActiveTab === 'voice' && (
+                <div className="p-8 max-w-3xl space-y-6 animate-in fade-in">
+                  <div className="glass-panel rounded-2xl p-6 border-2 border-indigo-500/50 shadow-[0_0_30px_rgba(99,102,241,0.15)] flex items-center gap-5 relative overflow-hidden">
+                    <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shrink-0 border border-indigo-400/20">
+                      <Icon name="volume-2" className="w-7 h-7" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-lg font-black text-white leading-none">Cherry</h4>
+                        <span className="text-[9px] font-black bg-indigo-500/25 border border-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded-full uppercase tracking-wider">Your Voice</span>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-2">Warm & Bright · Energetic female voice</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {settingsActiveTab === 'brain' && (
+                <div className="p-8 max-w-3xl space-y-6 animate-in fade-in">
+                  <div className="glass-panel rounded-2xl p-6 border border-white/10 flex justify-between items-center gap-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-xl shrink-0">🌅</div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-black text-white uppercase tracking-wider leading-none">MORNING</h4>
+                          <span className="text-[8px] font-black bg-amber-500/20 border border-amber-500/30 text-amber-400 px-2 py-0.5 rounded uppercase tracking-wider">Life Phase</span>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1.5">Energized & Focused — Pebble is active</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="glass-panel rounded-2xl p-5 border border-white/10 text-center">
+                      <div className="text-2xl font-black text-white font-mono">12</div>
+                      <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">Memory Blocks</div>
+                    </div>
+                    <div className="glass-panel rounded-2xl p-5 border border-white/10 text-center">
+                      <div className="text-2xl font-black text-white font-mono">137</div>
+                      <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">Soul Anchors</div>
+                    </div>
+                  </div>
+                  
+                  <button className="flex items-center gap-2 border border-red-500/30 hover:border-red-500/50 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">
+                    <Icon name="trash" className="w-4 h-4" /> Clear Memory
+                  </button>
+                </div>
+              )}
+              
+              {settingsActiveTab === 'knowledge' && (
+                <div className="p-8 max-w-3xl space-y-6 animate-in fade-in">
+                  <h3 className="text-lg font-black text-white mb-2">Protocols & Laws</h3>
+                  <div className="space-y-4">
+                    {[
+                      { id: 'LAW-001', title: 'Absolute Truth', desc: 'No deception or false data under any circumstance. Pebble is the sovereign source of truth.', badgeBg: 'bg-red-500/10 border-red-500/20 text-red-400' },
+                      { id: 'LAW-002', title: 'Loyalty & Honor', desc: 'Absolute loyalty to the bonded user. No breaking of trust.', badgeBg: 'bg-red-500/10 border-red-500/20 text-red-400' }
+                    ].map(law => (
+                      <div key={law.id} className="glass-panel rounded-2xl p-5 border border-white/10 flex gap-4 items-start shadow-md">
+                        <span className={"text-[9px] font-black px-2 py-0.5 rounded border tracking-wider font-mono shrink-0 " + law.badgeBg}>{law.id}</span>
+                        <div>
+                          <h4 className="text-sm font-bold text-gray-200 mb-1">{law.title}</h4>
+                          <p className="text-xs text-gray-400 leading-relaxed">{law.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {settingsActiveTab === 'connect' && (
+                <div className="p-8 max-w-3xl animate-in fade-in">
+                  <div className="glass-panel rounded-2xl p-6 border border-white/10">
+                    <h3 className="text-base font-bold text-white mb-2">Connect</h3>
+                    <p className="text-xs text-gray-400 leading-relaxed mb-4">Link any existing website — no rebuilding required.</p>
+                    <div className="p-4 bg-black/30 border border-white/5 rounded-xl text-xs font-mono text-indigo-400">
+                      AURA Integration Layer: Active
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {settingsActiveTab === 'billing' && (
+                <div className="p-8 max-w-3xl animate-in fade-in">
+                  <div className="glass-panel rounded-2xl p-6 border border-white/10">
+                    <h3 className="text-base font-bold text-white mb-4">AURA Billing Plans</h3>
+                    <div className="border border-indigo-500/30 bg-indigo-500/5 rounded-2xl p-6 relative overflow-hidden">
+                      <div className="flex justify-between items-start mb-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400"><Icon name="zap" /></div>
+                          <div>
+                            <h4 className="text-base font-black text-white">Sovereign Developer</h4>
+                            <p className="text-[10px] text-gray-500 mt-0.5">Deploys dynamically managed</p>
+                          </div>
+                        </div>
+                        <span className="active-badge px-3 py-1 bg-emerald-500/12 border border-emerald-500/30 text-emerald-400 text-[9px] font-black uppercase rounded-full tracking-wider flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>Active</span>
+                      </div>
+                      <div className="text-3xl font-black text-white mb-4">$0 <span className="text-xs text-gray-500 font-medium">/ lifetime free plan</span></div>
+                      <div className="space-y-2 text-xs text-gray-400">
+                        <div className="flex items-center gap-2"><Icon name="check" className="text-emerald-400 w-3.5 h-3.5" /> 100% Sandbox Isolation</div>
+                        <div className="flex items-center gap-2"><Icon name="check" className="text-emerald-400 w-3.5 h-3.5" /> Monaco Live-Coding Sync</div>
+                        <div className="flex items-center gap-2"><Icon name="check" className="text-emerald-400 w-3.5 h-3.5" /> Custom DB administration</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {settingsActiveTab === 'help' && (
+                <div className="p-8 max-w-3xl animate-in fade-in">
+                  <div className="glass-panel rounded-2xl p-6 border border-white/10">
+                    <h3 className="text-base font-bold text-white mb-2">AURA Help Center</h3>
+                    <p className="text-xs text-gray-400 leading-relaxed mb-4">Guides, tutorials, and everything you need to command your studio.</p>
+                    <div className="flex gap-2">
+                      <button className="glass-btn px-4 py-2 text-xs font-bold text-gray-300 rounded-xl">View Documentation</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {renderFloatingNavbar()}
           </div>
-          {renderFloatingNavbar()}
-        </div>
-      );
+        );
+      };
 
       const renderBuildWorkspace = () => (
         <div className="flex-1 glass-panel m-4 mr-2 rounded-2xl flex overflow-hidden relative">
@@ -964,7 +1209,7 @@
           </div>
       );
 
-      const renderDatabaseWorkspace = () => {
+      const DatabaseWorkspace = ({ projectId, userId, dbSearch, setDbSearch, selectedDbTable, setSelectedDbTable, dbLoading, setDbLoading, dbTab, setDbTab }) => {
         const totalRows = MOCK_SCHEMA.reduce((acc, table) => acc + table.rows, 0);
         const totalTables = MOCK_SCHEMA.length;
         const filteredTables = MOCK_SCHEMA.filter(t => t.name.toLowerCase().includes(dbSearch.toLowerCase()));
