@@ -142,27 +142,64 @@
     },
     {
       "site": "studio-5530652813-f1738",
-      "public": "portal/mycodes/dashboard",
+      "public": ".",
       "ignore": [
-        "**/node_modules/**"
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**",
+        "functions/**",
+        "db/**"
       ],
       "cleanUrls": true,
       "trailingSlash": false,
       "rewrites": [
         {
-          "source": "**",
-          "destination": "/index.html"
-        }
-      ],
-      "headers": [
+          "source": "/family",
+          "destination": "/portal/family/index.html"
+        },
         {
-          "source": "/**",
-          "headers": [
-            {
-              "key": "Cache-Control",
-              "value": "no-cache, no-store, must-revalidate"
-            }
-          ]
+          "source": "/personal",
+          "destination": "/portal/my/index.html"
+        },
+        {
+          "source": "/my",
+          "destination": "/portal/my/index.html"
+        },
+        {
+          "source": "/biz",
+          "destination": "/portal/biz/index.html"
+        },
+        {
+          "source": "/business",
+          "destination": "/portal/biz/index.html"
+        },
+        {
+          "source": "/lasso",
+          "destination": "/portal/lasso/index.html"
+        },
+        {
+          "source": "/rent",
+          "destination": "/portal/rent/index.html"
+        },
+        {
+          "source": "/phone-plans",
+          "destination": "/portal/phone-plans/index.html"
+        },
+        {
+          "source": "/cloud",
+          "destination": "/portal/cloud/index.html"
+        },
+        {
+          "source": "/domains",
+          "destination": "/portal/domains/index.html"
+        },
+        {
+          "source": "/me",
+          "destination": "/portal/me/index.html"
+        },
+        {
+          "source": "/radio",
+          "destination": "/portal/radio/index.html"
         }
       ]
     }
