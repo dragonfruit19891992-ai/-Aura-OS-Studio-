@@ -36,10 +36,11 @@ const Icons = {
 const firebaseConfig = {
   apiKey: "AIzaSyBMPHtnd8YPEb_6TgC5q0sbauSwVFFN3vA",
   authDomain: "studio-5530652813-f1738.firebaseapp.com",
+  databaseURL: "https://studio-5530652813-f1738-default-rtdb.firebaseio.com",
   projectId: "studio-5530652813-f1738",
   storageBucket: "studio-5530652813-f1738.firebasestorage.app",
   messagingSenderId: "389613471174",
-  appId: "1:389613471174:web:3159a2f7e07534f62b5ec7"
+  appId: "1:389613471174:web:3b12c95e908aa8c32b5ec7"
 };
 
 let authInstance = null;
