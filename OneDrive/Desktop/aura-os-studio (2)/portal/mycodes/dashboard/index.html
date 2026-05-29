@@ -392,7 +392,7 @@
       const [chatInput, setChatInput] = useState('');
       const [settingsActiveTab, setSettingsActiveTab] = useState('database');
       const [chat, setChat] = useState([
-        { role: 'pebble', text: "AURA Sovereign Coding Studio Online. Select any repository file to start live editing, or type '/run <command>' to execute terminal commands on your system!" }
+        { role: 'pebble', text: "Your sovereign ecosystem is online. Select a project or describe a new one to begin." }
       ]);
       const chatEndRef = useRef(null);
 
@@ -580,14 +580,14 @@
             ? window.AuraSession.getClerk().user.id
             : userId;
           
-          if (sub === '/coding') {
-            return `${prefix}/${projectId}/${activeUserId}/${projectId}`;
+          if (sub === '/coding' || sub === '/') {
+            return `${prefix}/`;
           }
-          if (sub === '/pebble') {
-            return `${prefix}/${projectId}/${activeUserId}/pebble`;
+          if (sub === '/pebble' || sub === '/chat') {
+            return `${prefix}/chat`;
           }
-          if (sub === '/setting') {
-            return `${prefix}/${projectId}/${activeUserId}/setting`;
+          if (sub === '/setting' || sub === '/settings') {
+            return `${prefix}/setting`;
           }
           return `${prefix}${sub}`;
         };
@@ -595,15 +595,15 @@
         return (
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2 glass-panel rounded-full px-6 py-3 flex items-center gap-8 border border-white/10 shadow-[0_15px_50px_rgba(0,0,0,0.6)] z-50">
             <button 
-              onClick={() => navigateTo(getPath('/coding'))} 
-              className={`flex items-center gap-2 text-xs font-bold tracking-wider transition-all ${currentView === 'coding' ? 'text-indigo-400 scale-105' : 'text-gray-400 hover:text-white'}`}
+              onClick={() => navigateTo(getPath('/'))} 
+              className={`flex items-center gap-2 text-xs font-bold tracking-wider transition-all ${currentView === 'welcome' ? 'text-indigo-400 scale-105' : 'text-gray-400 hover:text-white'}`}
             >
               <Icon name="code-2" className="w-3.5 h-3.5" />
               <span>AURA CODE</span>
             </button>
             <div className="h-4 w-px bg-white/10"></div>
             <button 
-              onClick={() => navigateTo(getPath('/pebble'))} 
+              onClick={() => navigateTo(getPath('/chat'))} 
               className={`flex items-center gap-2 text-xs font-bold tracking-wider transition-all ${currentView === 'pebble' ? 'text-indigo-400 scale-105' : 'text-gray-400 hover:text-white'}`}
             >
               <Icon name="message-square" className="w-3.5 h-3.5" />
@@ -624,79 +624,132 @@
       const renderWelcomeLandingPage = () => {
         const session = JSON.parse(localStorage.getItem("aura_session") || "{}");
         const displayName = session.name ? session.name.split(' ')[0] : 'Alex';
+        const activeUserId = window.AuraSession && typeof window.AuraSession.getClerk === 'function' && window.AuraSession.getClerk() && window.AuraSession.getClerk().user
+          ? window.AuraSession.getClerk().user.id
+          : userId;
 
         const getPath = (sub) => {
           const prefix = window.location.pathname.startsWith('/mycodes') ? '/mycodes' : '';
-          const activeUserId = window.AuraSession && typeof window.AuraSession.getClerk === 'function' && window.AuraSession.getClerk() && window.AuraSession.getClerk().user
-            ? window.AuraSession.getClerk().user.id
-            : userId;
           
-          if (sub === '/coding') {
-            return `${prefix}/${projectId}/${activeUserId}/${projectId}`;
+          if (sub === '/coding' || sub === '/') {
+            return `${prefix}/`;
           }
-          if (sub === '/pebble') {
-            return `${prefix}/${projectId}/${activeUserId}/pebble`;
+          if (sub === '/pebble' || sub === '/chat') {
+            return `${prefix}/chat`;
           }
-          if (sub === '/setting') {
-            return `${prefix}/${projectId}/${activeUserId}/setting`;
+          if (sub === '/setting' || sub === '/settings') {
+            return `${prefix}/setting`;
           }
           return `${prefix}${sub}`;
         };
+
+        const getIsolatedPath = (pId) => {
+          const prefix = window.location.pathname.startsWith('/mycodes') ? '/mycodes' : '';
+          return `${prefix}/${pId}/${activeUserId}/${pId}`;
+        };
+
+        const projects = [
+          { id: 'my-first-project', name: 'My First Project', desc: 'Sovereign Node.js workspace isolated with local sandbox and dedicated PostgreSQL instance.', status: 'Active Sandbox', tech: 'React · Tailwind · Postgres', icon: 'box', color: 'text-indigo-400 border-indigo-500/30' },
+          { id: 'portfolio', name: 'Personal Portfolio', desc: 'Static web application deployment hosted on your custom domain with Pebble edge CDN caching.', status: 'Deployed', tech: 'HTML5 · CSS3 · JS', icon: 'globe', color: 'text-emerald-400 border-emerald-500/30' },
+          { id: 'zoho-gateway', name: 'Zoho CRM Gateway', desc: 'Real-time webhook listener and transaction logs pipeline synchronizing Zoho Contacts data.', status: 'Standby', tech: 'Express · Webhooks', icon: 'layers', color: 'text-amber-400 border-amber-500/30' },
+        ];
 
         return (
           <div className="flex-1 flex flex-col items-center justify-center p-8 relative min-h-screen bg-[#08080f] select-none text-center">
             {/* Cinematic Ambient Glow */}
             <div className="glow-bg"></div>
 
-            <div className="max-w-xl w-full flex flex-col items-center gap-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
-              {/* Logo / Sparkles */}
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-3xl font-black text-white shadow-[0_0_30px_rgba(99,102,241,0.4)] mb-4">
-                A
+            {/* Top Dashboard Header */}
+            <div className="w-full max-w-6xl h-16 glass-panel border border-white/10 rounded-2xl flex items-center justify-between px-6 mb-12 shrink-0 z-20 shadow-[0_4px_30px_rgba(0,0,0,0.4)] animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-black text-white text-xs shadow-lg">A</div>
+                <span className="font-black tracking-widest text-sm uppercase text-white">AURA STUDIO</span>
+                <span className="text-[9px] font-black bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded uppercase tracking-wider">Dashboard</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-xl border border-white/5">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                  <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">Sovereign Live: {displayName}</span>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-indigo-600 border border-indigo-400/30 flex items-center justify-center font-bold text-white text-xs shadow-md">
+                  {displayName.charAt(0)}
+                </div>
+              </div>
+            </div>
+
+            <div className="max-w-6xl w-full flex flex-col gap-10 animate-in fade-in slide-in-from-bottom-6 duration-700 z-10">
+              {/* Welcome text */}
+              <div className="text-left">
+                <h1 className="text-4xl font-black tracking-tight text-white mb-2 leading-none">
+                  Welcome back, {displayName}.
+                </h1>
+                <p className="text-sm text-gray-400 font-medium">
+                  Your sovereign developer workspace and isolated databases are fully operational.
+                </p>
               </div>
 
-              {/* Welcome text */}
-              <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-1">
-                Welcome back, {displayName}.
-              </h1>
-              <p className="text-sm text-gray-400 font-medium">
-                Your sovereign ecosystem is online.
-              </p>
+              {/* Projects Grid Section */}
+              <div className="space-y-4 text-left">
+                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                  <h3 className="text-xs font-bold text-indigo-400 uppercase tracking-widest">Your Isolated Sandboxes</h3>
+                  <span className="text-[10px] text-gray-500 font-mono">3 / 10 active projects</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {projects.map((proj) => (
+                    <div 
+                      key={proj.id}
+                      onClick={() => navigateTo(getIsolatedPath(proj.id))}
+                      className="glass-panel border border-white/10 hover:border-indigo-500/50 rounded-2xl p-5 cursor-pointer transition-all flex flex-col justify-between group shadow-lg hover:shadow-indigo-500/5 hover:-translate-y-1 duration-300 relative overflow-hidden"
+                    >
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-start">
+                          <div className={"w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center " + proj.color + " transition-colors shadow-inner"}>
+                            <Icon name={proj.icon} className="w-5 h-5" />
+                          </div>
+                          <span className="text-[8px] font-black uppercase tracking-wider bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-gray-400 group-hover:border-indigo-500/30 group-hover:text-indigo-300">
+                            {proj.status}
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors leading-snug">{proj.name}</h4>
+                          <p className="text-xs text-gray-400 leading-relaxed line-clamp-3">{proj.desc}</p>
+                        </div>
+                      </div>
+                      <div className="pt-6 mt-6 border-t border-white/5 flex items-center justify-between text-[10px] font-mono text-gray-500 group-hover:text-indigo-400">
+                        <span>{proj.tech}</span>
+                        <Icon name="arrow-right" className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {/* Create project card */}
+                  <div className="border border-dashed border-white/20 hover:border-indigo-500/40 rounded-2xl p-5 cursor-pointer transition-all flex flex-col items-center justify-center text-center group bg-black/10 hover:bg-indigo-500/5 min-h-[220px]">
+                    <div className="w-10 h-10 rounded-full border border-dashed border-white/30 group-hover:border-indigo-500 flex items-center justify-center mb-3 transition-colors text-gray-400 group-hover:text-indigo-400 bg-black/20">
+                      <Icon name="plus" className="w-5 h-5" />
+                    </div>
+                    <span className="text-sm font-bold text-gray-400 group-hover:text-indigo-300 transition-colors">Create Sandbox</span>
+                    <span className="text-[10px] text-gray-500 mt-1">Spin up new isolated space</span>
+                  </div>
+                </div>
+              </div>
 
-              {/* Prompt bar */}
-              <div className="w-full relative mt-6">
-                {/* Glowing border outline */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+              {/* Build bar */}
+              <div className="w-full relative mt-4">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl blur opacity-25 group-hover:opacity-100 transition duration-1000"></div>
                 <div className="relative flex items-center bg-[#0d0c18] border border-white/10 rounded-2xl p-2 pl-4">
                   <Icon name="sparkles" className="w-5 h-5 text-indigo-400 mr-3" />
                   <input 
                     type="text" 
-                    placeholder="Describe what you want to build today..." 
+                    placeholder="Describe what you want to build today to bootstrap a new environment..." 
                     className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 outline-none"
                   />
                   <button 
-                    onClick={() => navigateTo(getPath('/coding'))}
-                    className="bg-[#1c1a30] hover:bg-indigo-600 border border-indigo-500/20 hover:border-indigo-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-[0_0_15px_rgba(99,102,241,0.2)] ml-2"
+                    onClick={() => navigateTo(getIsolatedPath('my-first-project'))}
+                    className="bg-[#1c1a30] hover:bg-indigo-600 border border-indigo-500/20 hover:border-indigo-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-[0_0_15px_rgba(99,102,241,0.2)] ml-2 flex items-center gap-1.5"
                   >
-                    Build it
+                    <Icon name="play" className="w-3.5 h-3.5" /> Launch IDE
                   </button>
                 </div>
-              </div>
-
-              {/* My First Project Card */}
-              <div 
-                onClick={() => navigateTo(getPath('/coding'))}
-                className="w-full flex items-center justify-between bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl p-4 cursor-pointer transition-all mt-8 group"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all shadow-inner">
-                    <Icon name="box" className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <h4 className="text-sm font-bold text-white leading-snug">My First Project</h4>
-                    <p className="text-[9px] font-black tracking-widest text-[#00E5FF] uppercase mt-0.5">ISOLATED SANDBOX</p>
-                  </div>
-                </div>
-                <Icon name="chevron-right" className="w-5 h-5 text-gray-500 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all" />
               </div>
             </div>
 
@@ -707,46 +760,140 @@
       };
 
       const renderPebbleChatWorkspace = () => {
+        const session = JSON.parse(localStorage.getItem("aura_session") || "{}");
+        const displayName = session.name ? session.name.split(' ')[0] : 'Alex';
+        
+        const getPath = (sub) => {
+          const prefix = window.location.pathname.startsWith('/mycodes') ? '/mycodes' : '';
+          
+          if (sub === '/coding' || sub === '/') {
+            return `${prefix}/`;
+          }
+          if (sub === '/pebble' || sub === '/chat') {
+            return `${prefix}/chat`;
+          }
+          if (sub === '/setting' || sub === '/settings') {
+            return `${prefix}/setting`;
+          }
+          return `${prefix}${sub}`;
+        };
+
+        const handleClearChat = () => {
+          setChat([
+            { role: 'pebble', text: "Your sovereign ecosystem is online. Select a project or describe a new one to begin." }
+          ]);
+        };
+
         return (
           <div className="flex-1 flex m-4 rounded-2xl overflow-hidden glass-panel border border-white/10 relative min-h-screen bg-[#08080f]">
             {/* Cinematic Ambient Glow */}
             <div className="glow-bg"></div>
-            <div className="flex-1 flex flex-col bg-black/10">
-              <div className="h-14 border-b border-white/10 bg-black/40 flex items-center justify-between px-6 shrink-0 relative z-20">
-                <div className="flex items-center">
-                  <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-pink-500 rounded-md flex items-center justify-center text-white font-bold text-xs mr-2 shadow-[0_0_10px_rgba(168,85,247,0.5)]">P</div>
-                  <span className="text-sm font-bold text-gray-200">Pebble Chat Hub</span>
-                  <span className="ml-2.5 text-[9px] uppercase tracking-wider font-bold bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30">
-                    bonded to {displayName} ({projectId})
-                  </span>
+
+            {/* Left Sidebar */}
+            <div className="w-64 border-r border-white/10 bg-[#0c0c16]/90 backdrop-blur-md flex flex-col shrink-0 relative z-20">
+              <div className="p-4 border-b border-white/10 flex items-center justify-between">
+                <span className="text-gray-400 font-bold uppercase tracking-wider text-[11px]">My Projects</span>
+                <button className="bg-[#5f5cf8] hover:bg-[#4f4be5] text-white p-1 rounded-md transition-all flex items-center justify-center shadow-md cursor-pointer" title="Create New Project">
+                  <Icon name="plus" className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-3 space-y-2 hide-scrollbar">
+                <div className="bg-[#5f5cf8]/20 border border-[#5f5cf8]/35 rounded-xl px-4 py-3 text-sm text-indigo-300 font-bold flex items-center gap-2 cursor-pointer shadow-md">
+                  <div className="w-2.5 h-2.5 rounded-full bg-indigo-400 animate-pulse"></div>
+                  <span className="truncate">My First Project</span>
+                </div>
+                <div className="hover:bg-white/5 border border-transparent rounded-xl px-4 py-3 text-sm text-gray-400 flex items-center gap-2 cursor-pointer transition-all hover:text-white">
+                  <div className="w-2.5 h-2.5 rounded-full bg-gray-500"></div>
+                  <span className="truncate">Personal Portfolio</span>
+                </div>
+                <div className="hover:bg-white/5 border border-transparent rounded-xl px-4 py-3 text-sm text-gray-400 flex items-center gap-2 cursor-pointer transition-all hover:text-white">
+                  <div className="w-2.5 h-2.5 rounded-full bg-gray-500"></div>
+                  <span className="truncate">Zoho CRM Gateway</span>
                 </div>
               </div>
-              <div className="flex-1 p-6 overflow-y-auto flex flex-col gap-4 max-w-4xl mx-auto w-full hide-scrollbar">
-                {chat.map((msg, i) => (
-                  <div key={i} className={"flex " + (msg.role === 'user' ? 'justify-end' : 'justify-start')}>
-                    <div className={"max-w-[75%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed " + (msg.role === 'user' ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-tr-sm shadow-lg' : 'bg-white/5 border border-white/10 text-gray-300 rounded-tl-sm shadow-[0_8px_32px_rgba(0,0,0,0.15)]')}>
-                      {msg.text}
+              <div className="p-4 border-t border-white/10 text-center shrink-0">
+                <div className="text-[10px] text-gray-600 font-mono">Pebble Workspace Core</div>
+              </div>
+            </div>
+
+            {/* Main Chat Hub Content */}
+            <div className="flex-1 flex flex-col bg-black/10 min-w-0 relative">
+              {/* Top Header */}
+              <div className="h-16 border-b border-white/10 bg-[#08080f]/60 backdrop-blur-md flex items-center justify-between px-6 shrink-0 relative z-20">
+                <div className="flex items-center">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center font-black text-white text-base shadow-[0_0_15px_rgba(168,85,247,0.4)] mr-3">P</div>
+                  <span className="text-base font-bold text-white tracking-wide">Me Chat</span>
+                  <span className="ml-3 text-[10px] uppercase tracking-wider font-bold bg-[#5f5cf8]/20 border border-[#5f5cf8]/30 text-indigo-300 px-3 py-0.5 rounded-full">
+                    Global Whiteboard
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={handleClearChat} className="flex items-center gap-1.5 px-3 py-1.5 border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold text-gray-400 hover:text-white transition-all cursor-pointer">
+                    <Icon name="brush" className="w-3.5 h-3.5" />
+                    <span>Clear</span>
+                  </button>
+                  <button onClick={() => navigateTo(getPath('/'))} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors ml-1 cursor-pointer" title="Back to Dashboard">
+                    <Icon name="x" className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Message Feed Area */}
+              <div className="flex-1 p-6 overflow-y-auto flex flex-col gap-6 hide-scrollbar max-w-4xl mx-auto w-full relative z-10">
+                {chat.map((msg, i) => {
+                  const isEcosystemWelcome = msg.text === "Your sovereign ecosystem is online. Select a project or describe a new one to begin.";
+                  
+                  if (msg.role === 'pebble' && isEcosystemWelcome) {
+                    return (
+                      <div key={i} className="flex items-start gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                        <div className="w-9 h-9 rounded-full bg-pink-600/35 border border-pink-500/40 flex items-center justify-center font-bold text-white text-sm shrink-0">P</div>
+                        <div className="max-w-[80%] rounded-2xl px-5 py-3.5 text-sm bg-white/5 border border-white/10 text-gray-300 rounded-tl-sm shadow-[0_8px_32px_rgba(0,0,0,0.15)] leading-relaxed">
+                          {msg.text}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div key={i} className={"flex items-start gap-4 " + (msg.role === 'user' ? 'justify-end' : 'justify-start')}>
+                      {msg.role === 'pebble' && (
+                        <div className="w-9 h-9 rounded-full bg-pink-600/35 border border-pink-500/40 flex items-center justify-center font-bold text-white text-sm shrink-0">P</div>
+                      )}
+                      <div className={"max-w-[75%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed " + 
+                        (msg.role === 'user' 
+                          ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-tr-sm shadow-lg' 
+                          : 'bg-white/5 border border-white/10 text-gray-300 rounded-tl-sm shadow-[0_8px_32px_rgba(0,0,0,0.15)]')}
+                      >
+                        {msg.text}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 <div ref={chatEndRef} />
               </div>
-              <div className="p-4 bg-black/30 border-t border-white/10 flex justify-center shrink-0 mb-16">
-                <div className="relative max-w-4xl w-full">
+
+              {/* Chat Input Container */}
+              <div className="p-4 flex justify-center shrink-0 mb-16 relative z-20">
+                <div className="relative max-w-3xl w-full flex items-center bg-[#0d0c18] border border-white/10 rounded-full p-2.5 pl-3 pr-2 focus-within:border-indigo-500 transition-all shadow-inner">
+                  <button className="p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-full transition-colors flex items-center justify-center shrink-0" title="Simulate voice typing">
+                    <Icon name="mic" className="w-4 h-4" />
+                  </button>
                   <input 
                     type="text" 
                     value={chatInput} 
                     onChange={(e) => setChatInput(e.target.value)} 
                     onKeyDown={handleSendMessage} 
-                    placeholder="Ask Pebble to build, configure, or analyze..." 
-                    className="w-full bg-black/40 border border-white/10 focus:border-indigo-500 rounded-2xl py-3.5 pl-5 pr-12 text-sm text-white outline-none transition-all shadow-inner" 
+                    placeholder="Start thinking..." 
+                    className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 outline-none pl-3 pr-4" 
                   />
-                  <button onClick={handleSendMessage} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-indigo-400 transition-colors">
-                    <Icon name="sparkles" className="w-5 h-5" />
+                  <button onClick={handleSendMessage} className="bg-[#a21caf] hover:bg-[#86198f] text-white p-2.5 rounded-full shadow-[0_0_15px_rgba(162,28,175,0.4)] hover:shadow-[0_0_20px_rgba(162,28,175,0.6)] transition-all flex items-center justify-center shrink-0 cursor-pointer">
+                    <Icon name="send" className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             </div>
+
+            {/* Bottom Nav Bar */}
             {renderFloatingNavbar()}
           </div>
         );
@@ -1722,15 +1869,15 @@
         ? (rawPath.replace('/mycodes', '') || '/') 
         : (rawPath || '/');
 
-      if (normalizedPath === '/') {
+      if (currentView === 'welcome') {
         return renderWelcomeLandingPage();
       }
 
-      if (normalizedPath === '/pebble' || normalizedPath === '/chat') {
+      if (currentView === 'pebble') {
         return renderPebbleChatWorkspace();
       }
 
-      if (normalizedPath === '/setting' || normalizedPath === '/settings') {
+      if (currentView === 'setting') {
         return renderSettingWorkspace();
       }
 
