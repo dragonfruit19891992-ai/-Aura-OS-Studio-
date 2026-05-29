@@ -276,6 +276,21 @@
     };
 
     function App() {
+      const [currentPath, setCurrentPath] = useState(window.location.pathname);
+
+      useEffect(() => {
+        const handlePopState = () => {
+          setCurrentPath(window.location.pathname);
+        };
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+      }, []);
+
+      const navigateTo = (path) => {
+        window.history.pushState(null, '', path);
+        setCurrentPath(path);
+      };
+
       const [mode, setMode] = useState('build'); // 'build' | 'audit'
       const [activeWorkspace, setActiveWorkspace] = useState('editor');
       const [dbTab, setDbTab] = useState('overview');
@@ -466,6 +481,159 @@
         if (status === 'warning') return <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></div>;
         if (status === 'error') return <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></div>;
       };
+
+      const renderFloatingNavbar = () => {
+        const normalizedPath = currentPath.replace(/\/$/, '');
+        return (
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 glass-panel rounded-full px-6 py-3 flex items-center gap-8 border border-white/10 shadow-[0_15px_50px_rgba(0,0,0,0.6)] z-50">
+            <button 
+              onClick={() => navigateTo('/mycodes/coding')} 
+              className={`flex items-center gap-2 text-xs font-bold tracking-wider transition-all ${normalizedPath === '/mycodes/coding' ? 'text-indigo-400 scale-105' : 'text-gray-400 hover:text-white'}`}
+            >
+              <Icon name="code-2" className="w-3.5 h-3.5" />
+              <span>AURA CODE</span>
+            </button>
+            <div className="h-4 w-px bg-white/10"></div>
+            <button 
+              onClick={() => navigateTo('/mycodes/pebble')} 
+              className={`flex items-center gap-2 text-xs font-bold tracking-wider transition-all ${normalizedPath === '/mycodes/pebble' ? 'text-indigo-400 scale-105' : 'text-gray-400 hover:text-white'}`}
+            >
+              <Icon name="message-square" className="w-3.5 h-3.5" />
+              <span>ME CHAT</span>
+            </button>
+            <div className="h-4 w-px bg-white/10"></div>
+            <button 
+              onClick={() => navigateTo('/mycodes/setting')} 
+              className={`flex items-center gap-2 text-xs font-bold tracking-wider transition-all ${normalizedPath === '/mycodes/setting' || normalizedPath === '/mycodes/settings' ? 'text-indigo-400 scale-105' : 'text-gray-400 hover:text-white'}`}
+            >
+              <Icon name="settings" className="w-3.5 h-3.5" />
+              <span>SETTINGS & BILLING</span>
+            </button>
+          </div>
+        );
+      };
+
+      const renderWelcomeLandingPage = () => {
+        const session = JSON.parse(localStorage.getItem("aura_session") || "{}");
+        const displayName = session.name ? session.name.split(' ')[0] : 'Alex';
+
+        return (
+          <div className="flex-1 flex flex-col items-center justify-center p-8 relative min-h-screen bg-[#08080f] select-none text-center">
+            {/* Cinematic Ambient Glow */}
+            <div className="glow-bg"></div>
+
+            <div className="max-w-xl w-full flex flex-col items-center gap-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
+              {/* Logo / Sparkles */}
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-3xl font-black text-white shadow-[0_0_30px_rgba(99,102,241,0.4)] mb-4">
+                A
+              </div>
+
+              {/* Welcome text */}
+              <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-1">
+                Welcome back, {displayName}.
+              </h1>
+              <p className="text-sm text-gray-400 font-medium">
+                Your sovereign ecosystem is online.
+              </p>
+
+              {/* Prompt bar */}
+              <div className="w-full relative mt-6">
+                {/* Glowing border outline */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                <div className="relative flex items-center bg-[#0d0c18] border border-white/10 rounded-2xl p-2 pl-4">
+                  <Icon name="sparkles" className="w-5 h-5 text-indigo-400 mr-3" />
+                  <input 
+                    type="text" 
+                    placeholder="Describe what you want to build today..." 
+                    className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 outline-none"
+                  />
+                  <button 
+                    onClick={() => navigateTo('/mycodes/coding')}
+                    className="bg-[#1c1a30] hover:bg-indigo-600 border border-indigo-500/20 hover:border-indigo-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-[0_0_15px_rgba(99,102,241,0.2)] ml-2"
+                  >
+                    Build it
+                  </button>
+                </div>
+              </div>
+
+              {/* My First Project Card */}
+              <div 
+                onClick={() => navigateTo('/mycodes/coding')}
+                className="w-full flex items-center justify-between bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl p-4 cursor-pointer transition-all mt-8 group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-all shadow-inner">
+                    <Icon name="box" className="w-5 h-5" />
+                  </div>
+                  <div className="text-left">
+                    <h4 className="text-sm font-bold text-white leading-snug">My First Project</h4>
+                    <p className="text-[9px] font-black tracking-widest text-[#00E5FF] uppercase mt-0.5">ISOLATED SANDBOX</p>
+                  </div>
+                </div>
+                <Icon name="chevron-right" className="w-5 h-5 text-gray-500 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all" />
+              </div>
+            </div>
+
+            {/* Bottom floating nav bar */}
+            {renderFloatingNavbar()}
+          </div>
+        );
+      };
+
+      const renderPebbleChatWorkspace = () => {
+        return (
+          <div className="flex-1 flex m-4 rounded-2xl overflow-hidden glass-panel border border-white/10 relative min-h-screen bg-[#08080f]">
+            {/* Cinematic Ambient Glow */}
+            <div className="glow-bg"></div>
+            <div className="flex-1 flex flex-col bg-black/10">
+              <div className="h-14 border-b border-white/10 bg-black/40 flex items-center justify-between px-6 shrink-0 relative z-20">
+                <div className="flex items-center">
+                  <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-pink-500 rounded-md flex items-center justify-center text-white font-bold text-xs mr-2 shadow-[0_0_10px_rgba(168,85,247,0.5)]">P</div>
+                  <span className="text-sm font-bold text-gray-200">Pebble Chat Hub</span>
+                  <span className="ml-2.5 text-[9px] uppercase tracking-wider font-bold bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30">bonded to Alex</span>
+                </div>
+              </div>
+              <div className="flex-1 p-6 overflow-y-auto flex flex-col gap-4 max-w-4xl mx-auto w-full hide-scrollbar">
+                {chat.map((msg, i) => (
+                  <div key={i} className={"flex " + (msg.role === 'user' ? 'justify-end' : 'justify-start')}>
+                    <div className={"max-w-[75%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed " + (msg.role === 'user' ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-tr-sm shadow-lg' : 'bg-white/5 border border-white/10 text-gray-300 rounded-tl-sm shadow-[0_8px_32px_rgba(0,0,0,0.15)]')}>
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+                <div ref={chatEndRef} />
+              </div>
+              <div className="p-4 bg-black/30 border-t border-white/10 flex justify-center shrink-0 mb-16">
+                <div className="relative max-w-4xl w-full">
+                  <input 
+                    type="text" 
+                    value={chatInput} 
+                    onChange={(e) => setChatInput(e.target.value)} 
+                    onKeyDown={handleSendMessage} 
+                    placeholder="Ask Pebble to build, configure, or analyze..." 
+                    className="w-full bg-black/40 border border-white/10 focus:border-indigo-500 rounded-2xl py-3.5 pl-5 pr-12 text-sm text-white outline-none transition-all shadow-inner" 
+                  />
+                  <button onClick={handleSendMessage} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-indigo-400 transition-colors">
+                    <Icon name="sparkles" className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            {renderFloatingNavbar()}
+          </div>
+        );
+      };
+
+      const renderSettingWorkspace = () => (
+        <div className="flex-1 flex flex-col min-w-0 bg-[#08080f] overflow-hidden relative min-h-screen">
+          {/* Cinematic Ambient Glow */}
+          <div className="glow-bg"></div>
+          <div className="flex-1 flex flex-col mb-16">
+            {renderDatabaseWorkspace()}
+          </div>
+          {renderFloatingNavbar()}
+        </div>
+      );
 
       const renderBuildWorkspace = () => (
         <div className="flex-1 glass-panel m-4 mr-2 rounded-2xl flex overflow-hidden relative">
@@ -1166,6 +1334,20 @@
         );
       };
 
+      const normalizedPath = currentPath.replace(/\/$/, '');
+
+      if (normalizedPath === '/mycodes' || normalizedPath === '/mycodes/') {
+        return renderWelcomeLandingPage();
+      }
+
+      if (normalizedPath === '/mycodes/pebble') {
+        return renderPebbleChatWorkspace();
+      }
+
+      if (normalizedPath === '/mycodes/setting' || normalizedPath === '/mycodes/settings') {
+        return renderSettingWorkspace();
+      }
+
       return (
         <div className="flex flex-col h-screen w-full relative z-10 text-gray-200">
           {/* Header */}
@@ -1242,6 +1424,7 @@
             ) : renderAuditWorkspace()}
 
           </div>
+          {renderFloatingNavbar()}
         </div>
       );
     }
