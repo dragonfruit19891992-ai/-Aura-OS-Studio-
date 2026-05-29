@@ -61,15 +61,6 @@
     .anti-gravity-item:hover { transform: translateY(-5px) scale(1.02) !important; box-shadow: 0 15px 30px rgba(0, 255, 200, 0.15); animation-play-state: paused; }
   </style>
 
-  <!-- Load Frontend Core Layer -->
-  <script src="core/config.js"></script>
-  <script src="core/sessionManager.js"></script>
-  <script src="core/firebaseBridge.js"></script>
-  <script src="core/workspaceResolver.js"></script>
-  <script src="core/permissionsEngine.js"></script>
-  <script src="core/guards.js"></script>
-</head>
-<body>
   <script>
     // Global Error Catcher for premium diagnostics
     window.onerror = function(message, source, lineno, colno, error) {
@@ -82,10 +73,74 @@
       document.body.appendChild(errBox);
       document.body.style.display = 'block'; // Ensure body is visible to show error
     };
-
-    // Enforce Sovereign Identity Guard immediately before rendering OS
-    window.AuraGuards.requireAuth();
   </script>
+
+  <!-- Dynamic Core Layer Loader -->
+  <script>
+    (function() {
+      // Apply initial black screen covering the UI during script loading
+      document.body.style.display = 'none';
+
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const prefix = isLocalhost ? '/portal/mycodes/dashboard/core/' : '/core/';
+      const files = [
+        'config.js',
+        'sessionManager.js',
+        'firebaseBridge.js',
+        'workspaceResolver.js',
+        'permissionsEngine.js',
+        'guards.js'
+      ];
+      
+      let index = 0;
+      function loadNext() {
+        if (index >= files.length) {
+          console.log("AURA Core: Secure loading sequence completed.");
+          if (window.AuraGuards && typeof window.AuraGuards.requireAuth === 'function') {
+            window.AuraGuards.requireAuth().then(allowed => {
+              if (allowed) {
+                console.log("AURA Core: Auth guard verification passed.");
+              }
+            }).catch(err => {
+              console.error("AURA Core: Security guard failed during verification:", err);
+            });
+          } else {
+            console.error("AURA Core: Security guards could not be initialized.");
+            document.body.style.display = 'block';
+          }
+          return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = prefix + files[index] + '?v=' + Date.now();
+        script.onload = () => {
+          index++;
+          loadNext();
+        };
+        script.onerror = (e) => {
+          console.error("AURA Core Critical Error: Failed to load core system file: " + script.src, e);
+          if (isLocalhost && !script.src.includes('/core/')) {
+            console.log("AURA Core: Attempting absolute root fallback...");
+            script.src = '/core/' + files[index] + '?v=' + Date.now();
+            script.onload = () => {
+              index++;
+              loadNext();
+            };
+            script.onerror = () => {
+              window.onerror("Failed to load core script in both workspace and root fallback locations: " + files[index], window.location.href, 0, 0);
+            };
+          } else {
+            window.onerror("Failed to load core script: " + files[index], window.location.href, 0, 0);
+          }
+        };
+        document.head.appendChild(script);
+      }
+      
+      loadNext();
+    })();
+  </script>
+</head>
+<body>
   <div class="glow-bg"></div>
   <div id="root"></div>
 
@@ -1346,17 +1401,20 @@
         );
       };
 
-      const normalizedPath = currentPath.replace(/\/$/, '');
+      const rawPath = currentPath.toLowerCase().replace(/\/$/, '');
+      const normalizedPath = rawPath.startsWith('/mycodes') 
+        ? (rawPath.replace('/mycodes', '') || '/') 
+        : (rawPath || '/');
 
-      if (normalizedPath === '/mycodes' || normalizedPath === '/mycodes/') {
+      if (normalizedPath === '/') {
         return renderWelcomeLandingPage();
       }
 
-      if (normalizedPath === '/mycodes/pebble') {
+      if (normalizedPath === '/pebble' || normalizedPath === '/chat') {
         return renderPebbleChatWorkspace();
       }
 
-      if (normalizedPath === '/mycodes/setting' || normalizedPath === '/mycodes/settings') {
+      if (normalizedPath === '/setting' || normalizedPath === '/settings') {
         return renderSettingWorkspace();
       }
 
