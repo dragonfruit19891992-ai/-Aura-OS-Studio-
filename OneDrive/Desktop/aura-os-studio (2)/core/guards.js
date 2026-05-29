@@ -2,6 +2,14 @@
 window.AuraGuards = (function() {
     return {
         requireAuth: async function() {
+            // Localhost developer bypass for local testing & design preview
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            if (isLocalhost) {
+                console.log("Aura OS Core: Localhost developer bypass active.");
+                document.body.style.display = 'block';
+                return true;
+            }
+
             // Apply initial black screen covering the UI
             document.body.style.display = 'none';
 
