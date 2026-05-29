@@ -62,15 +62,27 @@
   </style>
 
   <!-- Load Frontend Core Layer -->
-  <script src="../../core/config.js"></script>
-  <script src="../../core/sessionManager.js"></script>
-  <script src="../../core/firebaseBridge.js"></script>
-  <script src="../../core/workspaceResolver.js"></script>
-  <script src="../../core/permissionsEngine.js"></script>
-  <script src="../../core/guards.js"></script>
+  <script src="/core/config.js"></script>
+  <script src="/core/sessionManager.js"></script>
+  <script src="/core/firebaseBridge.js"></script>
+  <script src="/core/workspaceResolver.js"></script>
+  <script src="/core/permissionsEngine.js"></script>
+  <script src="/core/guards.js"></script>
 </head>
 <body>
   <script>
+    // Global Error Catcher for premium diagnostics
+    window.onerror = function(message, source, lineno, colno, error) {
+      const errBox = document.createElement('div');
+      errBox.style.cssText = 'position:fixed; top:20px; left:20px; right:20px; background:rgba(220,38,38,0.95); border:1px solid #ef4444; color:#fff; padding:20px; border-radius:12px; font-family:monospace; font-size:12px; z-index:999999; box-shadow:0 10px 30px rgba(0,0,0,0.5); backdrop-filter:blur(10px); line-height:1.5;';
+      errBox.innerHTML = '<div style="font-weight:bold; font-size:14px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">⚠️ AURA System Crash Log</div>' + 
+                         '<div><strong>Message:</strong> ' + message + '</div>' +
+                         '<div style="margin-top:4px;"><strong>Source:</strong> ' + source + '</div>' +
+                         '<div style="margin-top:4px;"><strong>Line:</strong> ' + lineno + ' | <strong>Column:</strong> ' + colno + '</div>';
+      document.body.appendChild(errBox);
+      document.body.style.display = 'block'; // Ensure body is visible to show error
+    };
+
     // Enforce Sovereign Identity Guard immediately before rendering OS
     window.AuraGuards.requireAuth();
   </script>
