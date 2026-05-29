@@ -144,6 +144,54 @@
     .footer-container { max-width: 1120px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
     .footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
     .footer-link { font-size: 12px; color: rgba(255,255,255,0.25); text-decoration: none; font-weight: 500; }
+
+    /* ── TRUE OATH IN-PAGE LOGIN MODAL ── */
+    .auth-modal-backdrop {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(4, 6, 14, 0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+      animation: modalFadeIn 0.25s ease-out;
+    }
+    .auth-modal-backdrop.open { display: flex; }
+    .auth-modal-content {
+      width: 100%; max-width: 440px;
+      background: rgba(15, 22, 34, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 28px; padding: 40px 32px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(16, 185, 129, 0.04);
+      animation: modalRiseUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+    }
+    @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes modalRiseUp { from { opacity: 0; transform: translateY(20px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+    .auth-modal-close {
+      position: absolute; top: 20px; right: 20px;
+      background: transparent; border: none; color: #64748b; font-size: 24px; cursor: pointer;
+      width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .auth-modal-close:hover { background: rgba(255, 255, 255, 0.05); color: #f87171; }
+
+    .auth-brand { display: flex; flex-direction: column; align-items: center; margin-bottom: 28px; }
+    .auth-logo-box {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+      margin-bottom: 16px;
+    }
+    .auth-title { font-size: 22px; font-weight: 900; letter-spacing: -0.02em; color: #fff; margin-bottom: 6px; }
+    .auth-subtitle { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.12em; }
+
+    .auth-clerk-mount { width: 100%; min-height: 280px; }
+
+    .auth-secure-badge {
+      display: flex; align-items: center; gap: 6px; margin-top: 24px;
+      font-size: 10px; font-weight: 700; color: #34d399; text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .auth-secure-dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 10px #34d399; }
   </style>
 </head>
 <body>
@@ -167,7 +215,8 @@
         <a href="#features" class="nav-link">Features</a>
         <a href="#pricing" class="nav-link">Pricing</a>
         <a href="#faq" class="nav-link">FAQ</a>
-        <a href="/login/" class="nav-cta">Get started</a>
+        <a href="#" onclick="openAuthModal(event)" class="nav-signin" style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.15s; margin-right: 8px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">Sign in</a>
+        <a href="#" onclick="openAuthModal(event)" class="nav-cta">Get started</a>
       </div>
     </div>
   </nav>
@@ -206,7 +255,7 @@
             <span style="font-size: 15px; font-weight: 700;" id="result-domain-full">brand.ca</span>
             <span style="font-size: 11px; color: rgba(255,255,255,0.3); font-weight: 400;">— assumed available, verify on sign-up</span>
           </div>
-          <a href="/login/" style="padding: 6px 16px; background: #10b981; border-radius: 7px; font-size: 12px; font-weight: 700; color: #fff; text-decoration: none;">Claim it →</a>
+          <a href="#" onclick="openAuthModal(event)" style="padding: 6px 16px; background: #10b981; border-radius: 7px; font-size: 12px; font-weight: 700; color: #fff; text-decoration: none;">Claim it →</a>
         </div>
         <div class="result-row" style="padding: 14px 20px;">
           <div style="display: flex; align-items: center; gap: 10px;">
@@ -323,7 +372,7 @@
       <h2 class="cta-title">Your domain is waiting.</h2>
       <p class="cta-desc">Start with a free AURA subdomain, or pick up a custom domain on the Spark plan for $9/month. You can upgrade, downgrade, or cancel any time.</p>
       <div class="cta-buttons">
-        <a href="/login/" class="btn-cta-primary">Create AURA Identity — it's free</a>
+        <a href="#" onclick="openAuthModal(event)" class="btn-cta-primary">Create AURA Identity — it's free</a>
         <a href="/" class="btn-cta-secondary">← Back to AURA</a>
       </div>
       <p style="margin-top: 24px; font-size: 12px; color: rgba(255,255,255,0.2); letter-spacing: 0.04em; text-transform: uppercase;">No credit card required for free tier · Cancel anytime · Canadian company</p>
@@ -447,7 +496,7 @@
               ${p.features.map(f => `<li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" style="margin-top:2px; flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>${f}</li>`).join('')}
             </ul>
 
-            <a href="/" class="price-btn" style="${btnStyle}">${price === 0 ? 'Start free' : 'Get '+p.name}</a>
+            <a href="#" onclick="openAuthModal(event)" class="price-btn" style="${btnStyle}">${price === 0 ? 'Start free' : 'Get '+p.name}</a>
           </div>
         `;
       }).join('');
@@ -491,6 +540,135 @@
       </div>
     `).join('');
 
+  </script>
+
+  <!-- True Oath Login Modal Overlay -->
+  <div class="auth-modal-backdrop" id="auth-modal" onclick="closeAuthModal()">
+    <div class="auth-modal-content" onclick="event.stopPropagation()">
+      <button class="auth-modal-close" onclick="closeAuthModal()">×</button>
+      <div class="auth-brand">
+        <div class="auth-logo-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="auth-title">True Oath</div>
+        <div class="auth-subtitle">Sovereign Identity Protocol</div>
+      </div>
+      
+      <!-- Clerk mounts here -->
+      <div id="aura-clerk-mount" class="auth-clerk-mount"></div>
+
+      <div class="auth-secure-badge">
+        <div class="auth-secure-dot"></div>
+        256-BIT ENCRYPTED CONNECTION
+      </div>
+    </div>
+  </div>
+
+  <!-- Load AURA Frontend Core Layers -->
+  <script src="/core/config.js"></script>
+  <script src="/core/sessionManager.js"></script>
+
+  <script>
+    let isClerkInitialized = false;
+
+    async function initClerkSSO() {
+      if (isClerkInitialized) return;
+      try {
+        const Clerk = await window.AuraSession.init();
+        
+        // If user is already logged in, redirect them immediately to the pebble subdomain!
+        if (Clerk.user) {
+          window.location.href = 'https://pebble.aurame.ca/';
+          return;
+        }
+
+        const clerkMountDiv = document.getElementById('aura-clerk-mount');
+        Clerk.mountSignIn(clerkMountDiv, {
+          routing: 'hash',
+          appearance: {
+            variables: {
+              colorPrimary: '#10b981',
+              colorBackground: 'transparent',
+              colorText: '#ffffff',
+              colorInputBackground: 'rgba(255, 255, 255, 0.05)',
+              colorInputText: '#ffffff',
+              colorTextOnPrimaryBackground: '#ffffff'
+            },
+            elements: {
+              card: { background: 'transparent', boxShadow: 'none' },
+              headerTitle: { display: 'none' },
+              headerSubtitle: { display: 'none' },
+              footer: { display: 'none' },
+              socialButtonsBlockButton: { border: '1px solid rgba(255,255,255,0.1)' },
+              dividerLine: { background: 'rgba(255,255,255,0.1)' }
+            }
+          }
+        });
+
+        Clerk.addListener((payload) => {
+          if (payload.user) {
+            window.location.href = 'https://pebble.aurame.ca/';
+          }
+        });
+
+        isClerkInitialized = true;
+      } catch (err) {
+        console.error("Failed to initialize True Oath SSO:", err);
+      }
+    }
+
+    function openAuthModal(e) {
+      if (e) e.preventDefault();
+      
+      // Check if user is already authenticated
+      if (window.AuraSession && window.AuraSession.isAuthenticated()) {
+        window.location.href = 'https://pebble.aurame.ca/';
+        return;
+      }
+
+      document.getElementById('auth-modal').classList.add('open');
+      initClerkSSO();
+    }
+
+    function closeAuthModal() {
+      document.getElementById('auth-modal').classList.remove('open');
+    }
+
+    // Bind event listeners to all domains landing page auth triggers
+    document.addEventListener('DOMContentLoaded', () => {
+      // Header Nav "Sign in"
+      const signInBtn = document.querySelector('.nav-signin');
+      if (signInBtn) {
+        signInBtn.setAttribute('href', '#');
+        signInBtn.addEventListener('click', openAuthModal);
+      }
+
+      // Header Nav "Get started"
+      const getStartedBtn = document.querySelector('.nav-cta');
+      if (getStartedBtn) {
+        getStartedBtn.setAttribute('href', '#');
+        getStartedBtn.addEventListener('click', openAuthModal);
+      }
+
+      // Hero main "Claim it →" in search results
+      const searchResultClaim = document.querySelector('#search-result a');
+      if (searchResultClaim) {
+        searchResultClaim.setAttribute('href', '#');
+        searchResultClaim.addEventListener('click', openAuthModal);
+      }
+
+      // Bottom CTA "Create AURA Identity — it's free"
+      const ctaBtn = document.querySelector('.btn-cta-primary');
+      if (ctaBtn) {
+        ctaBtn.setAttribute('href', '#');
+        ctaBtn.addEventListener('click', openAuthModal);
+      }
+    });
+
+    // Close on Escape key press
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeAuthModal();
+    });
   </script>
 </body>
 </html>
