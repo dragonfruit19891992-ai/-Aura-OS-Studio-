@@ -31,12 +31,18 @@
     },
     {
       "site": "my-code-aurame",
-      "public": "portal/mycodes",
+      "public": "portal/mycodes/dashboard",
       "ignore": [
         "**/node_modules/**"
       ],
       "cleanUrls": true,
-      "trailingSlash": false
+      "trailingSlash": false,
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
     },
     {
       "site": "mycloud-aurame",

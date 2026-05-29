@@ -483,28 +483,36 @@
       };
 
       const renderFloatingNavbar = () => {
-        const normalizedPath = currentPath.replace(/\/$/, '');
+        let normalizedPath = currentPath.replace(/\/$/, '');
+        if (normalizedPath.startsWith('/mycodes')) {
+          normalizedPath = normalizedPath.replace('/mycodes', '');
+        }
+
+        const getPath = (sub) => {
+          return window.location.pathname.startsWith('/mycodes') ? `/mycodes${sub}` : sub;
+        };
+
         return (
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2 glass-panel rounded-full px-6 py-3 flex items-center gap-8 border border-white/10 shadow-[0_15px_50px_rgba(0,0,0,0.6)] z-50">
             <button 
-              onClick={() => navigateTo('/mycodes/coding')} 
-              className={`flex items-center gap-2 text-xs font-bold tracking-wider transition-all ${normalizedPath === '/mycodes/coding' ? 'text-indigo-400 scale-105' : 'text-gray-400 hover:text-white'}`}
+              onClick={() => navigateTo(getPath('/coding'))} 
+              className={`flex items-center gap-2 text-xs font-bold tracking-wider transition-all ${normalizedPath === '/coding' ? 'text-indigo-400 scale-105' : 'text-gray-400 hover:text-white'}`}
             >
               <Icon name="code-2" className="w-3.5 h-3.5" />
               <span>AURA CODE</span>
             </button>
             <div className="h-4 w-px bg-white/10"></div>
             <button 
-              onClick={() => navigateTo('/mycodes/pebble')} 
-              className={`flex items-center gap-2 text-xs font-bold tracking-wider transition-all ${normalizedPath === '/mycodes/pebble' ? 'text-indigo-400 scale-105' : 'text-gray-400 hover:text-white'}`}
+              onClick={() => navigateTo(getPath('/pebble'))} 
+              className={`flex items-center gap-2 text-xs font-bold tracking-wider transition-all ${normalizedPath === '/pebble' ? 'text-indigo-400 scale-105' : 'text-gray-400 hover:text-white'}`}
             >
               <Icon name="message-square" className="w-3.5 h-3.5" />
               <span>ME CHAT</span>
             </button>
             <div className="h-4 w-px bg-white/10"></div>
             <button 
-              onClick={() => navigateTo('/mycodes/setting')} 
-              className={`flex items-center gap-2 text-xs font-bold tracking-wider transition-all ${normalizedPath === '/mycodes/setting' || normalizedPath === '/mycodes/settings' ? 'text-indigo-400 scale-105' : 'text-gray-400 hover:text-white'}`}
+              onClick={() => navigateTo(getPath('/setting'))} 
+              className={`flex items-center gap-2 text-xs font-bold tracking-wider transition-all ${normalizedPath === '/setting' || normalizedPath === '/settings' ? 'text-indigo-400 scale-105' : 'text-gray-400 hover:text-white'}`}
             >
               <Icon name="settings" className="w-3.5 h-3.5" />
               <span>SETTINGS & BILLING</span>
@@ -516,6 +524,10 @@
       const renderWelcomeLandingPage = () => {
         const session = JSON.parse(localStorage.getItem("aura_session") || "{}");
         const displayName = session.name ? session.name.split(' ')[0] : 'Alex';
+
+        const getPath = (sub) => {
+          return window.location.pathname.startsWith('/mycodes') ? `/mycodes${sub}` : sub;
+        };
 
         return (
           <div className="flex-1 flex flex-col items-center justify-center p-8 relative min-h-screen bg-[#08080f] select-none text-center">
@@ -548,7 +560,7 @@
                     className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 outline-none"
                   />
                   <button 
-                    onClick={() => navigateTo('/mycodes/coding')}
+                    onClick={() => navigateTo(getPath('/coding'))}
                     className="bg-[#1c1a30] hover:bg-indigo-600 border border-indigo-500/20 hover:border-indigo-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-[0_0_15px_rgba(99,102,241,0.2)] ml-2"
                   >
                     Build it
@@ -558,7 +570,7 @@
 
               {/* My First Project Card */}
               <div 
-                onClick={() => navigateTo('/mycodes/coding')}
+                onClick={() => navigateTo(getPath('/coding'))}
                 className="w-full flex items-center justify-between bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl p-4 cursor-pointer transition-all mt-8 group"
               >
                 <div className="flex items-center gap-4">
