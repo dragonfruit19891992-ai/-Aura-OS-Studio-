@@ -58,6 +58,10 @@
           "destination": "/portal/me/index.html"
         },
         {
+          "source": "/mycodes",
+          "destination": "/portal/mycodes/index.html"
+        },
+        {
           "source": "/radio",
           "destination": "/portal/radio/index.html"
         }
@@ -196,6 +200,10 @@
         {
           "source": "/me",
           "destination": "/portal/me/index.html"
+        },
+        {
+          "source": "/mycodes",
+          "destination": "/portal/mycodes/index.html"
         },
         {
           "source": "/radio",
