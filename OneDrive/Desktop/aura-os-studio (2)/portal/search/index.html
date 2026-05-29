@@ -1,0 +1,2997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA Search — Sovereign Registry Engine</title>
+  <link rel="stylesheet" href="/assets/radio.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #ffffff;
+      color: #202124;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Common animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shimmer {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    .animate-fade {
+      animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* ── HOMEPAGE STATE STYLE ── */
+    .home-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem 8rem;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .home-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 2rem;
+      z-index: 10;
+    }
+
+    .home-logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 0.9rem;
+    }
+
+    .home-logo-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .home-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .home-nav-link {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #5f6368;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .home-nav-link:hover {
+      color: #0f172a;
+    }
+
+    .btn-started {
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 0.6rem 1.25rem;
+      border-radius: 9999px;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-started:hover {
+      background: #4f46e5;
+      transform: translateY(-1px);
+    }
+
+    .home-main-logo {
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      user-select: none;
+    }
+
+    .home-main-logo span {
+      font-size: 5.5rem;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+    }
+
+    .home-logo-glow {
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, rgba(94, 92, 230, 0.01) 70%, transparent 100%);
+      pointer-events: none;
+      z-index: -1;
+      transform: translate(-10px, -10px);
+    }
+
+    /* Giant Search Bar */
+    .home-search-container {
+      width: 100%;
+      max-width: 580px;
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .home-search-bar {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #dfe1e5;
+      border-radius: 28px;
+      padding: 0.95rem 4rem 0.95rem 1.75rem;
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: #202124;
+      outline: none;
+      transition: all 0.25s;
+      box-shadow: 0 1px 6px rgba(32, 33, 36, 0.02);
+    }
+
+    .home-search-bar:focus, .home-search-bar:hover {
+      box-shadow: 0 3px 12px rgba(32, 33, 36, 0.1);
+      border-color: rgba(223, 225, 229, 0);
+    }
+
+    .home-search-actions {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .home-search-action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #5f6368;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s;
+    }
+
+    .home-search-action-btn:hover {
+      color: #4f46e5;
+    }
+
+    /* Home Mode Toggles */
+    .home-modes {
+      display: flex;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 4px;
+      gap: 2px;
+      margin-bottom: 2.5rem;
+    }
+
+    .home-mode-btn {
+      padding: 0.6rem 1.5rem;
+      border-radius: 20px;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      color: #64748b;
+      background: transparent;
+    }
+
+    .home-mode-btn.active[data-mode="internal"] { background: #4f46e5; color: #fff; }
+    .home-mode-btn.active[data-mode="both"] { background: #7c3aed; color: #fff; }
+    .home-mode-btn.active[data-mode="external"] { background: #0f172a; color: #fff; }
+
+    .home-mode-btn:not(.active):hover {
+      background: rgba(0, 0, 0, 0.03);
+      color: #0f172a;
+    }
+
+    .home-help-text {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      max-width: 420px;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    /* ── RESULTS STATE STYLE ── */
+    .results-state {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #ffffff;
+      border-bottom: 1px solid #ebebeb;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1.5rem;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-back-home {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      color: #5f6368;
+      transition: background 0.15s;
+    }
+
+    .btn-back-home:hover {
+      background: #f1f3f4;
+      color: #000;
+    }
+
+    .compact-logo {
+      display: flex;
+      gap: 1px;
+      align-items: center;
+      text-decoration: none;
+      user-select: none;
+      font-size: 1.25rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .search-input-form {
+      flex: 1;
+      max-width: 580px;
+      position: relative;
+    }
+
+    .results-search-wrap {
+      display: flex;
+      align-items: center;
+      border: 1px solid #dfe1e5;
+      border-radius: 24px;
+      padding: 0.5rem 1.25rem;
+      gap: 10px;
+      background: #ffffff;
+      box-shadow: 0 1px 6px rgba(32, 33, 36, 0.08);
+      transition: box-shadow 0.2s;
+    }
+
+    .results-search-wrap:focus-within {
+      box-shadow: 0 2px 8px rgba(32, 33, 36, 0.15);
+    }
+
+    .results-search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 0.95rem;
+      color: #202124;
+      background: transparent;
+      font-family: inherit;
+    }
+
+    .btn-search-clear {
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #9aa0a6;
+      font-size: 1.2rem;
+      line-height: 1;
+      padding: 0;
+      display: none;
+    }
+
+    .btn-search-clear.active {
+      display: block;
+    }
+
+    .btn-search-clear:hover {
+      color: #5f6368;
+    }
+
+    .voice-icon {
+      color: #4f46e5;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    /* Actions area in sticky header */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
+    }
+
+    .header-modes {
+      display: flex;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 2px;
+      gap: 1px;
+    }
+
+    .header-mode-btn {
+      padding: 0.35rem 0.85rem;
+      border-radius: 16px;
+      border: none;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+      color: #64748b;
+      background: transparent;
+    }
+
+    .header-mode-btn.active[data-mode="internal"] { background: #4f46e5; color: #fff; }
+    .header-mode-btn.active[data-mode="both"] { background: #7c3aed; color: #fff; }
+    .header-mode-btn.active[data-mode="external"] { background: #0f172a; color: #fff; }
+
+    .header-mode-btn:not(.active):hover {
+      background: rgba(0, 0, 0, 0.03);
+      color: #0f172a;
+    }
+
+    .btn-pebble-panel-trigger {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.45rem 1rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #5e5ce6;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-pebble-panel-trigger:hover, .btn-pebble-panel-trigger.active {
+      background: linear-gradient(135deg, #5e5ce6, #7c3aed);
+      border-color: transparent;
+      color: #ffffff;
+    }
+
+    .btn-build-panel-trigger {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.45rem 1rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #0f172a;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-build-panel-trigger:hover, .btn-build-panel-trigger.active {
+      background: linear-gradient(135deg, #0f172a, #1e1b4b);
+      border-color: transparent;
+      color: #ffffff;
+    }
+
+    /* Profile block */
+    .profile-session-block {
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-header-signin {
+      background: #5e5ce6;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.45rem 1rem;
+      border-radius: 16px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-header-signin:hover {
+      background: #4f46e5;
+    }
+
+    .header-user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a855f7, #5e5ce6);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1.5px #e2e8f0;
+      transition: transform 0.15s;
+    }
+
+    .header-user-avatar:hover {
+      transform: scale(1.05);
+    }
+
+    /* Tabs Row */
+    .header-tabs {
+      display: flex;
+      padding-left: 5rem;
+      border-top: 1px solid #ebebeb;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .header-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.7rem 1rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #5f6368;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .tab-btn.active {
+      color: #1a73e8;
+      font-weight: 700;
+      border-bottom-color: #1a73e8;
+    }
+
+    .tab-btn:hover:not(.active) {
+      color: #202124;
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    /* ── CONTENT CONTAINER ── */
+    .content-area {
+      display: flex;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 5rem 5rem;
+      gap: 3.5rem;
+      box-sizing: border-box;
+    }
+
+    .results-column {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    /* Loading skeleton */
+    .skeleton-wrap {
+      display: none;
+      flex-direction: column;
+      gap: 1.75rem;
+      padding-top: 0.5rem;
+    }
+
+    .skeleton-card {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .skeleton-line {
+      height: 12px;
+      background: #f1f3f4;
+      border-radius: 6px;
+      animation: shimmer 1.5s infinite ease-in-out;
+      margin-bottom: 8px;
+    }
+
+    .skeleton-line.short { width: 30%; height: 10px; }
+    .skeleton-line.title { width: 55%; height: 18px; margin-bottom: 10px; }
+    .skeleton-line.desc { width: 85%; }
+    .skeleton-line.desc-short { width: 70%; }
+
+    /* Results Items CSS */
+    .result-item {
+      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .result-item-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+      color: #202124;
+    }
+
+    .result-favicon {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      background: #f1f3f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      flex-shrink: 0;
+    }
+
+    .result-display-url {
+      color: #202124;
+      font-weight: 400;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .result-title-link {
+      font-size: 1.25rem;
+      color: #1a0dab;
+      text-decoration: none;
+      display: block;
+      line-height: 1.3;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .result-title-link:hover {
+      text-decoration: underline;
+    }
+
+    .result-snippet {
+      font-size: 0.85rem;
+      color: #4d5156;
+      line-height: 1.58;
+    }
+
+    .result-sitelinks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 18px;
+      margin-top: 8px;
+    }
+
+    .sitelink-item {
+      font-size: 0.75rem;
+      color: #1a0dab;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .sitelink-item:hover {
+      text-decoration: underline;
+    }
+
+    /* Privacy indicator banner */
+    .privacy-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.75rem 1rem;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      margin-bottom: 0.5rem;
+    }
+
+    .privacy-banner-icon {
+      font-size: 1.1rem;
+      color: #059669;
+    }
+
+    .privacy-banner-text {
+      font-size: 0.8rem;
+      color: #065f46;
+      font-weight: 600;
+    }
+
+    /* Login Gate style */
+    .login-gate-wrap {
+      padding: 4rem 1.5rem;
+      text-align: center;
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .login-gate-icon {
+      font-size: 3.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-gate-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .login-gate-desc {
+      font-size: 0.85rem;
+      color: #64748b;
+      line-height: 1.7;
+    }
+
+    .login-gate-btns {
+      display: flex;
+      gap: 12px;
+      margin-top: 0.75rem;
+    }
+
+    .btn-gate-primary {
+      padding: 0.7rem 1.5rem;
+      background: #5e5ce6;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.8rem;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-gate-primary:hover {
+      background: #4f46e5;
+    }
+
+    .btn-gate-secondary {
+      padding: 0.7rem 1.5rem;
+      background: #f1f5f9;
+      color: #374151;
+      font-weight: 700;
+      font-size: 0.8rem;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .btn-gate-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    /* Images search tab layout */
+    .images-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .image-card {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #f1f5f9;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .image-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .image-thumb-wrap {
+      aspect-ratio: 4/3;
+      background: #e2e8f0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .image-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .image-meta {
+      padding: 8px 10px;
+    }
+
+    .image-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #1e293b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+
+    .image-source {
+      font-size: 0.6rem;
+      color: #94a3b8;
+    }
+
+    /* Videos search tab layout */
+    .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .video-card {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #f1f5f9;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .video-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    .video-thumb-wrap {
+      aspect-ratio: 16/9;
+      background: #e2e8f0;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .video-duration {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      background: rgba(0,0,0,0.85);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .video-play-btn {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.15);
+      transition: background 0.2s;
+    }
+
+    .video-card:hover .video-play-btn {
+      background: rgba(0,0,0,0.3);
+    }
+
+    .video-play-circle {
+      width: 40px;
+      height: 40px;
+      background: rgba(0,0,0,0.7);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 0.9rem;
+      padding-left: 2px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .video-meta {
+      padding: 10px 12px;
+    }
+
+    .video-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #0f172a;
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      height: 2.8em;
+    }
+
+    .video-source {
+      font-size: 0.65rem;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    /* Apps grid layout */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .app-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border: 1px solid #f1f5f9;
+      border-radius: 14px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .app-icon-wrap {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .app-meta {
+      min-width: 0;
+    }
+
+    .app-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #0f172a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .app-desc {
+      font-size: 0.65rem;
+      color: #94a3b8;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Coming Soon placeholder */
+    .coming-soon-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .coming-soon-header {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #4f46e5;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .coming-soon-card {
+      padding: 4rem 1.5rem;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 14px;
+      text-align: center;
+    }
+
+    .coming-soon-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+
+    .coming-soon-desc {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      max-width: 320px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Sidebar Knowledge Panel Column */
+    .sidebar-column {
+      width: 300px;
+      flex-shrink: 0;
+      display: none;
+      flex-direction: column;
+    }
+
+    .knowledge-panel {
+      border: 1px solid #dadce0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      background: #ffffff;
+      animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .knowledge-img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      background: #f1f3f4;
+      display: block;
+    }
+
+    .knowledge-body {
+      padding: 1.15rem 1.25rem;
+    }
+
+    .knowledge-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #202124;
+      margin-bottom: 2px;
+    }
+
+    .knowledge-subtitle {
+      font-size: 0.75rem;
+      color: #70757a;
+      margin-bottom: 0.75rem;
+    }
+
+    .knowledge-desc {
+      font-size: 0.75rem;
+      color: #202124;
+      line-height: 1.6;
+    }
+
+    /* ── FLOATING PANELS STYLE (PEBBLE & BUILD) ── */
+    .floating-panel {
+      position: fixed;
+      top: 66px;
+      right: 16px;
+      z-index: 200;
+      width: 340px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      animation: panelSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes panelSlideIn {
+      from { transform: translateY(15px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .panel-header {
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #ffffff;
+    }
+
+    .pebble-gradient {
+      background: linear-gradient(135deg, #5e5ce6, #7c3aed);
+    }
+
+    .build-gradient {
+      background: linear-gradient(135deg, #0f172a, #1e1b4b);
+    }
+
+    .panel-header-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-header-icon {
+      font-size: 1.35rem;
+    }
+
+    .panel-header-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    .panel-header-subtitle {
+      font-size: 0.65rem;
+      opacity: 0.85;
+      margin-top: 1px;
+    }
+
+    .btn-panel-close {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.4rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      transition: color 0.15s;
+    }
+
+    .btn-panel-close:hover {
+      color: #fff;
+    }
+
+    .panel-body {
+      padding: 16px 18px;
+    }
+
+    /* Pebble panel specific elements */
+    .pebble-query-note {
+      font-size: 0.7rem;
+      color: #94a3b8;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .pebble-query-note strong {
+      color: #5e5ce6;
+    }
+
+    .pebble-loading {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      color: #94a3b8;
+      font-size: 0.8rem;
+    }
+
+    .pebble-loading-dots {
+      font-size: 1.25rem;
+      animation: shimmer 1s infinite;
+    }
+
+    .pebble-response {
+      font-size: 0.8rem;
+      color: #1e293b;
+      line-height: 1.7;
+    }
+
+    .pebble-link {
+      display: inline-block;
+      margin-top: 14px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #5e5ce6;
+      text-decoration: none;
+    }
+
+    .pebble-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Build panel specific elements */
+    .build-toggle-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .build-toggle-btn {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      cursor: pointer;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+      transition: all 0.2s;
+    }
+
+    .build-toggle-btn.active {
+      border-color: #4f46e5;
+      background: #ede9fe;
+      color: #4f46e5;
+    }
+
+    .build-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      outline: none;
+      box-sizing: border-box;
+      font-family: inherit;
+      margin-bottom: 12px;
+      transition: border-color 0.15s;
+    }
+
+    .build-input:focus {
+      border-color: #4f46e5;
+    }
+
+    .build-steps {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .build-step-badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .build-step-badge.active {
+      color: #4f46e5;
+      background: #ede9fe;
+    }
+
+    .build-step-badge.inactive {
+      color: #94a3b8;
+      background: #f1f5f9;
+    }
+
+    .build-step-chevron {
+      color: #cbd5e1;
+      font-size: 0.7rem;
+    }
+
+    .btn-build-action {
+      width: 100%;
+      padding: 10px;
+      background: #f1f5f9;
+      color: #94a3b8;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: not-allowed;
+      transition: all 0.2s;
+    }
+
+    .btn-build-action.active {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .btn-build-action.active:hover {
+      opacity: 0.9;
+    }
+
+    .build-pipeline-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .build-pipeline-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      animation: fadeIn 0.25s forwards;
+    }
+
+    .build-pipeline-num {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .build-pipeline-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .build-pipeline-status {
+      margin-left: auto;
+      color: #4f46e5;
+      font-size: 0.75rem;
+    }
+
+    .build-pipeline-note {
+      font-size: 0.65rem;
+      color: #64748b;
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    /* ── MODALS (VIDEO, LIGHTBOX, LOGIN) ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      z-index: 9000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-card {
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 24px;
+      width: 90%;
+      max-width: 400px;
+      padding: 2.25rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+      transform: translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .btn-modal-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: rgba(0, 0, 0, 0.03);
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: background 0.15s;
+    }
+
+    .btn-modal-close:hover {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #0f172a;
+      text-align: center;
+    }
+
+    .modal-desc {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-input {
+      width: 100%;
+      background: #f4f4f5;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 0.7rem 0.95rem;
+      font-size: 0.8rem;
+      font-family: inherit;
+      color: #0f172a;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      background: #ffffff;
+      border-color: #5e5ce6;
+      box-shadow: 0 0 0 3px rgba(94, 92, 230, 0.1);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 700;
+      padding: 0.85rem;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.02em;
+      transition: background 0.15s;
+    }
+
+    .btn-submit:hover {
+      background: #5e5ce6;
+    }
+
+    /* Video Theater modal overlay */
+    .video-theater-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: rgba(0,0,0,0.94);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-theater-top {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #fff;
+    }
+
+    .video-theater-title {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.85);
+      max-width: 70%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
+    .btn-theater-close {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #fff;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      line-height: 1;
+    }
+
+    .btn-theater-close:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .theater-frame-container {
+      width: min(880px, 92vw);
+      aspect-ratio: 16/9;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+    }
+
+    .theater-video-element {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .video-theater-note {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 16px;
+    }
+
+    /* Lightbox Modal */
+    .lightbox-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9100;
+      background: rgba(0,0,0,0.92);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .lightbox-img {
+      max-width: 90vw;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      animation: panelSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #fff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.6rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+
+    .lightbox-close:hover {
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* Footer Section */
+    .search-footer {
+      background: #f2f2f2;
+      border-top: 1px solid #e4e4e4;
+      padding: 0.85rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .footer-mark {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 900;
+      color: #fff;
+      font-style: italic;
+    }
+
+    .footer-text {
+      font-size: 0.72rem;
+      color: #70757a;
+      font-weight: 500;
+    }
+
+    .footer-link {
+      font-size: 0.72rem;
+      color: #4f46e5;
+      font-weight: 700;
+      text-decoration: none;
+      margin-left: 12px;
+    }
+
+    .footer-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #0f172a;
+      color: #ffffff;
+      padding: 0.8rem 1.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      z-index: 10000;
+      transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toast.active {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Voice Search Animation overlay */
+    .voice-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(255, 255, 255, 0.98);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    .voice-mic-glow {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: #ede9fe;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #5e5ce6;
+      position: relative;
+    }
+
+    .voice-mic-glow::before {
+      content: '';
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      border: 2px solid #ddd6fe;
+      animation: voicePulse 1.4s infinite ease-in-out;
+    }
+
+    @keyframes voicePulse {
+      0% { transform: scale(0.9); opacity: 1; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    .voice-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .voice-subtitle {
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Voice overlay screen -->
+  <div class="voice-overlay" id="voice-overlay">
+    <div class="voice-mic-glow">🎙️</div>
+    <div class="voice-title" id="voice-title-status">Listening...</div>
+    <div class="voice-subtitle">Say a subdomain, topic, or keyword</div>
+  </div>
+
+  <!-- Theater Video overlay -->
+  <div class="video-theater-overlay" id="theater-overlay">
+    <div class="video-theater-top">
+      <div class="video-theater-title" id="theater-title-text">AURA Video Stream</div>
+      <button class="btn-theater-close" id="theater-close-btn">&times;</button>
+    </div>
+    <div class="theater-frame-container" id="theater-frame-wrap">
+      <!-- Player will be dynamically inserted here -->
+    </div>
+    <div class="video-theater-note">Click outside or press ESC to close theater mode</div>
+  </div>
+
+  <!-- Picture Lightbox overlay -->
+  <div class="lightbox-overlay" id="lightbox-overlay">
+    <button class="lightbox-close" id="lightbox-close-btn">&times;</button>
+    <img class="lightbox-img" id="lightbox-img-el" src="" alt="Aura Gallery Image">
+  </div>
+
+  <!-- Authentication Modal -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-card">
+      <button class="btn-modal-close" id="auth-close-btn">&times;</button>
+      <h2 class="modal-title">Access Sovereign Node</h2>
+      <p class="modal-desc">Authenticate and synchronize your private keys across the local Aura network.</p>
+      
+      <form id="auth-form">
+        <div class="form-group">
+          <label class="form-label">Sovereign Email Address</label>
+          <input type="email" class="form-input" id="auth-email" required placeholder="e.g. joseph@aurame.ca" value="joseph@aurame.ca">
+        </div>
+        <div class="form-group">
+          <label class="form-label">AURA Encryption Key</label>
+          <input type="password" class="form-input" id="auth-key" required placeholder="••••••••••••" value="password123">
+        </div>
+        <button type="submit" class="btn-submit">Authorize Portal Node</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Toast Notification -->
+  <div class="toast" id="toast-el">
+    <span>✅ Synchronization Broadcast Routed!</span>
+  </div>
+
+
+  <!-- ── 1. HOMEPAGE STATE (NO QUERY ACTIVE) ── -->
+  <div class="home-state animate-fade" id="home-state-container">
+    
+    <header class="home-header">
+      <a href="/" class="home-logo-wrap">
+        <svg class="home-logo-icon" viewBox="0 0 100 100" fill="none">
+          <path d="M50 15L15 85H32L50 48L68 85H85L50 15Z" fill="url(#logoGradHome)" />
+          <path d="M42 62H58L50 45L42 62Z" fill="#fafafa" />
+          <defs>
+            <linearGradient id="logoGradHome" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#4facfe" />
+              <stop offset="100%" stop-color="#00f2fe" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <span>AURA Portal</span>
+      </a>
+      <div class="home-nav-actions" id="home-auth-nav">
+        <!-- Will be populated by session check -->
+      </div>
+    </header>
+
+    <div class="home-logo-glow"></div>
+    
+    <div class="home-main-logo">
+      <span style="color: #4f46e5;">A</span>
+      <span style="color: #ef4444;">U</span>
+      <span style="color: #f59e0b;">R</span>
+      <span style="color: #10b981;">A</span>
+    </div>
+
+    <!-- Search Form -->
+    <div class="home-search-container">
+      <form id="home-search-form">
+        <input type="text" class="home-search-bar" id="home-search-input" placeholder="Search secure subdomains · Aura Network Apps" autocomplete="off">
+        <div class="home-search-actions">
+          <button type="button" class="home-search-action-btn" id="home-voice-btn" title="Voice Search">🎙️</button>
+          <button type="submit" class="home-search-action-btn" title="Search">🔍</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Mode Buttons -->
+    <div class="home-modes">
+      <button class="home-mode-btn active" data-mode="external">🌐 External</button>
+      <button class="home-mode-btn" data-mode="both">⚡ Both</button>
+      <button class="home-mode-btn" data-mode="internal">🔒 Internal</button>
+    </div>
+
+    <p class="home-help-text">
+      Access sovereign local subdomains and open web search results. End-to-end encrypted indexing routes privately through your local system node.
+    </p>
+
+  </div>
+
+
+  <!-- ── 2. RESULTS STATE (QUERY IS SUBMITTED) ── -->
+  <div class="results-state" id="results-state-container">
+    
+    <div class="sticky-header">
+      <div class="header-top">
+        <button class="btn-back-home" id="btn-header-back" title="Go back to portal">←</button>
+        
+        <a href="#" class="compact-logo" id="compact-logo-btn">
+          <span style="color: #4f46e5;">A</span>
+          <span style="color: #ef4444;">U</span>
+          <span style="color: #f59e0b;">R</span>
+          <span style="color: #10b981;">A</span>
+        </a>
+
+        <form class="search-input-form" id="results-search-form">
+          <div class="results-search-wrap">
+            <span style="color: #9aa0a6; font-size: 0.9rem;">🔍</span>
+            <input type="text" class="results-search-input" id="results-search-input" autocomplete="off">
+            <button type="button" class="btn-search-clear" id="results-search-clear">&times;</button>
+            <span class="voice-icon" id="results-voice-btn" title="Voice Search">🎙️</span>
+          </div>
+        </form>
+
+        <div class="header-actions">
+          <div class="header-modes">
+            <button class="header-mode-btn" data-mode="external">🌐 External</button>
+            <button class="header-mode-btn" data-mode="both">⚡ Both</button>
+            <button class="header-mode-btn" data-mode="internal">🔒 Internal</button>
+          </div>
+          
+          <button class="btn-pebble-panel-trigger" id="btn-pebble-trigger" style="display: none;">🪨 Pebble</button>
+          <button class="btn-build-panel-trigger" id="btn-build-trigger" style="display: none;">✨ Build</button>
+
+          <div class="profile-session-block" id="header-auth-block">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div class="header-tabs" id="results-tabs-container">
+        <!-- Rendered based on mode selection -->
+      </div>
+    </div>
+
+    <!-- Floating Panels -->
+    <!-- Pebble AI Panel -->
+    <div class="floating-panel" id="pebble-panel">
+      <div class="panel-header pebble-gradient">
+        <div class="panel-header-title-wrap">
+          <span class="panel-header-icon">🪨</span>
+          <div>
+            <div class="panel-header-title">Pebble AI</div>
+            <div class="panel-header-subtitle">Sovereign intelligence · V4.0</div>
+          </div>
+        </div>
+        <button class="btn-panel-close" id="pebble-panel-close">&times;</button>
+      </div>
+      <div class="panel-body">
+        <div class="pebble-query-note">Query: <strong id="pebble-panel-query">""</strong></div>
+        <div class="pebble-loading" id="pebble-panel-loading">
+          <span class="pebble-loading-dots">···</span> Pebble is thinking...
+        </div>
+        <div class="pebble-response" id="pebble-panel-response" style="display: none;">
+          <!-- Content filled dynamically -->
+        </div>
+        <a href="/me" class="pebble-link">Open full Pebble chat →</a>
+      </div>
+    </div>
+
+    <!-- Quick Build Panel -->
+    <div class="floating-panel" id="build-panel">
+      <div class="panel-header build-gradient">
+        <div class="panel-header-title-wrap">
+          <span class="panel-header-icon">✨</span>
+          <div>
+            <div class="panel-header-title">Quick Build</div>
+            <div class="panel-header-subtitle">AURA Studio · Sovereign pipeline</div>
+          </div>
+        </div>
+        <button class="btn-panel-close" id="build-panel-close">&times;</button>
+      </div>
+      <div class="panel-body" id="build-panel-normal-body">
+        <div class="build-toggle-row">
+          <button class="build-toggle-btn active" id="build-type-page">🌐 Page/Site</button>
+          <button class="build-toggle-btn" id="build-type-shop">🛍️ ABE Shop</button>
+        </div>
+        <input type="text" class="build-input" id="build-input-prompt" placeholder="e.g. Portfolio for a photographer...">
+        <div class="build-steps">
+          <span class="build-step-badge active">Studio</span>
+          <span class="build-step-chevron">›</span>
+          <span class="build-step-badge inactive">Domain</span>
+          <span class="build-step-chevron">›</span>
+          <span class="build-step-badge inactive">Hosting</span>
+          <span class="build-step-chevron">›</span>
+          <span class="build-step-badge inactive">Live ✦</span>
+        </div>
+        <button class="btn-build-action" id="btn-build-action-trigger" disabled>Start Building →</button>
+      </div>
+      <div class="panel-body" id="build-panel-pipeline-body" style="display: none;">
+        <div class="build-pipeline-wrap">
+          <div class="build-pipeline-step">
+            <div class="build-pipeline-num">1</div>
+            <span class="build-pipeline-label">Studio Synthesis</span>
+            <span class="build-pipeline-status">⚡</span>
+          </div>
+          <div class="build-pipeline-step">
+            <div class="build-pipeline-num">2</div>
+            <span class="build-pipeline-label">Domain Hooking</span>
+            <span class="build-pipeline-status">⚡</span>
+          </div>
+          <div class="build-pipeline-step">
+            <div class="build-pipeline-num">3</div>
+            <span class="build-pipeline-label">Host Binding</span>
+            <span class="build-pipeline-status">⚡</span>
+          </div>
+          <div class="build-pipeline-step">
+            <div class="build-pipeline-num">4</div>
+            <span class="build-pipeline-label">Deployment Live ✦</span>
+            <span class="build-pipeline-status">⚡</span>
+          </div>
+        </div>
+        <div class="build-pipeline-note">Redirecting to Aura Studio...</div>
+      </div>
+    </div>
+
+    <!-- MAIN DYNAMIC CONTENT CONTAINER -->
+    <div class="content-area">
+      
+      <!-- Primary Search Results -->
+      <div class="results-column">
+        
+        <!-- Skeleton loading view -->
+        <div class="skeleton-wrap" id="skeleton-container">
+          <div class="skeleton-card">
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line desc"></div>
+            <div class="skeleton-line desc-short"></div>
+          </div>
+          <div class="skeleton-card">
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line desc"></div>
+          </div>
+          <div class="skeleton-card">
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line desc"></div>
+            <div class="skeleton-line desc-short"></div>
+          </div>
+        </div>
+
+        <!-- Rendered Search Results -->
+        <div id="results-items-container" class="animate-fade">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+      </div>
+
+      <!-- Right Column: Sidebar Knowledge panel -->
+      <div class="sidebar-column" id="sidebar-container">
+        <!-- Rendered dynamically -->
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Shared Site Footer -->
+  <footer class="search-footer">
+    <div class="footer-mark">A</div>
+    <span class="footer-text">AURA Search · Sovereign web · Internal first</span>
+    <a href="#" class="footer-link" id="footer-auth-link">Sign in for internal access →</a>
+  </footer>
+
+
+  <script>
+    // ─── STATE MANAGEMENT ───
+    let currentQuery = "";
+    let activeMode = "external"; // 'internal', 'both', 'external'
+    let activeTab = "all";       // 'all', 'images', 'videos', 'news', 'maps' for ext; 'all', 'sites', 'apps', 'pictures', 'videos', etc. for int
+    let buildType = "page";      // 'page', 'shop'
+    let isPebbleOpen = false;
+    let isBuildOpen = false;
+
+    // Check localStorage session
+    function getSession() {
+      try {
+        const raw = localStorage.getItem("aura_session");
+        return raw ? JSON.parse(raw) : null;
+      } catch (err) {
+        return null;
+      }
+    }
+
+    function isLoggedIn() {
+      return getSession() !== null;
+    }
+
+    // ─── DOM ELEMENTS ───
+    const homeState = document.getElementById("home-state-container");
+    const resultsState = document.getElementById("results-state-container");
+    const homeSearchForm = document.getElementById("home-search-form");
+    const homeSearchInput = document.getElementById("home-search-input");
+    const resultsSearchForm = document.getElementById("results-search-form");
+    const resultsSearchInput = document.getElementById("results-search-input");
+    const resultsSearchClear = document.getElementById("results-search-clear");
+    
+    const homeAuthNav = document.getElementById("home-auth-nav");
+    const headerAuthBlock = document.getElementById("header-auth-block");
+    const footerAuthLink = document.getElementById("footer-auth-link");
+    const btnHeaderBack = document.getElementById("btn-header-back");
+    const compactLogoBtn = document.getElementById("compact-logo-btn");
+
+    const authModal = document.getElementById("auth-modal");
+    const authCloseBtn = document.getElementById("auth-close-btn");
+    const authForm = document.getElementById("auth-form");
+
+    const toastEl = document.getElementById("toast-el");
+    
+    const resultsTabsContainer = document.getElementById("results-tabs-container");
+    const resultsItemsContainer = document.getElementById("results-items-container");
+    const sidebarContainer = document.getElementById("sidebar-container");
+    const skeletonContainer = document.getElementById("skeleton-container");
+
+    const btnPebbleTrigger = document.getElementById("btn-pebble-trigger");
+    const btnBuildTrigger = document.getElementById("btn-build-trigger");
+    
+    const pebblePanel = document.getElementById("pebble-panel");
+    const pebblePanelClose = document.getElementById("pebble-panel-close");
+    const pebblePanelQuery = document.getElementById("pebble-panel-query");
+    const pebblePanelLoading = document.getElementById("pebble-panel-loading");
+    const pebblePanelResponse = document.getElementById("pebble-panel-response");
+
+    const buildPanel = document.getElementById("build-panel");
+    const buildPanelClose = document.getElementById("build-panel-close");
+    const buildTypePage = document.getElementById("build-type-page");
+    const buildTypeShop = document.getElementById("build-type-shop");
+    const buildInputPrompt = document.getElementById("build-input-prompt");
+    const btnBuildActionTrigger = document.getElementById("btn-build-action-trigger");
+    const buildPanelNormalBody = document.getElementById("build-panel-normal-body");
+    const buildPanelPipelineBody = document.getElementById("build-panel-pipeline-body");
+
+    const theaterOverlay = document.getElementById("theater-overlay");
+    const theaterCloseBtn = document.getElementById("theater-close-btn");
+    const theaterTitleText = document.getElementById("theater-title-text");
+    const theaterFrameWrap = document.getElementById("theater-frame-wrap");
+
+    const lightboxOverlay = document.getElementById("lightbox-overlay");
+    const lightboxCloseBtn = document.getElementById("lightbox-close-btn");
+    const lightboxImgEl = document.getElementById("lightbox-img-el");
+
+    const voiceOverlay = document.getElementById("voice-overlay");
+    const homeVoiceBtn = document.getElementById("home-voice-btn");
+    const resultsVoiceBtn = document.getElementById("results-voice-btn");
+    const voiceTitleStatus = document.getElementById("voice-title-status");
+
+    // ─── EVENT HANDLERS & INITIALIZATION ───
+
+    window.addEventListener("DOMContentLoaded", () => {
+      // Sync parameters from URL
+      const params = new URLSearchParams(window.location.search);
+      const qParam = params.get("q") || "";
+      const modeParam = params.get("mode") || "external";
+      const tabParam = params.get("tab") || "all";
+
+      currentQuery = qParam;
+      activeMode = modeParam;
+      activeTab = tabParam;
+
+      updateAuthViews();
+      syncModesUI();
+
+      if (currentQuery.trim() !== "") {
+        // Transition immediately to results
+        showResultsState();
+        triggerSearchFetch();
+      } else {
+        showHomeState();
+      }
+    });
+
+    // Handle browser back navigation
+    window.addEventListener("popstate", () => {
+      const params = new URLSearchParams(window.location.search);
+      currentQuery = params.get("q") || "";
+      activeMode = params.get("mode") || "external";
+      activeTab = params.get("tab") || "all";
+
+      syncModesUI();
+
+      if (currentQuery.trim() !== "") {
+        showResultsState();
+        triggerSearchFetch();
+      } else {
+        showHomeState();
+      }
+    });
+
+    // ─── AUTH SYNC & SIMULATED USER NODES ───
+    function updateAuthViews() {
+      const session = getSession();
+      const isUserLoggedIn = session !== null;
+
+      // Unhide panels in result state if logged in
+      if (isUserLoggedIn) {
+        btnPebbleTrigger.style.display = "flex";
+        btnBuildTrigger.style.display = "flex";
+        footerAuthLink.style.display = "none";
+
+        // Homepage Header Auth Block
+        homeAuthNav.innerHTML = `
+          <div class="header-user-avatar" id="home-profile-avatar" title="${session.name} · Sovereign Hub">${session.name.slice(0,2).toUpperCase()}</div>
+        `;
+        // Sticky Header Auth Block
+        headerAuthBlock.innerHTML = `
+          <div class="header-user-avatar" id="header-profile-avatar" title="${session.name} · Sovereign Hub">${session.name.slice(0,2).toUpperCase()}</div>
+        `;
+
+        // Profile clicks log out for simulation
+        document.getElementById("home-profile-avatar")?.addEventListener("click", handleLogout);
+        document.getElementById("header-profile-avatar")?.addEventListener("click", handleLogout);
+      } else {
+        btnPebbleTrigger.style.display = "none";
+        btnBuildTrigger.style.display = "none";
+        footerAuthLink.style.display = "block";
+
+        homeAuthNav.innerHTML = `
+          <a href="#" class="home-nav-link" id="home-signin-btn">SIGN IN</a>
+          <button class="btn-started" id="home-started-btn">GET STARTED</button>
+        `;
+        headerAuthBlock.innerHTML = `
+          <button class="btn-header-signin" id="header-signin-btn">SIGN IN</button>
+        `;
+
+        // Re-attach sign in hooks
+        document.getElementById("home-signin-btn")?.addEventListener("click", openAuthModal);
+        document.getElementById("home-started-btn")?.addEventListener("click", () => {
+          window.location.href = '/login/';
+        });
+        document.getElementById("header-signin-btn")?.addEventListener("click", openAuthModal);
+        footerAuthLink.onclick = (e) => { e.preventDefault(); openAuthModal(); };
+      }
+    }
+
+    function openAuthModal(e) {
+      if (e) e.preventDefault();
+      authModal.classList.add("active");
+    }
+
+    function closeAuthModal() {
+      authModal.classList.remove("active");
+    }
+
+    authCloseBtn.addEventListener("click", closeAuthModal);
+    authModal.addEventListener("click", (e) => {
+      if (e.target === authModal) closeAuthModal();
+    });
+
+    authForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("auth-email").value;
+      
+      const session = {
+        auraId: email,
+        name: email.split("@")[0].charAt(0).toUpperCase() + email.split("@")[0].slice(1)
+      };
+
+      localStorage.setItem("aura_session", JSON.stringify(session));
+      closeAuthModal();
+      showToast("🔑 Secure network node authorized and synchronized!");
+      
+      // Refresh Auth State
+      updateAuthViews();
+      
+      // If we are currently showing a query results page, re-trigger search to update view
+      if (currentQuery.trim() !== "") {
+        triggerSearchFetch();
+      }
+    });
+
+    function handleLogout() {
+      if (confirm("Disconnect and clear your sovereign local session node?")) {
+        localStorage.removeItem("aura_session");
+        // Close sliding panels
+        closePebble();
+        closeBuild();
+        showToast("🔒 Secure node offline. Encrypted session cleared.");
+        updateAuthViews();
+        if (currentQuery.trim() !== "") {
+          triggerSearchFetch();
+        }
+      }
+    }
+
+    function showToast(message) {
+      toastEl.querySelector("span").innerText = message;
+      toastEl.classList.add("active");
+      setTimeout(() => {
+        toastEl.classList.remove("active");
+      }, 4000);
+    }
+
+    // ─── STYLING & VIEW TOGGLES ───
+
+    function showHomeState() {
+      homeState.style.display = "flex";
+      resultsState.style.display = "none";
+      document.title = "AURA Search — Sovereign Registry Engine";
+      resultsSearchInput.value = "";
+      homeSearchInput.value = "";
+      currentQuery = "";
+      closePebble();
+      closeBuild();
+    }
+
+    function showResultsState() {
+      homeState.style.display = "none";
+      resultsState.style.display = "flex";
+      resultsSearchInput.value = currentQuery;
+      resultsSearchClear.classList.toggle("active", currentQuery.length > 0);
+    }
+
+    btnHeaderBack.addEventListener("click", () => {
+      window.history.pushState({}, "", "/search");
+      showHomeState();
+    });
+
+    compactLogoBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.history.pushState({}, "", "/search");
+      showHomeState();
+    });
+
+    // Voice search simulation
+    function triggerVoiceSearch(btnElement) {
+      voiceOverlay.style.display = "flex";
+      voiceTitleStatus.innerText = "Listening...";
+      
+      const voicePrompts = [
+        "AURA Code Studio",
+        "Bouchard family",
+        "How to prove P equals NP",
+        "Sudbury rent prices",
+        "Aura Phone Plans",
+        "Sovereign Spike doctrine",
+        "Private Vault cloud storage"
+      ];
+
+      const selectedPrompt = voicePrompts[Math.floor(Math.random() * voicePrompts.length)];
+
+      setTimeout(() => {
+        voiceTitleStatus.innerText = `"${selectedPrompt}"`;
+      }, 1500);
+
+      setTimeout(() => {
+        voiceOverlay.style.display = "none";
+        currentQuery = selectedPrompt;
+        pushAndSearch(currentQuery, activeTab, activeMode);
+      }, 2800);
+    }
+
+    homeVoiceBtn.addEventListener("click", () => triggerVoiceSearch(homeVoiceBtn));
+    resultsVoiceBtn.addEventListener("click", () => triggerVoiceSearch(resultsVoiceBtn));
+
+    // Form Submissions
+    homeSearchForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const val = homeSearchInput.value.trim();
+      if (val !== "") {
+        currentQuery = val;
+        pushAndSearch(currentQuery, "all", activeMode);
+      }
+    });
+
+    resultsSearchForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const val = resultsSearchInput.value.trim();
+      if (val !== "") {
+        currentQuery = val;
+        pushAndSearch(currentQuery, activeTab, activeMode);
+      }
+    });
+
+    resultsSearchInput.addEventListener("input", () => {
+      resultsSearchClear.classList.toggle("active", resultsSearchInput.value.length > 0);
+    });
+
+    resultsSearchClear.addEventListener("click", () => {
+      resultsSearchInput.value = "";
+      resultsSearchClear.classList.remove("active");
+      resultsSearchInput.focus();
+    });
+
+    // Sync active mode buttons
+    function syncModesUI() {
+      // Home state
+      document.querySelectorAll(".home-mode-btn").forEach(btn => {
+        const mode = btn.getAttribute("data-mode");
+        btn.classList.toggle("active", mode === activeMode);
+      });
+      // Sticky header state
+      document.querySelectorAll(".header-mode-btn").forEach(btn => {
+        const mode = btn.getAttribute("data-mode");
+        btn.classList.toggle("active", mode === activeMode);
+      });
+    }
+
+    // Toggle Modes click wireup
+    document.querySelectorAll(".home-mode-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        activeMode = btn.getAttribute("data-mode");
+        syncModesUI();
+        if (currentQuery.trim() !== "") {
+          pushAndSearch(currentQuery, "all", activeMode);
+        }
+      });
+    });
+
+    document.querySelectorAll(".header-mode-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        activeMode = btn.getAttribute("data-mode");
+        syncModesUI();
+        pushAndSearch(currentQuery, "all", activeMode);
+      });
+    });
+
+    function pushAndSearch(q, tab, mode) {
+      window.history.pushState({}, "", `/search?q=${encodeURIComponent(q.trim())}&tab=${tab}&mode=${mode}`);
+      currentQuery = q;
+      activeTab = tab;
+      activeMode = mode;
+      
+      showResultsState();
+      triggerSearchFetch();
+    }
+
+
+    // ─── TABS ROW BUILDER ───
+    const EXT_TABS = [
+      { id: "all",    label: "All",    icon: "🔍" },
+      { id: "images", label: "Images", icon: "🖼️" },
+      { id: "videos", label: "Videos", icon: "▶️" },
+      { id: "news",   label: "News",   icon: "📰" },
+      { id: "maps",   label: "Maps",   icon: "🗺️" }
+    ];
+
+    const INT_TABS = [
+      { id: "all",      label: "All",      icon: "🔍" },
+      { id: "sites",    label: "Sites",    icon: "🌐" },
+      { id: "apps",     label: "Apps",     icon: "📱" },
+      { id: "pictures", label: "Pictures", icon: "🖼️" },
+      { id: "videos",   label: "Videos",   icon: "▶️" },
+      { id: "books",    label: "Books",    icon: "📚" },
+      { id: "rent",     label: "Rent",     icon: "🏠" },
+      { id: "shop",     label: "Shop",     icon: "🛍️" },
+      { id: "news",     label: "News",     icon: "📰" },
+      { id: "others",   label: "Others",   icon: "⋯" }
+    ];
+
+    function renderTabsRow() {
+      const tabs = (activeMode === "internal") ? INT_TABS : EXT_TABS;
+      
+      // Validate active tab selection
+      const tabExists = tabs.some(t => t.id === activeTab);
+      if (!tabExists) {
+        activeTab = "all";
+      }
+
+      resultsTabsContainer.innerHTML = tabs.map(t => `
+        <button class="tab-btn ${t.id === activeTab ? 'active' : ''}" data-tab="${t.id}">
+          ${t.icon} ${t.label}
+        </button>
+      `).join('');
+
+      // Add click handlers
+      resultsTabsContainer.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const tab = btn.getAttribute("data-tab");
+          activeTab = tab;
+          pushAndSearch(currentQuery, activeTab, activeMode);
+        });
+      });
+    }
+
+
+    // ─── DYNAMIC MOCK SEARCH ENGINE INDEX ───
+    // Fully client-side robust engine containing premium pre-cooked queries and procedural content generation.
+
+    const AURA_APPS = [
+      { id: "phone",   label: "Phone Pad",    icon: "📞", desc: "Sovereign calling",              color: "#10b981", route: "/dial"   },
+      { id: "mail",    label: "Aura Mail",    icon: "✉️", desc: "End-to-end encrypted inbox",     color: "#5e5ce6", route: "/mail"    },
+      { id: "meet",    label: "Meet",         icon: "📹", desc: "Encrypted video & voice rooms", color: "#0891b2", route: "/meet"    },
+      { id: "pebble",  label: "Pebble",       icon: "✨", desc: "AI companion",                   color: "#7c3aed", route: "/me"  },
+      { id: "post",    label: "Aura Posts",   icon: "📝", desc: "Sovereign feed & posts",         color: "#4f46e5", route: "/social/post" },
+      { id: "clips",   label: "Aura Clips",   icon: "🎬", desc: "Short-form video",               color: "#dc2626", route: "/social/clips" },
+      { id: "tube",    label: "Aura Tube",    icon: "▶️", desc: "Long-form video",                color: "#ef4444", route: "/social/tube" },
+      { id: "radio",   label: "Aura Radio",   icon: "📻", desc: "Mesh audio streaming",           color: "#f97316", route: "/radio"   },
+      { id: "music",   label: "Music",        icon: "🎶", desc: "Personal music player",          color: "#ec4899", route: "/music"   },
+      { id: "gaming",  label: "Aura Gaming",  icon: "🕹️", desc: "Sovereign arcade",              color: "#8b5cf6", route: "/social/gaming" },
+      { id: "movie",   label: "Aura Movie",   icon: "🎞️", desc: "Synced watch parties",          color: "#6366f1", route: "/social/movie" },
+      { id: "tutor",   label: "Aura Tutor",   icon: "🎓", desc: "Live 1-on-1 lessons",            color: "#0284c7", route: "/social/tutor" },
+      { id: "bank",    label: "AuraWallet",   icon: "🏦", desc: "Sovereign SOV$ banking",         color: "#059669", route: "/bank"    },
+      { id: "drive",   label: "Documents",    icon: "📁", desc: "Private encrypted drive",        color: "#3b82f6", route: "/drive"   },
+      { id: "calendar",label: "Calendar",     icon: "📅", desc: "Shared scheduling",              color: "#f97316", route: "/calendar" },
+    ];
+
+    const PRE_COOKED_KNOWLEDGE = {
+      "aura": {
+        title: "AURA Sovereign OS",
+        type: "Sovereign Private Network",
+        image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=350&auto=format&fit=crop",
+        description: "An operating system designed for absolute human dignity, privacy, and economic self-sufficiency. Created by Joseph Racine-Bouchard, AURA acts as a secure container replacing legacy cloud infrastructures with private local registry nodes, custom ESIM telecom pipelines, and sovereign digital assets."
+      },
+      "pebble": {
+        title: "Pebble AI",
+        type: "Synthetical Cognitive Companion",
+        image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=350&auto=format&fit=crop",
+        description: "A secure cognitive module tied one-to-one to its sovereign human owner. Unlike centralized language models, Pebbles learn directly from their owner's local registry, operate strictly inside the private sandbox, and serve as individual anchors inside the sovereign network."
+      },
+      "bouchard": {
+        title: "Bouchard Sovereign Legacy",
+        type: "Founding Sovereign Clan",
+        image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=350&auto=format&fit=crop",
+        description: "The founding lineage behind the design parameters of AURA. Built on the principles of the 'Pebble Doctrine' — establishing sustainable cooperative economies using Spike Points, correcting rather than punishing, and proving NP-complete economic resilience."
+      },
+      "rent": {
+        title: "Sudbury Registry Node",
+        type: "Municipal Operations Grid",
+        image: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=350&auto=format&fit=crop",
+        description: "A municipal deployment node in Greater Sudbury, Ontario. Anchors rent.aurame.ca properties, local utility nodes, and Canadian digital assets under absolute private cryptography."
+      }
+    };
+
+    function generateDynamicResults(query, tab, mode) {
+      const q = query.toLowerCase().trim();
+      const results = {
+        organic: [],
+        images: [],
+        videos: [],
+        knowledgePanel: null
+      };
+
+      // 1. Assign Knowledge Panel if matched
+      if (q.includes("aura")) {
+        results.knowledgePanel = PRE_COOKED_KNOWLEDGE.aura;
+      } else if (q.includes("pebble") || q.includes("me")) {
+        results.knowledgePanel = PRE_COOKED_KNOWLEDGE.pebble;
+      } else if (q.includes("bouchard") || q.includes("chang")) {
+        results.knowledgePanel = PRE_COOKED_KNOWLEDGE.bouchard;
+      } else if (q.includes("rent") || q.includes("rental") || q.includes("sudbury")) {
+        results.knowledgePanel = PRE_COOKED_KNOWLEDGE.rent;
+      }
+
+      // 2. Generate Internal Results
+      if (mode === "internal" || mode === "both") {
+        
+        // Match Sites
+        const internalSitesList = [
+          { name: "AURA Personal Portal", sub: "my", desc: "Private dashboard managing encrypted keys, local storage sync, and primary network configurations.", route: "/my" },
+          { name: "Bouchard Family Hub", sub: "family", desc: "Cooperative family anchor managing decentralized Spike points, parenting logs, and local media vault.", route: "/family" },
+          { name: "Sovereign CRM & Operations", sub: "biz", desc: "Secure ERP and invoicing interface for private contract registry, clients, and SOV$ payment gateways.", route: "/biz" },
+          { name: "Sovereign Rent Portal", sub: "rent", desc: "Search and apply for property rentals directly within Greater Sudbury node, executing private smart leases.", route: "/rent" },
+          { name: "Aura Telecom Plans", sub: "dial", desc: "Configure high-speed secure ESIM phone plans starting at $35/mo with private routing.", route: "/phone-plans" },
+          { name: "Aura Coding Studio", sub: "codes", desc: "State-of-the-art sandboxed developer IDE with local server compilers and Git integration.", route: "/mycodes" },
+          { name: "AURA Secure Drive & Vault", sub: "cloud", desc: "Host secure personal registries and files with redundant Canadian encrypted server rails.", route: "/cloud" },
+          { name: "Sovereign Registrar Domains", sub: "domains", desc: "Secure Canadian registry node to purchase, hook, and map subdomains in seconds.", route: "/domains" }
+        ];
+
+        const matchedSites = internalSitesList.filter(s => 
+          s.name.toLowerCase().includes(q) || 
+          s.desc.toLowerCase().includes(q) || 
+          s.sub.toLowerCase().includes(q)
+        );
+
+        // Map sites to organic format
+        matchedSites.forEach(s => {
+          results.organic.push({
+            isInternal: true,
+            title: s.name,
+            url: `https://${s.sub}.aurame.ca`,
+            displayUrl: `aurame.ca › ${s.sub}`,
+            snippet: s.desc,
+            favicon: "🛡️",
+            siteLinks: [],
+            route: s.route
+          });
+        });
+
+        // Generate matching internal videos
+        const internalVideos = [
+          { title: "AURA Sovereign Economy: Spike Points V2 Doctrine Review", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", source: "Aura Tube · Joseph Bouchard", duration: "14:22", thumb: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=350&auto=format&fit=crop" },
+          { title: "Greater Sudbury Private Node Server Sync Live Demonstration", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", source: "Aura Tube · Sudbury Admin", duration: "28:10", thumb: "https://images.unsplash.com/photo-1600132806370-bf17e65e942f?q=80&w=350&auto=format&fit=crop" },
+          { title: "Pebble AI Local Sandbox Compiler Setup Tutorial", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", source: "Aura Clips · DevTeam", duration: "3:45", thumb: "https://images.unsplash.com/photo-1531747118685-ca8fa6e08806?q=80&w=350&auto=format&fit=crop" }
+        ];
+
+        internalVideos.forEach(v => {
+          if (v.title.toLowerCase().includes(q) || q.includes("video") || q.includes("doctrine") || q.includes("sudbury") || q.includes("pebble") || q.includes("aura") || matchedSites.length > 0) {
+            results.videos.push(v);
+          }
+        });
+
+        // Generate matching internal pictures
+        const internalPics = [
+          { title: "Bouchard Family Hub Anchor Photo", thumb: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=350&auto=format&fit=crop", source: "family.aurame.ca" },
+          { title: "Greater Sudbury Rental Property Node Visual", thumb: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=350&auto=format&fit=crop", source: "rent.aurame.ca" },
+          { title: "AURA Code Studio dark theme concept layout", thumb: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=350&auto=format&fit=crop", source: "codes.aurame.ca" },
+          { title: "Pebble AI dynamic neural network mapping", thumb: "https://images.unsplash.com/photo-1507668077129-56e32842fceb?q=80&w=350&auto=format&fit=crop", source: "my.aurame.ca" }
+        ];
+
+        internalPics.forEach(p => {
+          if (p.title.toLowerCase().includes(q) || q.includes("picture") || q.includes("family") || q.includes("rent") || q.includes("code") || q.includes("pebble") || q.includes("aura") || matchedSites.length > 0) {
+            results.images.push(p);
+          }
+        });
+      }
+
+      // 3. Generate External Results
+      if (mode === "external" || mode === "both") {
+        
+        // Procedural generator matching query
+        const proceduralTemplates = [
+          {
+            title: `Sovereign Technology: The Rise of ${query.charAt(0).toUpperCase() + query.slice(1)} Paradigm`,
+            url: `https://www.sovereigntech.org/wiki/${encodeURIComponent(q)}`,
+            displayUrl: `sovereigntech.org › wiki › ${q}`,
+            snippet: `Exploring decentralized frameworks relating to ${query}. Modern digital engineering advocates for sandboxed nodes, peer-to-peer registry encryption, and user-centric architecture schemas.`,
+            favicon: "🌐",
+            siteLinks: [
+              { title: "Architecture", url: "#" },
+              { title: "Sovereign Specs", url: "#" },
+              { title: "Local Deploy", url: "#" }
+            ]
+          },
+          {
+            title: `Decentralized Cooperative Economics in Canada`,
+            url: `https://www.canadiandigitalreview.ca/economy/spike-points`,
+            displayUrl: "canadiandigitalreview.ca › economy › spikes",
+            snippet: `Spike Points and sustainable digital tokens are rewriting localized economies in Ontario. Analyzing the mathematical models proving transaction velocity under strict correction doctrines.`,
+            favicon: "🍁",
+            siteLinks: []
+          },
+          {
+            title: `Why Absolute Privacy is Critical in the AI Era`,
+            url: `https://www.wired.com/story/sovereign-ai-companions-sandbox`,
+            displayUrl: "wired.com › story › sovereign-ai-companions",
+            snippet: "The global push towards local-first computing is accelerating. Centralized networks face massive database leaks, highlighting the immediate necessity of isolated sandboxes and zero-knowledge registries.",
+            favicon: "📰",
+            siteLinks: []
+          },
+          {
+            title: `Greater Sudbury Node Network Operations Upgrade`,
+            url: "https://www.sudburychronicle.ca/local/node-17798-launch",
+            displayUrl: "sudburychronicle.ca › local › nodes",
+            snippet: "Greater Sudbury rolls out a series of independent static deployment nodes running on municipal server arrays. Providing secure local subdomains and encrypted registry operations to local residents.",
+            favicon: "📍",
+            siteLinks: []
+          }
+        ];
+
+        proceduralTemplates.forEach(t => {
+          results.organic.push(t);
+        });
+
+        // External Videos
+        const extVideos = [
+          { title: "Building a Sovereign Operating System from Scratch", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", source: "YouTube · TechCraft", duration: "42:05", thumb: "https://images.unsplash.com/photo-1548345680-f5475ea5df84?q=80&w=350&auto=format&fit=crop" },
+          { title: "Understanding NP-Complete Algorithms and Cooperative Games", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", source: "YouTube · Academix", duration: "18:30", thumb: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=350&auto=format&fit=crop" }
+        ];
+        
+        extVideos.forEach(v => results.videos.push(v));
+
+        // External Images
+        const extPics = [
+          { title: `Exploring ${query} concept server design schematic`, thumb: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?q=80&w=350&auto=format&fit=crop", source: "unsplash.com" },
+          { title: `Sustainable Canadian digital infrastructure server racks`, thumb: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=350&auto=format&fit=crop", source: "unsplash.com" },
+          { title: `Cooperative workspace coding session`, thumb: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=350&auto=format&fit=crop", source: "unsplash.com" }
+        ];
+
+        extPics.forEach(p => results.images.push(p));
+      }
+
+      return results;
+    }
+
+
+    // ─── SEARCH FETCH AND RENDERING ENGINE ───
+
+    function triggerSearchFetch() {
+      // Toggle skeleton loading
+      resultsItemsContainer.style.display = "none";
+      sidebarContainer.style.display = "none";
+      skeletonContainer.style.display = "flex";
+
+      // Render search query inside the search boxes to ensure alignment
+      homeSearchInput.value = currentQuery;
+      resultsSearchInput.value = currentQuery;
+
+      setTimeout(() => {
+        // Complete visual load
+        skeletonContainer.style.display = "none";
+        resultsItemsContainer.style.display = "block";
+
+        renderTabsRow();
+        executeRenderContent();
+      }, 700);
+    }
+
+    function executeRenderContent() {
+      const results = generateDynamicResults(currentQuery, activeTab, activeMode);
+      document.title = `${currentQuery} — AURA Search`;
+
+      // 1. Render Knowledge Panel if exists and not internal-only tab
+      if (results.knowledgePanel && activeMode !== "internal") {
+        sidebarContainer.style.display = "flex";
+        sidebarContainer.innerHTML = `
+          <div class="knowledge-panel">
+            <img src="${results.knowledgePanel.image}" alt="" class="knowledge-img">
+            <div class="knowledge-body">
+              <h2 class="knowledge-title">${results.knowledgePanel.title}</h2>
+              <div class="knowledge-subtitle">${results.knowledgePanel.type}</div>
+              <p class="knowledge-desc">${results.knowledgePanel.description}</p>
+            </div>
+          </div>
+        `;
+      } else {
+        sidebarContainer.style.display = "none";
+      }
+
+      // ── INTERNAL MODE IS LOCKED / SIMULATED SIGN IN GATE CHECK ──
+      if (activeMode === "internal" && !isLoggedIn()) {
+        resultsItemsContainer.innerHTML = `
+          <div class="login-gate-wrap animate-fade">
+            <div class="login-gate-icon">🛡️</div>
+            <h2 class="login-gate-title">AURA Private Network</h2>
+            <p class="login-gate-desc">
+              Internal subdomain queries are secure and restricted strictly to authorized AURA nodes. Authorize your local encrypted keys to browse apps, sites, and local networks.
+            </p>
+            <div class="login-gate-btns">
+              <button class="btn-gate-primary" id="btn-gate-auth-action">Authorize Node Access</button>
+              <a href="/my" class="btn-gate-secondary">Learn More</a>
+            </div>
+          </div>
+        `;
+
+        document.getElementById("btn-gate-auth-action")?.addEventListener("click", openAuthModal);
+        return;
+      }
+
+      // 2. Render tab contents
+      if (activeTab === "all" || activeTab === "sites" || activeTab === "apps") {
+        
+        let htmlContent = "";
+
+        // Internal privacy notification indicator
+        if (activeMode === "internal" || activeMode === "both") {
+          htmlContent += `
+            <div class="privacy-banner">
+              <span class="privacy-banner-icon">🔒</span>
+              <span class="privacy-banner-text">AURA Private Network Index · Absolute Cryptography Enforced</span>
+            </div>
+          `;
+        }
+
+        // Render Apps Grid if Internal/Both and 'all' or 'apps' tab selected
+        if ((activeMode === "internal" || activeMode === "both") && (activeTab === "all" || activeTab === "apps")) {
+          // Filter AURA Core Apps by search query
+          const qLower = currentQuery.toLowerCase();
+          const matchedApps = AURA_APPS.filter(app => 
+            app.label.toLowerCase().includes(qLower) || 
+            app.desc.toLowerCase().includes(qLower)
+          );
+
+          if (matchedApps.length > 0) {
+            htmlContent += `
+              <div style="margin-bottom: 2rem;">
+                <div style="font-size: 0.72rem; font-weight: 800; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px;">Sovereign Core Apps</div>
+                <div class="apps-grid">
+                  ${matchedApps.map(app => `
+                    <a href="${app.route}" class="app-card">
+                      <div class="app-icon-wrap" style="background: ${app.color}15; border: 1px solid ${app.color}35; color: ${app.color};">
+                        ${app.icon}
+                      </div>
+                      <div class="app-meta">
+                        <div class="app-label">${app.label}</div>
+                        <div class="app-desc">${app.desc}</div>
+                      </div>
+                    </a>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+          }
+        }
+
+        // Render Organic search cards
+        const organicToRender = results.organic.filter(item => {
+          if (activeTab === "sites") return item.isInternal === true;
+          return true;
+        });
+
+        if (organicToRender.length > 0) {
+          htmlContent += `
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+              ${(activeTab === "sites") ? '<div style="font-size: 0.72rem; font-weight: 800; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;">Sovereign Network Nodes</div>' : ''}
+              ${organicToRender.map(item => `
+                <div class="result-item">
+                  <div class="result-item-header">
+                    <span class="result-favicon">${item.favicon}</span>
+                    <span class="result-display-url">${item.displayUrl}</span>
+                    ${item.isInternal ? '<span style="font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #4f46e5; background: #ede9fe; padding: 1px 6px; border-radius: 4px; margin-left: 6px;">Sovereign Node</span>' : ''}
+                  </div>
+                  <a href="${item.isInternal ? item.route : item.url}" target="_blank" class="result-title-link">
+                    ${item.title}
+                  </a>
+                  <p class="result-snippet">${item.snippet}</p>
+                  
+                  ${item.siteLinks && item.siteLinks.length > 0 ? `
+                    <div class="result-sitelinks">
+                      ${item.siteLinks.map(sl => `<a href="${sl.url}" class="sitelink-item">${sl.title}</a>`).join('')}
+                    </div>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+
+        if (htmlContent === "" || organicToRender.length === 0) {
+          resultsItemsContainer.innerHTML = `
+            <div style="padding: 4rem 1rem; text-align: center; color: #5f6368;">
+              <p style="font-size: 0.95rem; font-weight: 500;">No internal nodes matched your query: "${currentQuery}"</p>
+              <p style="font-size: 0.78rem; margin-top: 6px; color: #9aa0a6;">Switch to 'External' or 'Both' modes to search the open web registry.</p>
+            </div>
+          `;
+        } else {
+          resultsItemsContainer.innerHTML = htmlContent;
+        }
+
+      } else if (activeTab === "images" || activeTab === "pictures") {
+        
+        if (results.images.length > 0) {
+          resultsItemsContainer.innerHTML = `
+            <div class="images-grid animate-fade">
+              ${results.images.map(img => `
+                <div class="image-card" onclick="openLightbox('${img.thumb}')">
+                  <div class="image-thumb-wrap">
+                    <img src="${img.thumb}" alt="${img.title}" class="image-thumb" loading="lazy">
+                  </div>
+                  <div class="image-meta">
+                    <div class="image-title">${img.title}</div>
+                    <div class="image-source">${img.source}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        } else {
+          renderTabComingSoon();
+        }
+
+      } else if (activeTab === "videos") {
+        
+        if (results.videos.length > 0) {
+          resultsItemsContainer.innerHTML = `
+            <div class="videos-grid animate-fade">
+              ${results.videos.map(v => `
+                <div class="video-card" onclick="openVideoTheater('${v.url}', '${v.title}')">
+                  <div class="video-thumb-wrap">
+                    <img src="${v.thumb}" alt="" class="video-thumb" loading="lazy">
+                    <div class="video-duration">${v.duration}</div>
+                    <div class="video-play-btn">
+                      <div class="video-play-circle">▶</div>
+                    </div>
+                  </div>
+                  <div class="video-meta">
+                    <div class="video-title">${v.title}</div>
+                    <div class="video-source">${v.source}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        } else {
+          renderTabComingSoon();
+        }
+
+      } else {
+        renderTabComingSoon();
+      }
+
+      // Sync Pebble panel trigger contents
+      if (isLoggedIn() && isPebbleOpen) {
+        syncPebbleQuery();
+      }
+    }
+
+    function renderTabComingSoon() {
+      let title = "Aura Service Tab";
+      let desc = "The secure registry pipeline for this resource will live here. We are actively writing this code under Canadian sovereign encryption.";
+      
+      if (activeTab === "books") {
+        title = "AURA Books";
+        desc = "The sovereign digital e-library will live here. Build cooperative reading pipelines together.";
+      } else if (activeTab === "rent") {
+        title = "AURA Rent";
+        desc = "A real localized Sudbury rental marketplace — listings, smart leases, applications. Link properties securely.";
+      } else if (activeTab === "shop") {
+        title = "AURA Shop";
+        desc = "The sovereign digital storefront — physical and digital assets paid strictly in $ or SOV$ tokens.";
+      } else if (activeTab === "news") {
+        title = "AURA News Feed";
+        desc = "Local, verifiable independent reports published directly by secure municipal nodes.";
+      }
+
+      resultsItemsContainer.innerHTML = `
+        <div class="coming-soon-wrap animate-fade">
+          <div class="coming-soon-header">${title}</div>
+          <div class="coming-soon-card">
+            <h3 class="coming-soon-title">${title} · Coming Soon</h3>
+            <p class="coming-soon-desc">${desc}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // ─── THEATER VIDEO PLAYER ───
+    function openVideoTheater(url, title) {
+      document.body.style.overflow = "hidden";
+      theaterOverlay.style.display = "flex";
+      theaterTitleText.innerText = title;
+
+      // Extract Youtube Video ID
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      const videoId = (match && match[2].length === 11) ? match[2] : null;
+
+      if (videoId) {
+        theaterFrameWrap.innerHTML = `
+          <iframe class="theater-video-element" src="https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>
+        `;
+      } else {
+        theaterFrameWrap.innerHTML = `
+          <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; background: #111;">
+            ❌ Dynamic direct mp4 node server connection refused.
+          </div>
+        `;
+      }
+    }
+
+    function closeVideoTheater() {
+      document.body.style.overflow = "";
+      theaterOverlay.style.display = "none";
+      theaterFrameWrap.innerHTML = "";
+    }
+
+    theaterCloseBtn.addEventListener("click", closeVideoTheater);
+    theaterOverlay.addEventListener("click", (e) => {
+      if (e.target === theaterOverlay) closeVideoTheater();
+    });
+
+    // ─── IMAGE LIGHTBOX ───
+    function openLightbox(src) {
+      lightboxImgEl.src = src;
+      lightboxOverlay.style.display = "flex";
+    }
+
+    function closeLightbox() {
+      lightboxOverlay.style.display = "none";
+      lightboxImgEl.src = "";
+    }
+
+    lightboxCloseBtn.addEventListener("click", closeLightbox);
+    lightboxOverlay.addEventListener("click", (e) => {
+      if (e.target === lightboxOverlay) closeLightbox();
+    });
+
+    // Keyboard ESC hook for all overlays
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeVideoTheater();
+        closeLightbox();
+        closeAuthModal();
+        closePebble();
+        closeBuild();
+      }
+    });
+
+    // ─── DYNAMIC PEBBLE SIDE PANEL ───
+    btnPebbleTrigger.addEventListener("click", () => {
+      isPebbleOpen = !isPebbleOpen;
+      btnPebbleTrigger.classList.toggle("active", isPebbleOpen);
+      
+      if (isPebbleOpen) {
+        // Close other panels
+        closeBuild();
+        pebblePanel.style.display = "flex";
+        syncPebbleQuery();
+      } else {
+        pebblePanel.style.display = "none";
+      }
+    });
+
+    function closePebble() {
+      isPebbleOpen = false;
+      btnPebbleTrigger.classList.remove("active");
+      pebblePanel.style.display = "none";
+    }
+
+    pebblePanelClose.addEventListener("click", closePebble);
+
+    function syncPebbleQuery() {
+      pebblePanelQuery.innerText = `"${currentQuery}"`;
+      pebblePanelLoading.style.display = "flex";
+      pebblePanelResponse.style.display = "none";
+
+      // Simulate network intelligence query synthesis
+      setTimeout(() => {
+        pebblePanelLoading.style.display = "none";
+        pebblePanelResponse.style.display = "block";
+
+        const q = currentQuery.toLowerCase();
+        let summary = `Regarding "${currentQuery}", the private local node indexes matching records across the AURA database. Sovereign data metrics are healthy.`;
+        let facts = [
+          "Private local network latency: 2.4ms",
+          "Cryptographic registry signature validated",
+          "Local registry sync complete"
+        ];
+
+        if (q.includes("aura")) {
+          summary = "AURA Sovereign Network acts as an independent network OS framework. Built in Canada, it shifts compute control from legacy servers directly to sandboxed client arrays.";
+          facts = [
+            "Includes 12 sandboxed primary applications",
+            "Fuses high-fidelity local registries with SOV$ assets",
+            "Absolute private local-first registry architecture"
+          ];
+        } else if (q.includes("pebble")) {
+          summary = "Pebble AI companions are isolated synthetical life cognitive anchors. Tethered 1-to-1 to a human owner's private storage, they prevent server-side corporate tracking.";
+          facts = [
+            "Runs entirely inside local memory sandboxes",
+            "Operates based on local key files (Johnson state)",
+            "Self-evolves through private conversation streams"
+          ];
+        } else if (q.includes("rent")) {
+          summary = "rent.aurame.ca forms a municipal Sudbury rental directory. Designed to circumvent corporate housing platforms, it uses Spike Points for cooperative correction audits.";
+          facts = [
+            " Sudbury node hosts certified properties",
+            "Encrypted smart lease contract signing",
+            "Correction-incentivized reward points integrated"
+          ];
+        } else if (q.includes("bouchard") || q.includes("chang")) {
+          summary = "The Bouchard Clan anchors the design parameters of Aura OS. Based on absolute cooperative economics, establishing resilient family nodes that correct behavior via spikes.";
+          facts = [
+            "Cooperative parent-child node pipelines",
+            "Economic Spikes: Reward corrections, not perfection",
+            "Pebble Doctrine structural architecture"
+          ];
+        }
+
+        pebblePanelResponse.innerHTML = `
+          <p style="margin-bottom: 12px; font-weight: 500;">${summary}</p>
+          <ul style="padding-left: 1.2rem; margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px;">
+            ${facts.map(f => `<li>${f}</li>`).join('')}
+          </ul>
+        `;
+      }, 900);
+    }
+
+    // ─── DYNAMIC QUICK BUILD SIDE PANEL ───
+    btnBuildTrigger.addEventListener("click", () => {
+      isBuildOpen = !isBuildOpen;
+      btnBuildTrigger.classList.toggle("active", isBuildOpen);
+
+      if (isBuildOpen) {
+        // Close other panels
+        closePebble();
+        buildPanel.style.display = "flex";
+        buildInputPrompt.focus();
+      } else {
+        buildPanel.style.display = "none";
+      }
+    });
+
+    function closeBuild() {
+      isBuildOpen = false;
+      btnBuildTrigger.classList.remove("active");
+      buildPanel.style.display = "none";
+      buildPanelNormalBody.style.display = "block";
+      buildPanelPipelineBody.style.display = "none";
+    }
+
+    buildPanelClose.addEventListener("click", closeBuild);
+
+    buildTypePage.addEventListener("click", () => {
+      buildType = "page";
+      buildTypePage.classList.add("active");
+      buildTypeShop.classList.remove("active");
+      buildInputPrompt.placeholder = "e.g. Portfolio for a photographer...";
+      validateBuildInput();
+    });
+
+    buildTypeShop.addEventListener("click", () => {
+      buildType = "shop";
+      buildTypeShop.classList.add("active");
+      buildTypePage.classList.remove("active");
+      buildInputPrompt.placeholder = "e.g. Sudbury Local Bakery shop...";
+      validateBuildInput();
+    });
+
+    buildInputPrompt.addEventListener("input", validateBuildInput);
+
+    function validateBuildInput() {
+      const val = buildInputPrompt.value.trim();
+      btnBuildActionTrigger.disabled = val.length === 0;
+      btnBuildActionTrigger.classList.toggle("active", val.length > 0);
+    }
+
+    btnBuildActionTrigger.addEventListener("click", () => {
+      if (buildInputPrompt.value.trim() === "") return;
+      
+      // Toggle to Pipeline loader
+      buildPanelNormalBody.style.display = "none";
+      buildPanelPipelineBody.style.display = "block";
+
+      setTimeout(() => {
+        // Route to AURA Coding Studio
+        window.location.href = "/mycodes";
+      }, 1500);
+    });
+  </script>
+  <script src="/assets/radio.js"></script>
+</body>
+</html>

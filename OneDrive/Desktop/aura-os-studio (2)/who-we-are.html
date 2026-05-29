@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Who We Are — AURA Sovereign Network Portal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #7c3aed;
+      --indigo: #6366f1;
+      --cyan: #0891b2;
+      --green: #16a34a;
+      --slate: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --bg: #fafafa;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: var(--slate);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 3rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+      color: var(--slate);
+    }
+
+    .nav-brand-name {
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+    }
+
+    .nav-back {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+    }
+
+    .nav-back:hover {
+      border-color: var(--indigo);
+      color: var(--indigo);
+      background: rgba(99,102,241,0.04);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #f8fafc 0%, #f0f4ff 50%, #faf5ff 100%);
+      padding: 5rem 2rem 4rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      border: 1px solid rgba(99,102,241,0.06);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 450px;
+      height: 450px;
+      border-radius: 50%;
+      border: 1px solid rgba(99,102,241,0.1);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(99,102,241,0.08);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 9999px;
+      padding: 0.4rem 1.1rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--indigo);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(90deg, var(--indigo), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.75;
+      position: relative;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .hero-stat-value {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--indigo);
+      letter-spacing: -0.02em;
+    }
+
+    .hero-stat-label {
+      font-size: 0.65rem;
+      color: #94a3b8;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 0.2rem;
+    }
+
+    /* ── SECTION WRAPPER ── */
+    .section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-eyebrow {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--indigo);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 900;
+      color: var(--slate);
+      letter-spacing: -0.03em;
+      margin-bottom: 0.5rem;
+      line-height: 1.1;
+    }
+
+    .section-desc {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 560px;
+      margin-bottom: 3rem;
+    }
+
+    /* ── REASONS GRID ── */
+    .reasons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .reason-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      padding: 2rem 1.75rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    .reason-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.04);
+      border-color: rgba(99,102,241,0.25);
+    }
+
+    .reason-num {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 900;
+      margin-bottom: 1.25rem;
+    }
+
+    .reason-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--slate);
+      margin-bottom: 0.6rem;
+    }
+
+    .reason-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    /* ── COMPARISON TABLE ── */
+    .comparison-wrap {
+      border-radius: 1.5rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .comparison-head {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .comparison-head-cell {
+      padding: 1rem 1.25rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .comparison-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.2s ease;
+    }
+
+    .comparison-row:last-child { border-bottom: none; }
+    .comparison-row:nth-child(even) { background: #fafbff; }
+    .comparison-row:hover { background: rgba(99,102,241,0.02); }
+
+    .comparison-cell {
+      padding: 1rem 1.25rem;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+
+    .check-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    /* ── SUPPORT TILES ── */
+    .support-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .support-tile {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 1.25rem;
+      padding: 1.75rem 1.25rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .support-tile:hover {
+      border-color: rgba(99,102,241,0.3);
+      box-shadow: 0 10px 25px rgba(99,102,241,0.06);
+      transform: translateY(-3px);
+    }
+
+    .support-tile-icon {
+      font-size: 1.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .support-tile-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--slate);
+      margin-bottom: 0.35rem;
+    }
+
+    .support-tile-desc {
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .support-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      margin-top: 0.6rem;
+    }
+
+    /* ── TERMS SECTION ── */
+    .terms-container {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+    }
+
+    .terms-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .terms-tab {
+      padding: 0.5rem 1.1rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .terms-tab.active, .terms-tab:hover {
+      background: var(--indigo);
+      color: #fff;
+      border-color: var(--indigo);
+    }
+
+    .terms-content {
+      display: none;
+    }
+
+    .terms-content.active {
+      display: block;
+    }
+
+    .terms-content h3 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--slate);
+      margin-bottom: 0.75rem;
+    }
+
+    .terms-content p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.85;
+      margin-bottom: 1rem;
+    }
+
+    .terms-content ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .terms-content ul li {
+      font-size: 0.83rem;
+      color: var(--muted);
+      line-height: 1.7;
+      padding-left: 1.25rem;
+      position: relative;
+    }
+
+    .terms-content ul li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--indigo);
+      font-weight: 700;
+    }
+
+    /* ── QUOTE STRIP ── */
+    .quote-strip {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .quote-text {
+      font-size: clamp(1.2rem, 2.5vw, 1.85rem);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.4;
+      max-width: 640px;
+      margin: 0 auto 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .quote-attr {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      padding: 5rem 2rem;
+      text-align: center;
+      background: linear-gradient(135deg, #f0f4ff, #faf5ff);
+      border-top: 1px solid var(--border);
+    }
+
+    .cta-eyebrow {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--indigo);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 1rem;
+    }
+
+    .cta-title {
+      font-size: clamp(1.8rem, 3.5vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    .cta-title span {
+      background: linear-gradient(90deg, var(--indigo), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .cta-desc {
+      font-size: 0.95rem;
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.75;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      padding: 1rem 2.25rem;
+      background: var(--indigo);
+      color: #fff;
+      border: none;
+      border-radius: 9999px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 6px 20px rgba(99,102,241,0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--purple);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(99,102,241,0.4);
+    }
+
+    .btn-secondary {
+      padding: 1rem 1.75rem;
+      background: #fff;
+      color: #374151;
+      border: 1.5px solid var(--border);
+      border-radius: 9999px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--indigo);
+      color: var(--indigo);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 2rem 3rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: #94a3b8;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer-link {
+      font-size: 0.72rem;
+      color: #94a3b8;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .footer-link:hover {
+      color: var(--indigo);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="/" class="nav-brand">
+      <svg width="26" height="26" viewBox="0 0 100 100" fill="none">
+        <defs>
+          <linearGradient id="ng" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#4facfe"/>
+            <stop offset="50%" stop-color="#a855f7"/>
+            <stop offset="100%" stop-color="#ff0844"/>
+          </linearGradient>
+        </defs>
+        <path d="M50 12L10 88H30L50 46L70 88H90L50 12Z" fill="url(#ng)"/>
+        <path d="M42 62H58L50 45L42 62Z" fill="#fff"/>
+      </svg>
+      <span class="nav-brand-name">AURA</span>
+    </a>
+    <a href="/" class="nav-back">
+      ← Back to Portal
+    </a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">Who We Are</div>
+    <h1>
+      Because you deserve<br>
+      <span>better than the status quo.</span>
+    </h1>
+    <p class="hero-desc">
+      The world moved forward — but the platforms you rely on weren't built to serve you. They were built to track you, monetize you, and lock you in. AURA is different.
+    </p>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-value">🇨🇦</div>
+        <div class="hero-stat-label">Canadian Built</div>
+      </div>
+      <div>
+        <div class="hero-stat-value">100%</div>
+        <div class="hero-stat-label">Data Yours</div>
+      </div>
+      <div>
+        <div class="hero-stat-value">$35</div>
+        <div class="hero-stat-label">Starting / mo</div>
+      </div>
+      <div>
+        <div class="hero-stat-value">1</div>
+        <div class="hero-stat-label">Platform for All</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIX REASONS -->
+  <section class="section">
+    <div class="section-eyebrow">Six Reasons People Choose AURA</div>
+    <h2 class="section-title">Why people make the shift.</h2>
+    <p class="section-desc">We don't compete on features. We compete on values.</p>
+    <div class="reasons-grid">
+      <div class="reason-card">
+        <div class="reason-num" style="background:#eef2ff; color:#6366f1;">01</div>
+        <div class="reason-title">You are the customer. Not the product.</div>
+        <div class="reason-desc">No ads. No data selling. No hidden incentives. AURA earns from subscriptions only — so we succeed when you do.</div>
+      </div>
+      <div class="reason-card">
+        <div class="reason-num" style="background:#f0f9ff; color:#0891b2;">02</div>
+        <div class="reason-title">Built and governed in Canada 🇨🇦</div>
+        <div class="reason-desc">Canadian company. Canadian servers. Canadian law. Your data never crosses a border without your consent — ever.</div>
+      </div>
+      <div class="reason-card">
+        <div class="reason-num" style="background:#f0fdf4; color:#16a34a;">03</div>
+        <div class="reason-title">One system. Total control.</div>
+        <div class="reason-desc">Family, business, property, identity — all under one platform. No more juggling 20 apps. One sovereign foundation.</div>
+      </div>
+      <div class="reason-card">
+        <div class="reason-num" style="background:#faf5ff; color:#7c3aed;">04</div>
+        <div class="reason-title">Real-world innovation, not just software.</div>
+        <div class="reason-desc">AURA goes beyond apps. Think wireless power, smart infrastructure, Lasso and Pebble — technology that integrates into your physical life.</div>
+      </div>
+      <div class="reason-card">
+        <div class="reason-num" style="background:#fff1f2; color:#dc2626;">05</div>
+        <div class="reason-title">Built by a real person, not a boardroom.</div>
+        <div class="reason-desc">Founded by Joseph Bouchard. There is real accountability behind every decision. You know who built this and why.</div>
+      </div>
+      <div class="reason-card">
+        <div class="reason-num" style="background:#fefce8; color:#ca8a04;">06</div>
+        <div class="reason-title">Purpose beyond profit.</div>
+        <div class="reason-desc">AURA is tied directly to One Step Closer — supporting families and communities. This is about rebuilding how value flows back to society.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON TABLE -->
+  <section style="padding: 0 2rem 5rem; max-width: 1100px; margin: 0 auto;">
+    <div class="section-eyebrow">AURA vs Everyone Else</div>
+    <h2 class="section-title" style="margin-bottom: 2.5rem;">There is no comparison.</h2>
+    <div class="comparison-wrap">
+      <div class="comparison-head">
+        <div class="comparison-head-cell" style="color:#94a3b8;">Category</div>
+        <div class="comparison-head-cell" style="color:#6366f1;">AURA</div>
+        <div class="comparison-head-cell" style="color:#94a3b8;">Everyone Else</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-cell" style="color:#64748b; font-weight:500;">Who You Are</div>
+        <div class="comparison-cell"><span class="check-icon">✓ The customer</span></div>
+        <div class="comparison-cell" style="color:#9ca3af;">The product</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-cell" style="color:#64748b; font-weight:500;">Data Ownership</div>
+        <div class="comparison-cell"><span class="check-icon">✓ 100% yours, always</span></div>
+        <div class="comparison-cell" style="color:#9ca3af;">Sold to advertisers</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-cell" style="color:#64748b; font-weight:500;">Privacy</div>
+        <div class="comparison-cell"><span class="check-icon">✓ Encrypted by default</span></div>
+        <div class="comparison-cell" style="color:#9ca3af;">Profiled and analyzed</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-cell" style="color:#64748b; font-weight:500;">Jurisdiction</div>
+        <div class="comparison-cell"><span class="check-icon">✓ Canadian law & servers</span></div>
+        <div class="comparison-cell" style="color:#9ca3af;">US/foreign jurisdiction</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-cell" style="color:#64748b; font-weight:500;">Phone & Calling</div>
+        <div class="comparison-cell"><span class="check-icon">✓ Free calls + AURA number</span></div>
+        <div class="comparison-cell" style="color:#9ca3af;">Extra paid add-on</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-cell" style="color:#64748b; font-weight:500;">Platform Scope</div>
+        <div class="comparison-cell"><span class="check-icon">✓ Family + Business + All</span></div>
+        <div class="comparison-cell" style="color:#9ca3af;">One product, many bills</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-cell" style="color:#64748b; font-weight:500;">Community Impact</div>
+        <div class="comparison-cell"><span class="check-icon">✓ One Step Closer non-profit</span></div>
+        <div class="comparison-cell" style="color:#9ca3af;">No social purpose</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-cell" style="color:#64748b; font-weight:500;">Accountability</div>
+        <div class="comparison-cell"><span class="check-icon">✓ Real founder, real decisions</span></div>
+        <div class="comparison-cell" style="color:#9ca3af;">Anonymous executives</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE STRIP -->
+  <div class="quote-strip">
+    <p class="quote-text">"Technology is the tool. People are the purpose."</p>
+    <p class="quote-attr">— Joseph Bouchard, Founder of AURA</p>
+  </div>
+
+  <!-- SUPPORT TILES -->
+  <section class="section">
+    <div class="section-eyebrow">Support Centre</div>
+    <h2 class="section-title">Real help. No hold music.</h2>
+    <p class="section-desc">Choose your issue below. For sensitive actions, we verify your identity before anything is sent.</p>
+    <div class="support-grid">
+      <div class="support-tile" onclick="showToast('Password reset flow coming soon!')">
+        <div class="support-tile-icon">🔑</div>
+        <div class="support-tile-title">Forgot Password</div>
+        <div class="support-tile-desc">Reset your AURA account securely via your registered backup email.</div>
+        <div class="support-badge" style="background:#e0f2fe; color:#0891b2;">Email + SMS Verified</div>
+      </div>
+      <div class="support-tile" onclick="showToast('Billing support routing to God Mode...')">
+        <div class="support-tile-icon">💳</div>
+        <div class="support-tile-title">Billing Issue</div>
+        <div class="support-tile-desc">Wrong charge or missing receipt? Goes straight to God Mode admin.</div>
+        <div class="support-badge" style="background:#fef9c3; color:#d97706;">God Mode Routed</div>
+      </div>
+      <div class="support-tile" onclick="showToast('Account access recovery — identity required.')">
+        <div class="support-tile-icon">🔒</div>
+        <div class="support-tile-title">Account Access</div>
+        <div class="support-tile-desc">Locked out or suspicious activity? We'll get you back in safely.</div>
+        <div class="support-badge" style="background:#fee2e2; color:#dc2626;">Identity Required</div>
+      </div>
+      <div class="support-tile" onclick="document.getElementById('contact-modal').classList.add('active')">
+        <div class="support-tile-icon">📩</div>
+        <div class="support-tile-title">Something Else</div>
+        <div class="support-tile-desc">General question or feedback — our team responds within 24 hours.</div>
+        <div class="support-badge" style="background:#ede9fe; color:#5e5ce6;">24h Response</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TERMS SECTION -->
+  <section style="padding: 0 2rem 5rem; max-width: 1100px; margin: 0 auto;">
+    <div class="section-eyebrow">Legal</div>
+    <h2 class="section-title" style="margin-bottom:2rem;">Terms, Privacy & Policies</h2>
+    <div class="terms-container">
+      <div class="terms-tabs">
+        <button class="terms-tab active" onclick="switchTab('tos', this)">Terms of Service</button>
+        <button class="terms-tab" onclick="switchTab('privacy', this)">Privacy Policy</button>
+        <button class="terms-tab" onclick="switchTab('data', this)">Data Ownership</button>
+        <button class="terms-tab" onclick="switchTab('refund', this)">Refund Policy</button>
+      </div>
+      <div class="terms-content active" id="tab-tos">
+        <h3>Terms of Service</h3>
+        <p>By using AURA, you agree to the following core principles that govern your relationship with this platform.</p>
+        <ul>
+          <li>AURA is a subscription-based platform. No ads, no data monetization, ever.</li>
+          <li>You retain full ownership of all data you create, upload, or store on AURA.</li>
+          <li>Accounts are personal and non-transferable without explicit written consent.</li>
+          <li>AURA reserves the right to suspend accounts engaged in fraudulent or illegal activity.</li>
+          <li>Services are provided as-is with a 99.5% uptime commitment on production infrastructure.</li>
+          <li>Disputes are resolved under Canadian law in the jurisdiction of Ontario.</li>
+        </ul>
+        <p>Full legal terms available at aurame.ca/legal/tos — last updated May 2026.</p>
+      </div>
+      <div class="terms-content" id="tab-privacy">
+        <h3>Privacy Policy</h3>
+        <p>AURA is built on the belief that privacy is a right, not a feature you pay extra for.</p>
+        <ul>
+          <li>Your data is stored exclusively on Canadian servers governed by Canadian law (PIPEDA).</li>
+          <li>We do not sell, share, or profile your data to any third party, ever.</li>
+          <li>End-to-end encryption is applied by default on all personal communications.</li>
+          <li>You can request a full export or deletion of all your data at any time.</li>
+          <li>No advertising networks have access to your AURA activity or profile.</li>
+          <li>We collect only what is operationally necessary to run your services.</li>
+        </ul>
+        <p>Full privacy policy available at aurame.ca/legal/privacy — last updated May 2026.</p>
+      </div>
+      <div class="terms-content" id="tab-data">
+        <h3>Data Ownership</h3>
+        <p>This is non-negotiable: you own your data. AURA is the custodian, not the owner.</p>
+        <ul>
+          <li>All content you create — documents, media, messages, records — belongs to you.</li>
+          <li>AURA holds a limited license to process your data solely to deliver your services.</li>
+          <li>If you cancel, you receive a 30-day window to export everything before deletion.</li>
+          <li>AURA cannot use your data to train AI models without explicit opt-in consent.</li>
+          <li>Law enforcement requests require a valid Canadian court order — we fight for you.</li>
+        </ul>
+      </div>
+      <div class="terms-content" id="tab-refund">
+        <h3>Refund Policy</h3>
+        <p>We believe in fairness. If AURA doesn't deliver, neither should we keep your money.</p>
+        <ul>
+          <li>Full refund available within 14 days of initial subscription with no questions asked.</li>
+          <li>Pro-rated refunds available for annual plans cancelled mid-cycle.</li>
+          <li>Billing errors are corrected within 5 business days with full credit issued.</li>
+          <li>No refunds on month-to-month plans after the 14-day window — but you keep access until the period ends.</li>
+          <li>Contact support@aurame.ca for all refund requests — God Mode reviews within 24 hours.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-eyebrow">Make The Shift</div>
+    <h2 class="cta-title">
+      Stop renting your digital life.<br>
+      <span>Own it with AURA.</span>
+    </h2>
+    <p class="cta-desc">Start with a personal plan at $35/month. No contracts. No hidden fees. Real infrastructure. Real purpose.</p>
+    <div class="cta-buttons">
+      <a href="/login/" class="btn-primary">Get Started Free →</a>
+      <a href="/" class="btn-secondary">Back to Portal</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">
+      <svg width="16" height="16" viewBox="0 0 100 100" fill="none">
+        <path d="M50 12L10 88H30L50 46L70 88H90L50 12Z" fill="url(#ng)"/>
+        <path d="M42 62H58L50 45L42 62Z" fill="#fff"/>
+      </svg>
+      SOVEREIGN · PRIVATE · CANADIAN REGISTRY · © 2026 AURA
+    </div>
+    <div class="footer-links">
+      <a href="#" class="footer-link">aurame.ca/legal/tos</a>
+      <a href="#" class="footer-link">aurame.ca/legal/privacy</a>
+      <a href="mailto:support@aurame.ca" class="footer-link">support@aurame.ca</a>
+    </div>
+  </footer>
+
+  <!-- Contact Modal -->
+  <div id="contact-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.2);backdrop-filter:blur(12px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s ease;">
+    <div style="background:#fff;border-radius:1.75rem;width:90%;max-width:420px;padding:2.5rem;box-shadow:0 30px 60px rgba(0,0,0,0.1);position:relative;transform:translateY(20px);transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);">
+      <button onclick="document.getElementById('contact-modal').classList.remove('active')" style="position:absolute;top:1.25rem;right:1.25rem;background:#f1f5f9;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:1rem;">&times;</button>
+      <div style="font-size:0.7rem;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Contact Support</div>
+      <h3 style="font-size:1.2rem;font-weight:900;margin-bottom:1.5rem;color:#0f172a;">Send us a message</h3>
+      <form onsubmit="submitContact(event)">
+        <input id="c-name" type="text" placeholder="Your name" required style="width:100%;padding:0.75rem 1rem;border:1px solid #e2e8f0;border-radius:0.75rem;font-size:0.85rem;outline:none;margin-bottom:0.75rem;font-family:inherit;">
+        <input id="c-email" type="email" placeholder="Your email" required style="width:100%;padding:0.75rem 1rem;border:1px solid #e2e8f0;border-radius:0.75rem;font-size:0.85rem;outline:none;margin-bottom:0.75rem;font-family:inherit;">
+        <textarea id="c-msg" placeholder="Your message…" rows="4" required style="width:100%;padding:0.75rem 1rem;border:1px solid #e2e8f0;border-radius:0.75rem;font-size:0.85rem;outline:none;resize:vertical;font-family:inherit;margin-bottom:1rem;line-height:1.6;"></textarea>
+        <button type="submit" style="width:100%;padding:0.9rem;background:#6366f1;color:#fff;border:none;border-radius:9999px;font-weight:700;font-size:0.9rem;cursor:pointer;">Send Message →</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" style="position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:#171717;color:#fff;padding:0.9rem 1.75rem;border-radius:9999px;font-size:0.85rem;font-weight:600;z-index:1000;transition:transform 0.35s cubic-bezier(0.175,0.885,0.32,1.275);white-space:nowrap;"></div>
+
+  <script>
+    // Tab switching
+    function switchTab(id, el) {
+      document.querySelectorAll('.terms-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.terms-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + id).classList.add('active');
+      el.classList.add('active');
+    }
+
+    // Modal open/close opacity fix
+    const contactModal = document.getElementById('contact-modal');
+    const observer = new MutationObserver(() => {
+      if (contactModal.classList.contains('active')) {
+        contactModal.style.opacity = '1';
+        contactModal.style.pointerEvents = 'auto';
+        contactModal.querySelector('div').style.transform = 'translateY(0)';
+      } else {
+        contactModal.style.opacity = '0';
+        contactModal.style.pointerEvents = 'none';
+        contactModal.querySelector('div').style.transform = 'translateY(20px)';
+      }
+    });
+    observer.observe(contactModal, { attributes: true, attributeFilter: ['class'] });
+    contactModal.addEventListener('click', e => {
+      if (e.target === contactModal) contactModal.classList.remove('active');
+    });
+
+    // Contact form submit to local API
+    async function submitContact(e) {
+      e.preventDefault();
+      const name = document.getElementById('c-name').value;
+      const email = document.getElementById('c-email').value;
+      const msg = document.getElementById('c-msg').value;
+      try {
+        await fetch('/api/contacts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, message: msg, submittedAt: new Date().toISOString() })
+        });
+        showToast('✅ Message saved! We will respond within 24 hours.');
+        contactModal.classList.remove('active');
+        e.target.reset();
+      } catch {
+        showToast('❌ Could not send — try support@aurame.ca');
+      }
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.transform = 'translateX(-50%) translateY(0)';
+      setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(100px)'; }, 4000);
+    }
+  </script>
+</body>
+</html>

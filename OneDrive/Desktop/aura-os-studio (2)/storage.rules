@@ -1,0 +1,16 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Deny all access by default
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+    
+    // SOVEREIGN STORAGE RULES
+    // Users are only allowed to upload/download files matching their authenticated workspace ID
+    match /workspaces/{workspaceId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.token.workspaceId == workspaceId;
+    }
+  }
+}

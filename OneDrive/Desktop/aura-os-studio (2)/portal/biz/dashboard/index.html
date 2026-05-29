@@ -1,0 +1,22 @@
+<!-- Traffic Controller -->
+<script>
+  console.log("Reading IAM Permissions...");
+  
+  // SECURE FRONT DOOR ROUTING
+  const userToken = "valid_token"; // Mock: User is logged in
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetCompanyId = urlParams.get('company_id');
+  
+  if (!userToken) {
+      console.log("Unauthorized entry. Bouncing to True Oath Five Front Door...");
+      window.location.href = "./login_portal/index.html";
+  } else if (!targetCompanyId) {
+      console.log("No workspace selected. Bouncing to the Lobby...");
+      window.location.href = "./login_portal/index.html"; // Shows workspace switcher
+  } else {
+      console.log(Token verified. Accessing workspace: );
+      console.log("Routing to correct Zone...");
+      // IAM Routing logic passes targetCompanyId down to Pebble and UI
+  }
+</script>
+<h1>Business Dashboard Router</h1>

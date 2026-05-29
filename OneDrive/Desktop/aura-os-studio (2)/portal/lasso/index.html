@@ -1,0 +1,2266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA — Sovereign Network & Lasso Mesh</title>
+  <link rel="stylesheet" href="/assets/radio.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --purple: #8b5cf6;
+      --purple-hover: #7c3aed;
+      --purple-glow: rgba(139, 92, 246, 0.3);
+      --cyan: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.3);
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.3);
+      --bg: #09090e;
+      --card-bg: rgba(20, 20, 35, 0.45);
+      --border-color: rgba(255, 255, 255, 0.07);
+      --text: #f4f4f6;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    /* Ambient background glows */
+    .glow-layer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .glow-1 {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      top: -200px;
+      right: -100px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
+      filter: blur(80px);
+    }
+
+    .glow-2 {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      top: 40%;
+      left: -150px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.06) 0%, transparent 70%);
+      filter: blur(80px);
+    }
+
+    .glow-3 {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      bottom: -100px;
+      right: -200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+      filter: blur(80px);
+    }
+
+    /* Grid Overlay */
+    .grid-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.007) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.007) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Header styling */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      background: rgba(9, 9, 14, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4rem;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    header.scrolled {
+      height: 68px;
+      background: rgba(9, 9, 14, 0.85);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .glass-logo {
+      width: 36px;
+      height: 36px;
+      position: relative;
+      filter: drop-shadow(0 4px 12px rgba(139, 92, 246, 0.35));
+    }
+
+    .brand-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      background: linear-gradient(90deg, #ffffff, #d8b4fe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+    }
+
+    .nav-link {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--text);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 0.65rem 1.35rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--text);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--purple) 0%, var(--purple-hover) 100%);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 0.68rem 1.65rem;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 20px var(--purple-glow);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1.5px);
+      box-shadow: 0 8px 25px var(--purple-glow);
+    }
+
+    .profile-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      padding: 0.45rem 1.25rem 0.45rem 0.5rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .profile-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    .profile-nav-avatar {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 900;
+      color: #ffffff;
+    }
+
+    .profile-nav-name {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1300px;
+      width: 90%;
+      margin: 0 auto;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 12rem 0 6rem;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      color: #c084fc;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0.45rem 1.15rem;
+      border-radius: 9999px;
+      margin-bottom: 2rem;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--cyan);
+      animation: pulseGlow 2s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    .hero-content h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2.5rem, 5vw, 4.2rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-content h1 span {
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: 2.5rem;
+      max-width: 580px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-hero-primary {
+      background: linear-gradient(135deg, var(--purple) 0%, var(--purple-hover) 100%);
+      color: #ffffff;
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 1.1rem 2.25rem;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 30px var(--purple-glow);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-hero-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px var(--purple-glow);
+    }
+
+    .btn-hero-secondary {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 1.1rem 2rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-hero-secondary:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Floating Showcase Card */
+    .hero-showcase {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .showcase-glass-box {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card-bg);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid var(--border-color);
+      border-radius: 2.2rem;
+      padding: 2.5rem;
+      position: relative;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+      animation: floatWidget 5s ease-in-out infinite;
+    }
+
+    @keyframes floatWidget {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .widget-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .widget-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--cyan);
+    }
+
+    .widget-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: var(--green);
+      letter-spacing: 0.05em;
+    }
+
+    .widget-indicator-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--green);
+    }
+
+    .widget-stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .widget-stat-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      padding: 1.25rem;
+      border-radius: 1.2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .widget-stat-card:hover {
+      border-color: rgba(139, 92, 246, 0.15);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .widget-stat-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
+    }
+
+    .widget-stat-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    /* Interactive Search preview */
+    .widget-search-bar {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 0.4rem 0.4rem 0.4rem 1.25rem;
+      border-radius: 9999px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+    }
+
+    .widget-search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    .widget-search-input::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .widget-search-btn {
+      width: 32px;
+      height: 32px;
+      background: var(--purple);
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      transition: background 0.3s;
+    }
+
+    .widget-search-btn:hover {
+      background: var(--purple-hover);
+    }
+
+    /* section headings */
+    .section-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 4rem;
+    }
+
+    .section-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--purple);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2rem, 4vw, 2.75rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    .section-title span {
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    /* Calculator Section */
+    .calculator-section {
+      padding: 6rem 0;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .calculator-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .calculator-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid var(--border-color);
+      border-radius: 2rem;
+      padding: 3rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    }
+
+    .calc-row {
+      margin-bottom: 2.5rem;
+    }
+
+    .calc-label-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .calc-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .calc-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--cyan);
+    }
+
+    .slider-container {
+      position: relative;
+    }
+
+    .slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--cyan);
+      cursor: pointer;
+      box-shadow: 0 0 12px var(--cyan-glow);
+      transition: transform 0.2s;
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Savings Card */
+    .savings-display-card {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 2rem;
+      padding: 3rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      min-height: 380px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .savings-pulse {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+      animation: floatPebble 6s ease-in-out infinite;
+    }
+
+    .savings-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .savings-amount {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(3rem, 5vw, 4.5rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .savings-time {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--cyan);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+    }
+
+    .savings-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 280px;
+    }
+
+    /* Map Section */
+    .map-section {
+      padding: 6rem 0;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .map-viewport {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 2rem;
+      padding: 1.5rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 1.35;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .map-svg-wrap {
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-svg-wrap svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Animated Map Dots */
+    .map-node {
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .map-node circle.glow {
+      transform-origin: center;
+      animation: nodePulse 2.5s infinite;
+      opacity: 0.3;
+    }
+
+    @keyframes nodePulse {
+      0% { transform: scale(1); opacity: 0.5; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    .map-node:hover circle.core {
+      fill: #ffffff;
+      filter: drop-shadow(0 0 8px var(--cyan));
+    }
+
+    /* Map Details panel */
+    .map-details {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 2rem;
+      padding: 2.5rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .map-details-top {
+      margin-bottom: 2rem;
+    }
+
+    .map-details-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .map-details-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: #ffffff;
+    }
+
+    .map-details-badge {
+      font-size: 0.6rem;
+      font-weight: 800;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--green);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .map-details-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+
+    .meta-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .meta-val {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .map-action-block {
+      margin-top: auto;
+    }
+
+    .btn-simulate-lasso {
+      width: 100%;
+      background: linear-gradient(135deg, var(--cyan) 0%, #0891b2 100%);
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 1.1rem;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 20px var(--cyan-glow);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-simulate-lasso:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px var(--cyan-glow);
+    }
+
+    /* Splicer/Topology Section */
+    .topology-section {
+      padding: 6rem 0;
+      border-top: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .topology-grid {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .topology-visualizer {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 2rem;
+      padding: 2rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+      aspect-ratio: 1.25;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .topo-canvas {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Circle SVG animations */
+    .topo-circle {
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .topo-btn-row {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .btn-topo {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      padding: 0.65rem 1.25rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+    }
+
+    .btn-topo.active, .btn-topo:hover {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+    }
+
+    /* Products/Pillars Section */
+    .pillars-section {
+      padding: 6rem 0;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+
+    .pillar-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 2rem;
+      padding: 2.25rem 2rem;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+    }
+
+    .pillar-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(139, 92, 246, 0.25);
+      box-shadow: 0 20px 45px rgba(139, 92, 246, 0.06);
+    }
+
+    .pillar-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      margin-bottom: 1.75rem;
+      transition: all 0.3s;
+    }
+
+    .pillar-card:hover .pillar-icon {
+      transform: scale(1.1);
+    }
+
+    .pillar-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin-bottom: 0.75rem;
+    }
+
+    .pillar-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 5, 10, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 2.5rem;
+      width: 90%;
+      max-width: 450px;
+      padding: 3rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+      transform: translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+    }
+
+    .modal-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .modal-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 0.85rem;
+      padding: 0.9rem 1.15rem;
+      font-size: 0.85rem;
+      font-family: inherit;
+      color: var(--text);
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--purple);
+      box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--purple) 0%, var(--purple-hover) 100%);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      padding: 1.1rem;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      margin-top: 1rem;
+      box-shadow: 0 4px 20px var(--purple-glow);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+
+    .btn-submit:hover {
+      box-shadow: 0 8px 25px var(--purple-glow);
+      transform: translateY(-1px);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #10101a;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      padding: 1rem 2rem;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+      z-index: 3000;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toast.active {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Footer styling */
+    footer {
+      padding: 4rem 0;
+      border-top: 1px solid var(--border-color);
+      position: relative;
+      z-index: 10;
+    }
+
+    .footer-grid {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2.5rem;
+    }
+
+    .footer-link {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.3s ease;
+    }
+
+    .footer-link:hover {
+      color: var(--cyan);
+    }
+
+    /* B2B Partner Section & Marquees (Dark Mode optimized) */
+    .partner-section {
+      padding: 6rem 0;
+      border-top: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .partner-section-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 3rem;
+    }
+
+    .partner-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1.25rem;
+      margin-bottom: 4rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-partner-primary {
+      background: linear-gradient(135deg, var(--purple) 0%, var(--purple-hover) 100%);
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 1rem 2rem;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 20px var(--purple-glow);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      text-transform: uppercase;
+    }
+
+    .btn-partner-primary:hover {
+      transform: translateY(-1.5px);
+      box-shadow: 0 8px 25px var(--purple-glow);
+    }
+
+    .btn-partner-secondary {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      color: var(--text);
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 1rem 2rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+
+    .btn-partner-secondary:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Infinite Horizontal Logo Marquees */
+    .marquee-container {
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      padding: 0.5rem 0;
+      margin-bottom: 1rem;
+      pointer-events: none;
+    }
+
+    .marquee-container::before,
+    .marquee-container::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 150px;
+      height: 100%;
+      z-index: 2;
+    }
+
+    .marquee-container::before {
+      left: 0;
+      background: linear-gradient(90deg, var(--bg) 0%, transparent 100%);
+    }
+
+    .marquee-container::after {
+      right: 0;
+      background: linear-gradient(-90deg, var(--bg) 0%, transparent 100%);
+    }
+
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      gap: 1.25rem;
+    }
+
+    .marquee-row-1 .marquee-track {
+      animation: scrollLeft 48s linear infinite;
+    }
+
+    .marquee-row-2 .marquee-track {
+      animation: scrollRight 48s linear infinite;
+    }
+
+    .marquee-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 0.8rem 1.85rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.04em;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-shrink: 0;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .marquee-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    @keyframes scrollLeft {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    @keyframes scrollRight {
+      0% { transform: translateX(-50%); }
+      100% { transform: translateX(0); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .hero, .calculator-grid, .map-grid, .topology-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+      .pillars-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      header {
+        padding: 0 2rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .pillars-grid {
+        grid-template-columns: 1fr;
+      }
+      header {
+        padding: 0 1.5rem;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient lights and grids -->
+  <div class="glow-layer">
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+    <div class="glow-3"></div>
+  </div>
+  <div class="grid-overlay"></div>
+
+  <!-- Header Navigation -->
+  <header id="header">
+    <a href="#" class="brand-logo">
+      <div class="glass-logo">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="headerLogoGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#4facfe" />
+              <stop offset="50%" stop-color="#a855f7" />
+              <stop offset="100%" stop-color="#ff0844" />
+            </linearGradient>
+          </defs>
+          <path d="M50 15L15 85H32L50 48L68 85H85L50 15Z" fill="url(#headerLogoGrad)" />
+          <path d="M42 62H58L50 45L42 62Z" fill="#fafafa" />
+        </svg>
+      </div>
+      <span class="brand-name">AURA</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="#lasso" class="nav-link">Lasso</a>
+      <a href="#mesh-map" class="nav-link">Public Mesh Map</a>
+      <a href="#topology" class="nav-link">Topology</a>
+      <a href="/who-we-are" class="nav-link">Who We Are</a>
+    </div>
+
+    <div class="nav-actions" id="auth-nav-block">
+      <!-- Injected by JS based on localStorage -->
+      <a href="#" class="nav-link" id="sign-in-btn">Sign In</a>
+      <button class="btn-primary" id="get-started-btn">Get Started</button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- HERO INTRODUCTION -->
+    <section class="hero">
+      <div class="hero-content">
+        <div class="badge">
+          <div class="badge-dot"></div>
+          Sovereign Network Mesh
+        </div>
+        <h1>Sovereign Data.<br><span>Spliced Together.</span></h1>
+        <p class="hero-desc">
+          Keep your carrier. Keep your phone number. Lasso your mobile device directly back to your home router, routing heavy traffic securely and dropping mobile bills by 90% without breaking carrier contracts. 
+        </p>
+        <div class="hero-ctas">
+          <button class="btn-hero-primary" id="hero-portal-btn">
+            Access Portal
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+          <a href="#mesh-map" class="btn-hero-secondary">
+            Explore Mesh Map
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-showcase">
+        <div class="showcase-glass-box">
+          <div class="widget-header">
+            <span class="widget-title">AURA Registry Engine</span>
+            <div class="widget-indicator">
+              <div class="widget-indicator-dot"></div>
+              MESH SECURE
+            </div>
+          </div>
+          <div class="widget-stat-grid">
+            <div class="widget-stat-card">
+              <div class="widget-stat-label">Active Nodes</div>
+              <div class="widget-stat-value" id="count-nodes">14,812</div>
+            </div>
+            <div class="widget-stat-card">
+              <div class="widget-stat-label">Spike Pool</div>
+              <div class="widget-stat-value">13.8M</div>
+            </div>
+          </div>
+          <div class="widget-search-bar">
+            <input type="text" id="preview-search-input" class="widget-search-input" placeholder="Search the sovereign registry..." autocomplete="off">
+            <button class="widget-search-btn" id="preview-search-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+          </div>
+          <div style="font-size: 0.65rem; text-align: center; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;">
+            Try searching keywords like "aura" or "pebble"
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LASSO CALCULATOR SECTION -->
+    <section class="calculator-section" id="lasso">
+      <div class="section-header">
+        <div class="section-eyebrow">The Cooperative Model</div>
+        <h2 class="section-title">Drop your phone bill, <span>not your carrier.</span></h2>
+        <p class="section-desc">
+          Instead of fighting telecom companies, AURA lassoes your phone back to your home router. Drop to a low-tier data package, tunnel all traffic back home, and pocket the difference.
+        </p>
+      </div>
+
+      <div class="calculator-grid">
+        <div class="calculator-card">
+          <div class="calc-row">
+            <div class="calc-label-bar">
+              <span class="calc-name">Current Mobile Bill (Monthly)</span>
+              <span class="calc-value" id="current-mobile-val">$85</span>
+            </div>
+            <div class="slider-container">
+              <input type="range" min="30" max="200" value="85" class="slider" id="current-mobile-slider">
+            </div>
+          </div>
+
+          <div class="calc-row">
+            <div class="calc-label-bar">
+              <span class="calc-name">Home High-Speed Internet Bill</span>
+              <span class="calc-value" id="home-internet-val">$100</span>
+            </div>
+            <div class="slider-container">
+              <input type="range" min="50" max="250" value="100" class="slider" id="home-internet-slider">
+            </div>
+          </div>
+
+          <div style="background: rgba(255, 255, 255, 0.01); border-radius: 1.2rem; padding: 1.5rem; border: 1px dashed rgba(255, 255, 255, 0.05); display: flex; align-items: center; gap: 1rem;">
+            <div style="font-size: 1.75rem;">💡</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.6;">
+              <strong>The AURA Lasso Effect:</strong> Your home connection remains exactly the same. Your mobile plan drops to a flat $20 base tier, using home-anchored routing for 100% of your data transit needs.
+            </div>
+          </div>
+        </div>
+
+        <div class="savings-display-card">
+          <div class="savings-pulse"></div>
+          <span class="savings-label">Lasso Annual Savings</span>
+          <div class="savings-amount" id="annual-savings-val">$780</div>
+          <span class="savings-time">Stored in Sovereign Pockets</span>
+          <p class="savings-desc">
+            That's extra fiat returned directly to your family, verifiable and backed by clean-contract data reduction.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PUBLIC MESH MAP SECTION -->
+    <section class="map-section" id="mesh-map">
+      <div class="section-header">
+        <div class="section-eyebrow">Local Infrastructure</div>
+        <h2 class="section-title">The Sovereign <span>Mesh Map</span></h2>
+        <p class="section-desc">
+          Explore friendly local node anchors in your metropolitan area. Every hosted anchor extends the Lasso bridge globally and generates Spike Points for the host family.
+        </p>
+      </div>
+
+      <div class="map-grid">
+        <div class="map-viewport">
+          <div class="map-svg-wrap">
+            <svg viewBox="0 0 600 450" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Grid background -->
+              <rect width="600" height="450" fill="#0c0c14" rx="20"/>
+              
+              <!-- Simulated map routes -->
+              <path d="M 0,100 L 600,100 M 0,225 L 600,225 M 0,350 L 600,350" stroke="rgba(255,255,255,0.03)" stroke-width="2" stroke-dasharray="8 8"/>
+              <path d="M 150,0 L 150,450 M 300,0 L 300,450 M 450,0 L 450,450" stroke="rgba(255,255,255,0.03)" stroke-width="2" stroke-dasharray="8 8"/>
+              <path d="M -50,50 L 650,400 M 650,50 L -50,400" stroke="rgba(255,255,255,0.02)" stroke-width="3"/>
+              
+              <!-- Metropolitan River aesthetic -->
+              <path d="M -50,280 Q 200,240 320,320 T 650,300" stroke="rgba(6, 182, 212, 0.08)" stroke-width="48" fill="none"/>
+              <path d="M -50,280 Q 200,240 320,320 T 650,300" stroke="rgba(6, 182, 212, 0.15)" stroke-width="8" fill="none"/>
+              
+              <!-- Interactive Nodes -->
+              <!-- Node 1: Anchor Central -->
+              <g class="map-node" onclick="selectMapNode(1)" transform="translate(150, 100)">
+                <circle class="glow" cx="0" cy="0" r="16" fill="rgba(6, 182, 212, 0.3)"/>
+                <circle class="core" cx="0" cy="0" r="7" fill="var(--cyan)"/>
+              </g>
+
+              <!-- Node 2: Sudbury North Node -->
+              <g class="map-node" onclick="selectMapNode(2)" transform="translate(450, 100)">
+                <circle class="glow" cx="0" cy="0" r="16" fill="rgba(139, 92, 246, 0.3)"/>
+                <circle class="core" cx="0" cy="0" r="7" fill="var(--purple)"/>
+              </g>
+
+              <!-- Node 3: River-Spliced Bridge -->
+              <g class="map-node" onclick="selectMapNode(3)" transform="translate(300, 310)">
+                <circle class="glow" cx="0" cy="0" r="16" fill="rgba(16, 185, 129, 0.3)"/>
+                <circle class="core" cx="0" cy="0" r="7" fill="var(--green)"/>
+              </g>
+
+              <!-- Node 4: Westside Anchor -->
+              <g class="map-node" onclick="selectMapNode(4)" transform="translate(100, 350)">
+                <circle class="glow" cx="0" cy="0" r="16" fill="rgba(6, 182, 212, 0.3)"/>
+                <circle class="core" cx="0" cy="0" r="7" fill="var(--cyan)"/>
+              </g>
+
+              <!-- Home Router Landmark -->
+              <g id="map-home-router" transform="translate(300, 180)">
+                <circle cx="0" cy="0" r="28" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="4 4"/>
+                <rect x="-14" y="-14" width="28" height="28" rx="8" fill="#141423" stroke="rgba(255,255,255,0.1)"/>
+                <!-- Antenna symbol -->
+                <path d="M -5,-3 L 0,-10 L 5,-3 M 0,-10 L 0,8" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round"/>
+              </g>
+
+              <!-- Floating Mobile Phone Vector -->
+              <g id="map-mobile" transform="translate(100, 225)">
+                <rect x="-10" y="-18" width="20" height="36" rx="5" fill="#141423" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+                <line x1="-5" y1="-12" x2="5" y2="-12" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                <circle cx="0" cy="12" r="2" fill="rgba(255,255,255,0.4)"/>
+              </g>
+
+              <!-- Animated Laser Lasso Line -->
+              <path id="lasso-laser-beam" d="" stroke="var(--cyan)" stroke-width="2" stroke-dasharray="6 6" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="map-details">
+          <div class="map-details-top">
+            <div class="map-details-title-row">
+              <span class="map-details-name" id="node-name">Central Transit Hub</span>
+              <span class="map-details-badge" id="node-type">Central Anchor</span>
+            </div>
+
+            <div class="map-details-meta">
+              <div class="meta-row">
+                <span class="meta-label">Node Integrity</span>
+                <span class="meta-val" id="node-integrity" style="color: var(--green);">100% SECURE</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Coordinates</span>
+                <span class="meta-val" id="node-coords">46.49° N, 80.99° W</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Data Transit Speed</span>
+                <span class="meta-val" id="node-speed">940 Mbps</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-label">Family Reward Rate</span>
+                <span class="meta-val" id="node-reward">+14 SP / hr</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="map-action-block">
+            <button class="btn-simulate-lasso" id="btn-run-simulation">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              Simulate Lasso Link
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE STRING TOPOLOGY SECTION -->
+    <section class="topology-section" id="topology">
+      <div class="section-header">
+        <div class="section-eyebrow">Topological Security</div>
+        <h2 class="section-title">The <span>String Lasso</span> Advantage</h2>
+        <p class="section-desc">
+          Topological network isolation means absolute, uncopiable security. A single string has exactly two ends. Sew them together for pure privacy, or splice in verified APIs for massive partnership scale.
+        </p>
+      </div>
+
+      <div class="topology-grid">
+        <div class="topology-visualizer">
+          <div class="topo-canvas">
+            <svg width="280" height="280" viewBox="0 0 100 100">
+              <!-- Outer glowing grid ring -->
+              <circle cx="50" cy="50" r="46" stroke="rgba(255,255,255,0.015)" stroke-width="1" fill="none"/>
+              <circle cx="50" cy="50" r="38" stroke="rgba(255,255,255,0.02)" stroke-width="1" fill="none" stroke-dasharray="4 4"/>
+              
+              <!-- Spliced Ring / Circle -->
+              <path id="topo-string" d="M 50,12 A 38,38 0 1,1 49.9,12" stroke="var(--green)" stroke-width="4" stroke-linecap="round" fill="none" class="topo-circle" filter="drop-shadow(0 0 6px var(--green-glow))"/>
+              
+              <!-- Text markers -->
+              <text x="50" y="8" fill="#ffffff" font-size="5" font-weight="900" text-anchor="middle" font-family="Outfit" id="node-a-label" opacity="0">POINT A</text>
+              <text x="50" y="96" fill="#ffffff" font-size="5" font-weight="900" text-anchor="middle" font-family="Outfit" id="node-b-label" opacity="0">POINT B</text>
+            </svg>
+          </div>
+
+          <div class="topo-btn-row">
+            <button class="btn-topo active" onclick="switchTopology('closed', this)">Air-Gapped Loop</button>
+            <button class="btn-topo" onclick="switchTopology('spliced', this)">Splice Partner API</button>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; justify-content: center;">
+          <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.45rem; font-weight: 800; margin-bottom: 1.25rem; color: #ffffff;" id="topo-title">
+            Absolute computational closure.
+          </h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.8; margin-bottom: 2rem;" id="topo-desc">
+            In its native closed state, the Lasso string binds Point A (home anchor) to Point B (phone tunnel) into a perfectly closed, isolated loop. No external servers are involved. The computational logic is closed, clean, and 100% off-grid.
+          </p>
+
+          <div style="border-left: 2px solid var(--purple); padding-left: 1.5rem;">
+            <h4 style="font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+              The Legacy Moat
+            </h4>
+            <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.7;">
+              Unlike large corporations who have tangled webs of nested databases, AURA maintains a clean one-in, one-out topology. Splice Google or Rogers in easily—or shut them out instantly. Big-tech giants would have to tear down their entire software stacks to replicate this.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCT CARD PILLARS GRID -->
+    <section class="pillars-section">
+      <div class="section-header">
+        <div class="section-eyebrow">The Sovereign Suite</div>
+        <h2 class="section-title">The <span>AURA Stack</span> Pillars</h2>
+        <p class="section-desc">
+          Four dedicated structures built around maximum family autonomy, high-performance offline systems, and non-competitive community value.
+        </p>
+      </div>
+
+      <div class="pillars-grid">
+        <div class="pillar-card" onclick="window.location.href='/who-we-are'">
+          <div class="pillar-icon" style="background: rgba(6, 182, 212, 0.1); color: var(--cyan);">📡</div>
+          <h3 class="pillar-title">AURA Lasso</h3>
+          <p class="pillar-desc">Tether your mobile phone directly to home routing nodes to drop mobile cellular data costs up to 90% without breaking plans.</p>
+        </div>
+
+        <div class="pillar-card" onclick="window.location.href='/search'">
+          <div class="pillar-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--purple);">🔍</div>
+          <h3 class="pillar-title">AURA Search</h3>
+          <p class="pillar-desc">Beautiful dual-mode query engine. Search the secure internal registry and the public web simultaneously with Pebble AI.</p>
+        </div>
+
+        <div class="pillar-card" onclick="window.location.href='/me'">
+          <div class="pillar-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--green);">🧠</div>
+          <h3 class="pillar-title">AURA Pebble</h3>
+          <p class="pillar-desc">Private, isolated, behavioral AI companion that rewards learning and correcting mistakes instead of punishing bad deeds.</p>
+        </div>
+
+        <div class="pillar-card" onclick="window.location.href='/who-we-are'">
+          <div class="pillar-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">🤝</div>
+          <h3 class="pillar-title">One Step Closer</h3>
+          <p class="pillar-desc">Our dedicated nonprofit organization that converts platform activity straight into paying real-world family bills and school needs.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- B2B PARTNERSHIPS & MARQUEE SLIDESHOWS -->
+    <section class="partner-section" id="partners">
+      <div class="partner-section-header">
+        <div class="section-eyebrow">Sovereign Alliances & Splicing APIs</div>
+        <h2 class="section-title">One-In, One-Out <span>B2B Partnerships</span></h2>
+        <p class="section-desc" style="max-width: 580px; margin: 0 auto;">
+          Connect your standard business software natively to the AURA grid. Access pre-paid SOV$ billing accounts, B2B OAuth rails, and friendly partner promo codes in Pebble AI.
+        </p>
+      </div>
+
+      <div class="partner-actions">
+        <button class="btn-partner-primary" id="partner-apply-btn">Partner With Us</button>
+        <button class="btn-partner-secondary" id="partner-portal-btn">B2B Partner Portal</button>
+      </div>
+
+      <!-- Marquee Row 1: Powered By (External Partners) -->
+      <div style="font-size: 0.68rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.12em; text-align: left; margin-bottom: 0.75rem; padding-left: 0.5rem;">
+        ⚡ Integrates & Powers (External)
+      </div>
+      <div class="marquee-container marquee-row-1">
+        <div class="marquee-track">
+          <!-- List twice for infinite loop -->
+          <div class="marquee-item"><div class="marquee-dot" style="background:#00c497; color:#00c497;"></div>Yesim eSIM</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#ff5c5c; color:#ff5c5c;"></div>Twilio SMS</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#00d287; color:#00d287;"></div>Stripe payments</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#4066ff; color:#4066ff;"></div>Plaid Bank</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#00d8cc; color:#00d8cc;"></div>Telnyx SIP</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#4285f4; color:#4285f4;"></div>Google OAuth</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#e32d2d; color:#e32d2d;"></div>Zoho CRM</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#5a23e5; color:#5a23e5;"></div>Replit Cloud</div>
+          
+          <!-- Doubled -->
+          <div class="marquee-item"><div class="marquee-dot" style="background:#00c497; color:#00c497;"></div>Yesim eSIM</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#ff5c5c; color:#ff5c5c;"></div>Twilio SMS</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#00d287; color:#00d287;"></div>Stripe payments</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#4066ff; color:#4066ff;"></div>Plaid Bank</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#00d8cc; color:#00d8cc;"></div>Telnyx SIP</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#4285f4; color:#4285f4;"></div>Google OAuth</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#e32d2d; color:#e32d2d;"></div>Zoho CRM</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#5a23e5; color:#5a23e5;"></div>Replit Cloud</div>
+        </div>
+      </div>
+
+      <!-- Marquee Row 2: Built-in Subsystems (Internal Modules) -->
+      <div style="font-size: 0.68rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.12em; text-align: left; margin: 2rem 0 0.75rem; padding-left: 0.5rem;">
+        🔒 Sovereign Subsystems (Internal)
+      </div>
+      <div class="marquee-container marquee-row-2">
+        <div class="marquee-track">
+          <!-- List twice for infinite loop -->
+          <div class="marquee-item"><div class="marquee-dot" style="background:var(--purple); color:var(--purple);"></div>Aura Social</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:var(--cyan); color:var(--cyan);"></div>Aura Security</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:var(--green); color:var(--green);"></div>Aura Technology</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#c084fc; color:#c084fc;"></div>Aura Pebble</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#00d8cc; color:#00d8cc;"></div>Aura Auth</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#fb923c; color:#fb923c;"></div>Aura Discover</div>
+
+          <!-- Doubled -->
+          <div class="marquee-item"><div class="marquee-dot" style="background:var(--purple); color:var(--purple);"></div>Aura Social</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:var(--cyan); color:var(--cyan);"></div>Aura Security</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:var(--green); color:var(--green);"></div>Aura Technology</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#c084fc; color:#c084fc;"></div>Aura Pebble</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#00d8cc; color:#00d8cc;"></div>Aura Auth</div>
+          <div class="marquee-item"><div class="marquee-dot" style="background:#fb923c; color:#fb923c;"></div>Aura Discover</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- SOVEREIGN PORTAL GATE MODAL -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-card">
+      <button class="modal-close" id="modal-close">&times;</button>
+      <h3 class="modal-title" id="modal-title-text">Deploy Sovereign Node</h3>
+      <p class="modal-desc" id="modal-desc-text">Create a local, offline identity node to synchronize session and access the main Sovereign Portal.</p>
+
+      <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Sovereign Name</label>
+          <input type="text" id="auth-name" class="form-input" placeholder="e.g. Bouchard, Echo" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Secure Subdomain</label>
+          <input type="text" id="auth-subdomain" class="form-input" placeholder="e.g. my-node" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Authorized Contact Email</label>
+          <input type="email" id="auth-email" class="form-input" placeholder="e.g. echo@aurame.ca" required>
+        </div>
+        <button type="submit" class="btn-submit" id="btn-submit-text">Deploy Node</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast" id="toast-el">
+    <span>🔑 Secure local session node established. Welcome!</span>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container footer-grid">
+      <div class="footer-left">
+        <svg width="18" height="18" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 15L15 85H32L50 48L68 85H85L50 15Z" fill="url(#footerLogoGrad)" />
+          <path d="M42 62H58L50 45L42 62Z" fill="#fafafa" />
+          <linearGradient id="footerLogoGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#4facfe" />
+            <stop offset="50%" stop-color="#a855f7" />
+            <stop offset="100%" stop-color="#ff0844" />
+          </linearGradient>
+        </svg>
+        <span>AURA SOVEREIGN &copy; 2026</span>
+      </div>
+      <div class="footer-links">
+        <a href="/who-we-are" class="footer-link">Who We Are</a>
+        <a href="/search" class="footer-link">Search</a>
+        <a href="/me" class="footer-link">Pebble AI</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Redirect ?start=true URL to the premium React onboarding dashboard
+    {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('start') === 'true') {
+        window.location.href = '/app_1779812311199.html?start=true';
+      }
+    }
+
+    // Header Scroll Styling
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('header');
+      if (window.scrollY > 30) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    });
+
+    // Mock Node Incrementor
+    let nodeCount = 14812;
+    setInterval(() => {
+      nodeCount += Math.floor(Math.random() * 3);
+      document.getElementById('count-nodes').innerText = nodeCount.toLocaleString();
+    }, 4500);
+
+    // Dynamic Lasso Calculator Savings
+    const currentMobileSlider = document.getElementById('current-mobile-slider');
+    const homeInternetSlider = document.getElementById('home-internet-slider');
+    
+    const currentMobileVal = document.getElementById('current-mobile-val');
+    const homeInternetVal = document.getElementById('home-internet-val');
+    const annualSavingsVal = document.getElementById('annual-savings-val');
+
+    function calculateSavings() {
+      const mobileCost = parseFloat(currentMobileSlider.value);
+      const homeCost = parseFloat(homeInternetSlider.value);
+
+      currentMobileVal.innerText = `$${mobileCost}`;
+      homeInternetVal.innerText = `$${homeCost}`;
+
+      // Lasso formula: drop mobile to $20 flat. Total old mobile cost vs new cost difference saved.
+      // Savings = (Old mobile - 20) * 12
+      const annualSavings = (mobileCost - 20) * 12;
+      annualSavingsVal.innerText = `$${annualSavings}`;
+    }
+
+    currentMobileSlider.addEventListener('input', calculateSavings);
+    homeInternetSlider.addEventListener('input', calculateSavings);
+    calculateSavings();
+
+    // Map Node Interactive Selection
+    const nodesData = {
+      1: {
+        name: "Central Transit Anchor",
+        type: "Primary Anchor",
+        coords: "46.49° N, 80.99° W",
+        speed: "940 Mbps",
+        reward: "+14 SP / hr",
+        integrity: "100% SECURE"
+      },
+      2: {
+        name: "Sudbury North Node",
+        type: "Community Host",
+        coords: "46.54° N, 80.92° W",
+        speed: "350 Mbps",
+        reward: "+8 SP / hr",
+        integrity: "100% SECURE"
+      },
+      3: {
+        name: "River-Spliced Bridge",
+        type: "Mesh Bridge Node",
+        coords: "46.42° N, 81.02° W",
+        speed: "480 Mbps",
+        reward: "+10 SP / hr",
+        integrity: "100% SECURE"
+      },
+      4: {
+        name: "Westside Anchor",
+        type: "Private Family Node",
+        coords: "46.46° N, 81.11° W",
+        speed: "290 Mbps",
+        reward: "+6 SP / hr",
+        integrity: "99.8% SECURE"
+      }
+    };
+
+    let selectedNodeId = 1;
+    function selectMapNode(id) {
+      selectedNodeId = id;
+      const data = nodesData[id];
+      document.getElementById('node-name').innerText = data.name;
+      document.getElementById('node-type').innerText = data.type;
+      document.getElementById('node-coords').innerText = data.coords;
+      document.getElementById('node-speed').innerText = data.speed;
+      document.getElementById('node-reward').innerText = data.reward;
+      
+      const integrityEl = document.getElementById('node-integrity');
+      integrityEl.innerText = data.integrity;
+      integrityEl.style.color = data.integrity.includes('100%') ? 'var(--green)' : 'var(--cyan)';
+    }
+
+    // Simulate Lasso animation SVG
+    const btnRunSim = document.getElementById('btn-run-simulation');
+    const laserBeam = document.getElementById('lasso-laser-beam');
+    let isSimulating = false;
+
+    btnRunSim.addEventListener('click', () => {
+      if (isSimulating) return;
+      isSimulating = true;
+      btnRunSim.disabled = true;
+      btnRunSim.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
+        Establishing Lasso Tunnel...
+      `;
+
+      // Trigger line animations from mobile to home, then to selected active node
+      const mobilePos = { x: 100, y: 225 };
+      const homePos = { x: 300, y: 180 };
+      
+      // Node position mappings inside SVG
+      const nodePositions = {
+        1: { x: 150, y: 100 },
+        2: { x: 450, y: 100 },
+        3: { x: 300, y: 310 },
+        4: { x: 100, y: 350 }
+      };
+      
+      const targetPos = nodePositions[selectedNodeId];
+
+      // Draw initial beam to home
+      laserBeam.setAttribute('d', `M ${mobilePos.x},${mobilePos.y} L ${homePos.x},${homePos.y}`);
+      laserBeam.style.stroke = 'var(--cyan)';
+      
+      setTimeout(() => {
+        // Splice tunnel to secondary map node
+        laserBeam.setAttribute('d', `M ${mobilePos.x},${mobilePos.y} L ${homePos.x},${homePos.y} L ${targetPos.x},${targetPos.y}`);
+        laserBeam.style.stroke = 'var(--purple)';
+        showToast(`⚡ Tunnel established. Data routed through Home Anchor to ${nodesData[selectedNodeId].name}!`);
+      }, 1000);
+
+      setTimeout(() => {
+        // Clear laser beam
+        laserBeam.setAttribute('d', '');
+        btnRunSim.disabled = false;
+        btnRunSim.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Simulate Lasso Link
+        `;
+        isSimulating = false;
+      }, 4000);
+    });
+
+    // Topological String Splicer Visualizer
+    const topoString = document.getElementById('topo-string');
+    const topoTitle = document.getElementById('topo-title');
+    const topoDesc = document.getElementById('topo-desc');
+
+    const aLabel = document.getElementById('node-a-label');
+    const bLabel = document.getElementById('node-b-label');
+
+    function switchTopology(mode, btn) {
+      document.querySelectorAll('.btn-topo').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      if (mode === 'closed') {
+        // Draw perfect circle loop
+        topoString.setAttribute('d', 'M 50,12 A 38,38 0 1,1 49.9,12');
+        topoString.setAttribute('stroke', 'var(--green)');
+        topoString.setAttribute('filter', 'drop-shadow(0 0 6px var(--green-glow))');
+        aLabel.setAttribute('opacity', '0');
+        bLabel.setAttribute('opacity', '0');
+
+        topoTitle.innerText = "Absolute computational closure.";
+        topoDesc.innerText = "In its native closed state, the Lasso string binds Point A (home anchor) to Point B (phone tunnel) into a perfectly closed, isolated loop. No external servers are involved. The computational logic is closed, clean, and 100% off-grid.";
+      } else {
+        // Spliced open ring representation
+        topoString.setAttribute('d', 'M 40,15 A 38,38 0 1,0 60,15 L 68,6 A 48,48 0 0,1 32,6 Z');
+        topoString.setAttribute('stroke', 'var(--cyan)');
+        topoString.setAttribute('filter', 'drop-shadow(0 0 6px var(--cyan-glow))');
+        aLabel.setAttribute('opacity', '1');
+        bLabel.setAttribute('opacity', '1');
+
+        topoTitle.innerText = "Spliced partnerships. Infinite extensions.";
+        topoDesc.innerText = "Need public mapping, messaging, or financial features? The Lasso splits Point A and Point B, seamlessly splicing third-party API strings into the loop. It scales infinitely, but preserves the clean 'One-In, One-Out' data validation barrier.";
+      }
+    }
+
+    // Portal Gates, Auth and LocalStorage sync
+    const authModal = document.getElementById('auth-modal');
+    const modalClose = document.getElementById('modal-close');
+    const authNavBlock = document.getElementById('auth-nav-block');
+    const toastEl = document.getElementById('toast-el');
+
+    const getStartedBtn = document.getElementById('get-started-btn');
+    const signInBtn = document.getElementById('sign-in-btn');
+    const heroPortalBtn = document.getElementById('hero-portal-btn');
+
+    let isRegisterMode = true;
+
+    function syncAuthState() {
+      const sessionStr = localStorage.getItem('aura_session');
+      if (sessionStr) {
+        const session = JSON.parse(sessionStr);
+        // Replace nav controls with profile trigger
+        authNavBlock.innerHTML = `
+          <div class="profile-nav-btn" onclick="handlePortalRedirect()">
+            <div class="profile-nav-avatar">${session.name.slice(0,2).toUpperCase()}</div>
+            <span class="profile-nav-name">${session.name}</span>
+          </div>
+          <button class="btn-ghost" onclick="handleLogout(event)" style="padding: 0.45rem 1rem; font-size: 0.65rem;">Sign Out</button>
+        `;
+        heroPortalBtn.innerHTML = `
+          Enter Portal
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        `;
+      } else {
+        authNavBlock.innerHTML = `
+          <a href="#" class="nav-link" id="sign-in-btn" onclick="openAuthModal(false)">Sign In</a>
+          <button class="btn-primary" id="get-started-btn" onclick="openAuthModal(true)">Get Started</button>
+        `;
+        heroPortalBtn.innerHTML = `
+          Access Portal
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        `;
+      }
+    }
+
+    function openAuthModal(isRegister, isB2B = false) {
+      if (isRegister && !isB2B) {
+        // Redirect to the centralized, premium React onboarding wizard on the main portal dashboard
+        window.location.href = '/app_1779812311199.html?start=true';
+        return;
+      }
+      isRegisterMode = isRegister;
+      const formEl = document.getElementById('auth-form');
+      const titleEl = document.getElementById('modal-title-text');
+      const descEl = document.getElementById('modal-desc-text');
+      
+      if (isRegister) {
+        if (isB2B) {
+          titleEl.innerText = "AURA B2B Alliance Program";
+          descEl.innerText = "Submit your integration proposal. Joseph Bouchard will review and respond within 24 hours.";
+          
+          formEl.innerHTML = `
+            <div class="form-group">
+              <label class="form-label">Company / Partner Name</label>
+              <input type="text" id="auth-name" class="form-input" placeholder="e.g. Stripe, Inc." required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Corporate Contact Email</label>
+              <input type="email" id="auth-email" class="form-input" placeholder="e.g. partner@company.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Integration Sector</label>
+              <select id="auth-sector" class="form-input" style="background: rgba(20, 20, 35, 0.95); border: 1px solid var(--border-color); color: var(--text);" required>
+                <option value="" disabled selected>Select Integration Domain</option>
+                <option value="eSIM">eSIM & Cellular Gateway</option>
+                <option value="SMS">SMS & Telephony Gateway (Twilio/Telnyx)</option>
+                <option value="Payments">Payments & Fiat Splicing (Stripe/Plaid)</option>
+                <option value="CRM">CRM & Sovereign Ops (Zoho/Salesforce)</option>
+                <option value="OAuth">Identity & OAuth Services (Google/Aura Auth)</option>
+                <option value="Custom">Custom Single-String API Splice</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Proposed Splice Node Domain</label>
+              <input type="text" id="auth-subdomain" class="form-input" placeholder="e.g. stripe-splice" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Partnership Intent & Splice Details</label>
+              <textarea id="auth-details" class="form-input" style="height: 80px; resize: none; line-height: 1.4; padding-top: 0.6rem; padding-bottom: 0.6rem;" placeholder="Tell us who you are and describe how you plan to connect within AURA's linear one-in, one-out topology..." required></textarea>
+            </div>
+            <button type="submit" class="btn-submit" id="btn-submit-text">Submit Alliance Proposal</button>
+          `;
+        } else {
+          titleEl.innerText = "Deploy Sovereign Node";
+          descEl.innerText = "Create a local, offline identity node to synchronize session and access the main Sovereign Portal.";
+          
+          formEl.innerHTML = `
+            <div class="form-group">
+              <label class="form-label">Sovereign Name</label>
+              <input type="text" id="auth-name" class="form-input" placeholder="e.g. Bouchard, Echo" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Secure Subdomain</label>
+              <input type="text" id="auth-subdomain" class="form-input" placeholder="e.g. my-node" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Authorized Contact Email</label>
+              <input type="email" id="auth-email" class="form-input" placeholder="e.g. echo@aurame.ca" required>
+            </div>
+            <button type="submit" class="btn-submit" id="btn-submit-text">Deploy Node</button>
+          `;
+        }
+      } else {
+        if (isB2B) {
+          titleEl.innerText = "Access B2B Partner Console";
+          descEl.innerText = "Authenticate partner token to manage SOV$ payments and webhooks.";
+          
+          formEl.innerHTML = `
+            <div class="form-group">
+              <label class="form-label">Partner Key / ID</label>
+              <input type="text" id="auth-name" class="form-input" placeholder="e.g. partner_live_..." required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sovereign Splice Subdomain</label>
+              <input type="text" id="auth-subdomain" class="form-input" placeholder="e.g. stripe-splice" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Partner Access Token</label>
+              <input type="password" id="auth-email" class="form-input" placeholder="••••••••••••••••" required>
+            </div>
+            <button type="submit" class="btn-submit" id="btn-submit-text">Authorize Partner Access</button>
+          `;
+        } else {
+          titleEl.innerText = "Authenticate Request";
+          descEl.innerText = "Authorize request credentials across secure local network rails.";
+          
+          formEl.innerHTML = `
+            <div class="form-group">
+              <label class="form-label">Secure Subdomain</label>
+              <input type="text" id="auth-subdomain" class="form-input" placeholder="e.g. my-node" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Authorized Contact Email</label>
+              <input type="email" id="auth-email" class="form-input" placeholder="e.g. echo@aurame.ca" required>
+            </div>
+            <button type="submit" class="btn-submit" id="btn-submit-text">Authorize Access</button>
+          `;
+        }
+      }
+      authModal.classList.add('active');
+    }
+
+    function closeAuthModal() {
+      authModal.classList.remove('active');
+    }
+
+    modalClose.addEventListener('click', closeAuthModal);
+    authModal.addEventListener('click', (e) => {
+      if (e.target === authModal) closeAuthModal();
+    });
+
+    // Wire up B2B partner buttons
+    document.getElementById('partner-apply-btn').addEventListener('click', () => {
+      openAuthModal(true, true);
+    });
+    document.getElementById('partner-portal-btn').addEventListener('click', () => {
+      openAuthModal(false, true);
+    });
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      const titleText = document.getElementById('modal-title-text').innerText;
+      
+      if (titleText.includes('B2B') || titleText.includes('Alliance')) {
+        closeAuthModal();
+        if (titleText.includes('Program') || titleText.includes('Alliance')) {
+          showToast("🤝 B2B Alliance proposal submitted! Reaching out in 24 hours.");
+        } else {
+          showToast("🔑 B2B Partner authorization established. Secure console loaded!");
+        }
+        return;
+      }
+
+      const name = document.getElementById('auth-name').value.trim();
+      const email = document.getElementById('auth-email').value.trim();
+
+      const session = {
+        auraId: email,
+        name: name
+      };
+
+      localStorage.setItem('aura_session', JSON.stringify(session));
+      closeAuthModal();
+      showToast("🔑 Secure local session node established. Welcome!");
+      syncAuthState();
+      
+      // Redirect to the active portal dashboard
+      setTimeout(() => {
+        window.location.href = '/app_1779812311199.html';
+      }, 1000);
+    }
+
+    function handleLogout(e) {
+      e.preventDefault();
+      if (confirm("Disconnect and clear your sovereign local session node?")) {
+        localStorage.removeItem('aura_session');
+        showToast("🔒 Secure node offline. Encrypted session cleared.");
+        syncAuthState();
+      }
+    }
+
+    function handlePortalRedirect() {
+      window.location.href = '/app_1779812311199.html';
+    }
+
+    heroPortalBtn.addEventListener('click', () => {
+      const sessionStr = localStorage.getItem('aura_session');
+      if (sessionStr) {
+        handlePortalRedirect();
+      } else {
+        openAuthModal(false);
+      }
+    });
+
+    // Wire up AURA Search Preview widget input bar
+    const previewSearchInput = document.getElementById('preview-search-input');
+    const previewSearchBtn = document.getElementById('preview-search-btn');
+
+    function executePreviewSearch() {
+      const q = previewSearchInput.value.trim();
+      if (q) {
+        window.location.href = `/search?q=${encodeURIComponent(q)}&mode=external`;
+      }
+    }
+
+    previewSearchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') executePreviewSearch();
+    });
+    previewSearchBtn.addEventListener('click', executePreviewSearch);
+
+    function showToast(message) {
+      toastEl.querySelector('span').innerText = message;
+      toastEl.classList.add('active');
+      setTimeout(() => {
+        toastEl.classList.remove('active');
+      }, 4000);
+    }
+
+    // Initialize Auth state
+    syncAuthState();
+  </script>
+  <script src="/assets/radio.js"></script>
+</body>
+</html>

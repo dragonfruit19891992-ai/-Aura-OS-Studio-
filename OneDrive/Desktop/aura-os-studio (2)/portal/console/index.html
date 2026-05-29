@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AURA Console - Sovereign Hub</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+  body { 
+      background: #08080f; color: #f1f5f9; min-height: 100vh; 
+      display: flex; flex-direction: column; align-items: center; justify-content: center; 
+  }
+  
+  .glow-bg {
+      position: fixed; top: 50%; left: 50%; width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, rgba(8,8,15,0) 70%);
+      transform: translate(-50%, -50%); z-index: -1; pointer-events: none;
+  }
+
+  .header { text-align: center; margin-bottom: 40px; }
+  .greeting { font-size: 36px; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 8px; background: linear-gradient(135deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .sub-greeting { font-size: 15px; color: #64748b; font-weight: 500; }
+
+  .prompt-box {
+      width: 600px; max-width: 90vw; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px; padding: 10px; display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5); transition: all 0.3s ease; margin-bottom: 30px;
+  }
+  .prompt-box:focus-within { border-color: rgba(99, 102, 241, 0.5); box-shadow: 0 10px 50px rgba(99, 102, 241, 0.15); background: rgba(255, 255, 255, 0.05); }
+  .prompt-icon { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #4f46e5, #7c3aed); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .prompt-input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 15px; font-weight: 500; }
+  .prompt-input::placeholder { color: #475569; }
+  .prompt-btn { padding: 10px 20px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #f1f5f9; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .prompt-btn:hover { background: rgba(255,255,255,0.1); }
+
+  /* Dock / Nav */
+  .dock {
+      position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 10px; padding: 8px 12px;
+      background: rgba(15,15,25,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 100px;
+  }
+  .dock-item {
+      display: flex; align-items: center; gap: 8px; color: #94a3b8; text-decoration: none;
+      font-size: 12px; font-weight: 600; padding: 10px 20px; border-radius: 50px; transition: all 0.2s;
+  }
+  .dock-item:hover { background: rgba(255,255,255,0.05); color: #f1f5f9; }
+  .dock-item i { font-size: 18px; }
+
+  /* Project Modal */
+  .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+      display: none; align-items: center; justify-content: center; z-index: 100;
+  }
+  .modal-box {
+      background: #0b0b16; border: 1px solid rgba(99,102,241,0.3); border-radius: 20px; padding: 30px;
+      width: 400px; max-width: 90vw; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+  .modal-box h3 { color: #f1f5f9; margin-bottom: 8px; font-size: 20px; font-weight: 900; letter-spacing: -0.02em; }
+  .modal-box p { color: #64748b; font-size: 13px; margin-bottom: 24px; }
+  .modal-input {
+      width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+      color: #fff; border-radius: 12px; margin-bottom: 20px; outline: none; font-size: 14px; font-weight: 600;
+  }
+  .modal-input:focus { border-color: #6366f1; background: rgba(255,255,255,0.06); }
+  .modal-btn {
+      width: 100%; padding: 14px; background: linear-gradient(135deg, #4f46e5, #7c3aed); border: none;
+      color: #fff; font-weight: 800; font-size: 14px; border-radius: 12px; cursor: pointer; transition: all 0.2s;
+  }
+  .modal-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  /* App Library */
+  .app-library {
+      display: flex; gap: 15px; margin-bottom: 80px; align-items: center; justify-content: center;
+  }
+  .app-card {
+      width: 240px; height: 80px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 0 20px; display: flex; align-items: center; justify-content: flex-start; gap: 16px;
+      text-decoration: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; text-align: left;
+  }
+  .app-card:hover {
+      background: rgba(255,255,255,0.06); border-color: rgba(99, 102, 241, 0.4); transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
+  }
+  .app-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(99,102,241,0.1); color: #818cf8; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .app-card:nth-child(2) .app-icon { background: rgba(16,185,129,0.1); color: #34d399; }
+  .app-card:nth-child(3) .app-icon { background: rgba(245,158,11,0.1); color: #fbbf24; }
+  .app-info { display: flex; flex-direction: column; justify-content: center; }
+  .app-name { color: #f1f5f9; font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .app-status { color: #64748b; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .app-arrow {
+      width: 44px; height: 80px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #94a3b8;
+      cursor: pointer; transition: all 0.3s;
+  }
+  .app-arrow:hover { background: rgba(255,255,255,0.06); color: #fff; border-color: rgba(99, 102, 241, 0.4); }
+
+  /* Holographic Panel Overlay */
+  .holo-overlay {
+      position: fixed; inset: 0; background: rgba(8,8,15,0.2); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+      display: none; align-items: center; justify-content: center; z-index: 100;
+      opacity: 0; transition: opacity 0.4s ease;
+  }
+  .holo-panel {
+      width: 900px; max-width: 90vw; height: 70vh; background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; padding: 40px;
+      box-shadow: inset 0 0 40px rgba(255,255,255,0.02), 0 20px 80px rgba(0,0,0,0.8);
+      display: flex; flex-direction: column; transform: scale(0.95); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .holo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+  .holo-title { color: #fff; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; display: flex; items-center; gap: 10px; }
+  .holo-close { color: #94a3b8; font-size: 24px; cursor: pointer; transition: color 0.2s; }
+  .holo-close:hover { color: #fff; }
+  .holo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px; overflow-y: auto; padding-right: 10px; align-content: start; }
+  
+  /* Custom scrollbar for panel */
+  .holo-grid::-webkit-scrollbar { width: 6px; }
+  .holo-grid::-webkit-scrollbar-track { background: transparent; }
+  .holo-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+</style>
+</head>
+<body>
+  <div class="glow-bg"></div>
+
+  <div class="header">
+      <div class="greeting">Welcome back, Alex.</div>
+      <div class="sub-greeting">Your sovereign ecosystem is online.</div>
+  </div>
+
+  <div class="prompt-box">
+      <div class="prompt-icon"><i class="ti ti-sparkles" style="color:#fff; font-size:20px;"></i></div>
+      <input type="text" class="prompt-input" id="main-prompt" placeholder="Describe what you want to build today...">
+      <button class="prompt-btn" onclick="openProjectModal()">Build it</button>
+  </div>
+
+  <div class="app-library" id="app-library-container">
+      <!-- Dynamically populated by JS -->
+  </div>
+
+  <div class="dock">
+      <a href="/mycodes/dashboard/" class="dock-item">
+          <i class="ti ti-code"></i> AURA CODE
+      </a>
+      <a href="/chat/" class="dock-item">
+          <i class="ti ti-message-chatbot"></i> ME CHAT
+      </a>
+      <a href="/pebble/dashboard/" class="dock-item">
+          <i class="ti ti-settings"></i> SETTINGS & BILLING
+      </a>
+  </div>
+
+  <!-- Project Name Modal -->
+  <div class="modal-overlay" id="project-modal">
+      <div class="modal-box">
+          <h3>Name Your Project</h3>
+          <p>This will create a new isolated Sovereign Workspace.</p>
+          <input type="text" class="modal-input" id="project-name" placeholder="e.g. Christmas App, System Core...">
+          <button class="modal-btn" onclick="startProject()">Create Project</button>
+      </div>
+  </div>
+
+  <!-- Holographic App Library Panel -->
+  <div class="holo-overlay" id="holo-panel">
+      <div class="holo-panel" id="holo-panel-inner">
+          <div class="holo-header">
+              <div class="holo-title"><i class="ti ti-apps" style="color:#818cf8;"></i> Sovereign App Library</div>
+              <i class="ti ti-x holo-close" onclick="closeHoloPanel()"></i>
+          </div>
+          <div class="holo-grid" id="holo-grid">
+              <!-- Dynamically populated or static backups -->
+          </div>
+      </div>
+  </div>
+
+  <script>
+      // 100,000% User Isolation Configuration
+      const ACTIVE_USER_ID = "uid_x8f92ma"; // Simulated logged in user ID
+      const STORAGE_KEY = `aura_projects_${ACTIVE_USER_ID}`;
+      
+      // Load projects from localStorage, or initialize with one default project if empty
+      function getProjects() {
+          let projects = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if (!projects || projects.length === 0) {
+              projects = [{ id: 'app_59281X', name: 'My First Project', type: 'Isolated Sandbox', created: Date.now() }];
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+          }
+          return projects;
+      }
+      
+      window.addEventListener('storage', (e) => {
+          if (e.key === STORAGE_KEY) {
+              renderAppLibrary();
+              if (document.getElementById('holo-panel').style.display === 'flex') {
+                  populateHoloGrid();
+              }
+          }
+      });
+      
+      function renderAppLibrary() {
+          const projects = getProjects();
+          const container = document.getElementById('app-library-container');
+          
+          let html = '';
+          // Show up to 3 recent projects
+          projects.slice(0, 3).forEach(p => {
+              html += `
+                  <div class="app-card" onclick="window.location.href='/mycodes/dashboard/?appId=${p.id}'">
+                      <div class="app-icon"><i class="ti ti-box"></i></div>
+                      <div class="app-info">
+                          <div class="app-name">${p.name}</div>
+                          <div class="app-status">${p.type}</div>
+                      </div>
+                  </div>
+              `;
+          });
+          
+          html += `
+              <div class="app-arrow" onclick="openHoloPanel()">
+                  <i class="ti ti-chevron-right" style="font-size: 20px;"></i>
+              </div>
+          `;
+          container.innerHTML = html;
+      }
+
+      function populateHoloGrid() {
+          const grid = document.getElementById('holo-grid');
+          const projects = getProjects();
+          
+          let html = '';
+          projects.forEach(p => {
+              html += `
+                  <div class="app-card" style="width:100%; margin-bottom:0;" onclick="window.location.href='/mycodes/dashboard/?appId=${p.id}'">
+                      <div class="app-icon" style="background: rgba(255,255,255,0.05); color:#fff;"><i class="ti ti-box"></i></div>
+                      <div class="app-info">
+                          <div class="app-name">${p.name}</div>
+                          <div class="app-status">${p.type}</div>
+                      </div>
+                  </div>
+              `;
+          });
+          grid.innerHTML = html;
+      }
+
+      function openHoloPanel() {
+          populateHoloGrid();
+          const overlay = document.getElementById('holo-panel');
+          const inner = document.getElementById('holo-panel-inner');
+          overlay.style.display = 'flex';
+          void overlay.offsetWidth; // Reflow
+          overlay.style.opacity = '1';
+          inner.style.transform = 'scale(1)';
+      }
+
+      function closeHoloPanel() {
+          const overlay = document.getElementById('holo-panel');
+          const inner = document.getElementById('holo-panel-inner');
+          overlay.style.opacity = '0';
+          inner.style.transform = 'scale(0.95)';
+          setTimeout(() => {
+              overlay.style.display = 'none';
+          }, 400);
+      }
+
+      document.getElementById('holo-panel').addEventListener('click', function(e) {
+          if(e.target === this) {
+              closeHoloPanel();
+          }
+      });
+
+      function openProjectModal() {
+          const promptVal = document.getElementById('main-prompt').value.trim();
+          if (!promptVal) return;
+          
+          document.getElementById('project-modal').style.display = 'flex';
+          document.getElementById('project-name').focus();
+      }
+
+      function startProject() {
+          const projName = document.getElementById('project-name').value.trim() || 'Untitled';
+          const promptText = document.getElementById('main-prompt').value.trim();
+          
+          // Generate isolated ID and save
+          const newId = 'app_' + Math.random().toString(36).substr(2, 6).toUpperCase();
+          const projects = getProjects();
+          projects.unshift({ id: newId, name: projName, type: 'Isolated Sandbox', created: Date.now() });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+          
+          sessionStorage.setItem('initial_prompt', promptText);
+          window.location.href = '/chat/?project=' + encodeURIComponent(projName) + '&id=' + newId;
+      }
+
+      document.getElementById('main-prompt').addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') openProjectModal();
+      });
+      document.getElementById('project-name').addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') startProject();
+      });
+      document.getElementById('project-modal').addEventListener('click', function(e) {
+          if(e.target === this) {
+              this.style.display = 'none';
+          }
+      });
+      
+      // Init
+      document.addEventListener('DOMContentLoaded', renderAppLibrary);
+  </script>
+</body>
+</html>

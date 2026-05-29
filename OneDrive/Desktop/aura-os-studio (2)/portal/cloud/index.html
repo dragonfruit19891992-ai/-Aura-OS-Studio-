@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA Cloud — Sovereign Infrastructure</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #060a16;
+      color: #f1f5f9;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(6,10,22,0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .nav-container { max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-brand { text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .nav-brand-text { font-size: 14px; font-weight: 700; color: #e2e8f0; letter-spacing: 0.06em; }
+    .nav-brand-badge { font-size: 12px; padding: 2px 8px; border-radius: 4px; background: rgba(14,165,233,0.15); border: 1px solid rgba(14,165,233,0.3); color: #38bdf8; font-weight: 600; letter-spacing: 0.08em; }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-link { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.45); text-decoration: none; transition: color 0.15s; }
+    .nav-link:hover { color: #fff; }
+    .nav-cta {
+      padding: 7px 18px; background: #0ea5e9; border-radius: 8px;
+      font-size: 13px; font-weight: 700; color: #fff; text-decoration: none;
+      box-shadow: 0 0 18px rgba(14,165,233,0.4); transition: background 0.15s;
+    }
+    .nav-cta:hover { background: #0284c7; }
+
+    /* ── HERO ── */
+    .hero { padding: 140px 24px 100px; text-align: center; background: #060a16; }
+    .hero-container { max-width: 780px; margin: 0 auto; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px; padding: 5px 14px; border-radius: 999px;
+      background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.25);
+      font-size: 11px; font-weight: 700; color: #7dd3fc; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 28px;
+    }
+    .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #0ea5e9; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
+
+    .hero-title { font-size: clamp(38px, 5vw, 54px); font-weight: 900; line-height: 1.08; letter-spacing: -0.03em; margin-bottom: 22px; }
+    .hero-title-accent { color: #38bdf8; }
+    .hero-desc { font-size: 18px; color: rgba(255,255,255,0.5); line-height: 1.7; margin: 0 auto 20px; max-width: 600px; }
+    .hero-sub { font-size: 15px; color: rgba(255,255,255,0.35); line-height: 1.6; margin: 0 auto 44px; max-width: 520px; }
+    .hero-sub strong { color: #f1f5f9; }
+
+    .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-hero-primary { padding: 14px 32px; border-radius: 10px; background: #0ea5e9; color: #fff; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 24px rgba(14,165,233,0.4); transition: opacity 0.15s; }
+    .btn-hero-primary:hover { opacity: 0.85; }
+    .btn-hero-secondary { padding: 14px 24px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.55); font-size: 15px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
+    .btn-hero-secondary:hover { background: rgba(255,255,255,0.05); }
+
+    .trust-line { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; margin-top: 48px; font-size: 12px; color: rgba(255,255,255,0.3); font-weight: 500; letter-spacing: 0.04em; }
+    .trust-item { display: flex; align-items: center; gap: 6px; }
+
+    /* ── COMPARISON ── */
+    .comparison { background: #08101e; padding: 80px 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .comparison-container { max-width: 860px; margin: 0 auto; }
+    .section-header { text-align: center; margin-bottom: 48px; }
+    .section-title { font-size: 32px; font-weight: 900; margin: 0 0 12px; letter-spacing: -0.02em; }
+    .section-desc { font-size: 16px; color: rgba(255,255,255,0.4); line-height: 1.65; max-width: 460px; margin: 0 auto; }
+
+    .comp-table { border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.07); }
+    .comp-header { display: grid; grid-template-columns: 2fr 1.5fr 2fr; background: rgba(14,165,233,0.06); border-bottom: 1px solid rgba(255,255,255,0.07); padding: 12px 20px; }
+    .comp-col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+    .comp-row { display: grid; grid-template-columns: 2fr 1.5fr 2fr; padding: 14px 20px; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .comp-row:last-child { border-bottom: none; }
+    .comp-row:nth-child(even) { background: rgba(255,255,255,0.015); }
+    
+    .comp-feature { font-size: 14px; color: rgba(255,255,255,0.65); font-weight: 500; }
+    .comp-aura { font-size: 14px; color: #6ee7b7; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .comp-market { font-size: 13px; color: rgba(255,255,255,0.3); }
+
+    /* ── STACK ── */
+    .stack { background: #060a16; padding: 90px 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .stack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto; }
+    .stack-card { padding: 26px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.02); transition: transform 0.2s; }
+    .stack-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
+    .stack-icon-box { width: 40px; height: 40px; border-radius: 10px; background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.2); display: flex; align-items: center; justify-content: center; color: #38bdf8; margin-bottom: 16px; }
+    .stack-card-title { font-size: 15px; font-weight: 700; margin: 0 0 8px; }
+    .stack-card-desc { font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.65; margin: 0; }
+
+    /* ── PRICING ── */
+    .pricing { background: #08101e; padding: 90px 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .billing-toggle { display: inline-flex; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; margin-bottom: 28px; }
+    .toggle-btn { padding: 8px 22px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; transition: all 0.15s; background: transparent; color: rgba(255,255,255,0.45); }
+    .toggle-btn.active { background: #0ea5e9; color: #fff; }
+
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; max-width: 1240px; margin: 0 auto; }
+    .price-card { border-radius: 16px; padding: 26px 22px; border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.02); position: relative; }
+    
+    .price-badge { display: inline-block; padding: 3px 10px; border-radius: 5px; font-size: 10px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 16px; }
+    .price-name { font-size: 19px; font-weight: 800; margin-bottom: 3px; }
+    .price-tagline { font-size: 13px; color: rgba(255,255,255,0.35); margin-bottom: 18px; }
+    
+    .price-amount { display: flex; align-items: baseline; gap: 4px; margin-bottom: 4px; }
+    .price-num { font-size: 36px; font-weight: 900; }
+    .price-period { font-size: 14px; color: rgba(255,255,255,0.3); }
+    .price-yearly-sub { font-size: 12px; color: #38bdf8; font-weight: 600; height: 18px; margin-bottom: 18px; }
+    
+    .price-stats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+    .price-stat-chip { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 5px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.55); }
+    
+    .feature-list { list-style: none; margin: 0 0 24px; display: flex; flex-direction: column; gap: 9px; }
+    .feature-list li { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+    
+    .price-btn { display: block; text-align: center; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.15s; }
+
+    /* ── FAQ ── */
+    .faq { background: #060a16; padding: 90px 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .faq-container { max-width: 740px; margin: 0 auto; display: flex; flex-direction: column; }
+    .faq-item { border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .faq-btn { width: 100%; background: none; border: none; padding: 22px 0; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-family: inherit; text-align: left; }
+    .faq-q { font-size: 15px; font-weight: 600; color: #f1f5f9; line-height: 1.4; }
+    .faq-icon { flex-shrink: 0; transition: transform 0.2s; stroke: rgba(255,255,255,0.3); }
+    .faq-btn.open .faq-icon { transform: rotate(180deg); }
+    .faq-a { padding-bottom: 22px; font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.75; display: none; }
+
+    /* ── CTA ── */
+    .cta { background: #08101e; padding: 100px 24px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center; }
+    .cta-container { max-width: 560px; margin: 0 auto; }
+    .cta-title { font-size: 36px; font-weight: 900; margin: 0 0 16px; letter-spacing: -0.02em; }
+    .cta-desc { font-size: 16px; color: rgba(255,255,255,0.4); margin: 0 0 36px; line-height: 1.7; }
+
+    /* ── FOOTER ── */
+    footer { background: #040711; border-top: 1px solid rgba(255,255,255,0.05); padding: 36px 24px; }
+    .footer-container { max-width: 1120px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+    .footer-links { display: flex; gap: 22px; flex-wrap: wrap; }
+    .footer-link { font-size: 12px; color: rgba(255,255,255,0.2); text-decoration: none; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-container">
+      <a href="/" class="nav-brand">
+        <svg width="24" height="24" viewBox="0 0 1000 850">
+          <defs>
+            <linearGradient id="cg1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#7dd3fc"/><stop offset="100%" stopColor="#0284c7"/>
+            </linearGradient>
+            <mask id="cm1"><path d="M 430 150 L 570 150 L 740 650 L 590 650 L 545 510 L 455 510 L 410 650 L 260 650 Z M 500 260 L 440 445 L 560 445 Z" fill="white" fill-rule="evenodd"/></mask>
+          </defs>
+          <g mask="url(#cm1)"><rect x="0" y="0" width="1000" height="850" fill="url(#cg1)"/></g>
+        </svg>
+        <span class="nav-brand-text">AURA</span>
+        <span class="nav-brand-badge">CLOUD</span>
+      </a>
+      <div class="nav-links">
+        <a href="#stack" class="nav-link">What's included</a>
+        <a href="#pricing" class="nav-link">Pricing</a>
+        <a href="#faq" class="nav-link">FAQ</a>
+        <a href="/login/" class="nav-cta">Get started</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-badge">
+        <div class="hero-badge-dot"></div>
+        AURA Cloud · Sovereign Infrastructure · Canadian
+      </div>
+      <h1 class="hero-title">Storage. Email. Hosting.<br><span class="hero-title-accent">One bill.</span></h1>
+      <p class="hero-desc">AURA Cloud bundles everything a modern presence needs — object storage, business email, app hosting, custom domains, CDN, and SSL — into one sovereign plan. No four separate subscriptions. No four separate logins.</p>
+      <p class="hero-sub">Starts at <strong>$9/month</strong> for a complete stack. Free tier available.</p>
+      <div class="hero-btns">
+        <a href="/login/" class="btn-hero-primary">Create free account</a>
+        <a href="#pricing" class="btn-hero-secondary">See pricing →</a>
+      </div>
+      <div class="trust-line">
+        <div class="trust-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Storage included</div>
+        <div class="trust-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Email included</div>
+        <div class="trust-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>CDN + SSL zero config</div>
+        <div class="trust-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>10-year domain lock</div>
+        <div class="trust-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Canadian company</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section class="comparison">
+    <div class="comparison-container">
+      <div class="section-header" style="margin-bottom: 48px;">
+        <h2 class="section-title">What you're actually replacing</h2>
+        <p class="section-desc">Most people duct-tape these services together. AURA makes it one thing.</p>
+      </div>
+      <div class="comp-table">
+        <div class="comp-header">
+          <span class="comp-col-title" style="color: rgba(255,255,255,0.3);">Feature</span>
+          <span class="comp-col-title" style="color: #38bdf8;">AURA Cloud</span>
+          <span class="comp-col-title" style="color: rgba(255,255,255,0.3);">Market (combined)</span>
+        </div>
+        <div class="comp-row"><span class="comp-feature">Object storage</span><span class="comp-aura"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Included</span><span class="comp-market">AWS S3: ~$0.023/GB + egress fees</span></div>
+        <div class="comp-row"><span class="comp-feature">Business email</span><span class="comp-aura"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Included</span><span class="comp-market">Google Workspace: $6–$18/user/mo</span></div>
+        <div class="comp-row"><span class="comp-feature">App hosting</span><span class="comp-aura"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Included</span><span class="comp-market">Vercel Pro: $20/mo + usage</span></div>
+        <div class="comp-row"><span class="comp-feature">Custom domain</span><span class="comp-aura"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Included (10-yr)</span><span class="comp-market">GoDaddy: $12–20/yr, renews higher</span></div>
+        <div class="comp-row"><span class="comp-feature">SSL certificate</span><span class="comp-aura"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Auto, zero config</span><span class="comp-market">Varies — some charge for wildcard</span></div>
+        <div class="comp-row"><span class="comp-feature">CDN</span><span class="comp-aura"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Global, included</span><span class="comp-market">Cloudflare Pro: $20/mo</span></div>
+        <div class="comp-row"><span class="comp-feature">Single login</span><span class="comp-aura"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>AURA Identity</span><span class="comp-market">4–6 separate accounts to manage</span></div>
+      </div>
+      <p style="text-align: center; margin-top: 20px; font-size: 13px; color: rgba(255,255,255,0.2);">At Spark ($9/mo) you replace ~$55–80/mo in fragmented services.</p>
+    </div>
+  </section>
+
+  <!-- STACK -->
+  <section id="stack" class="stack">
+    <div class="section-header" style="margin-bottom: 56px;">
+      <h2 class="section-title">Everything in the stack</h2>
+      <p class="section-desc">Every AURA Cloud plan includes all six of these. Higher tiers get more of each.</p>
+    </div>
+    <div class="stack-grid">
+      <div class="stack-card">
+        <div class="stack-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></div>
+        <h3 class="stack-card-title">Object Storage</h3>
+        <p class="stack-card-desc">S3-compatible file storage for assets, backups, uploads, and media. Accessible via API or dashboard.</p>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+        <h3 class="stack-card-title">Business Email</h3>
+        <p class="stack-card-desc">you@yourdomain.com inboxes backed by Zoho — IMAP, SMTP, webmail, and spam filtering included.</p>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+        <h3 class="stack-card-title">App Hosting</h3>
+        <p class="stack-card-desc">Deploy React, Next.js, Node, Python, or static sites. Push to deploy. AURA handles the infra.</p>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+        <h3 class="stack-card-title">Domain Management</h3>
+        <p class="stack-card-desc">Register and manage any TLD — .ca, .com, .io, .dev, .ai and more. 10-year registration, no surprises.</p>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg></div>
+        <h3 class="stack-card-title">Global CDN</h3>
+        <p class="stack-card-desc">Your sites and assets delivered from edge nodes worldwide. Zero configuration. Automatic cache invalidation.</p>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <h3 class="stack-card-title">SSL Certificates</h3>
+        <p class="stack-card-desc">TLS certificates provisioned automatically for every domain and subdomain on AURA. Always valid.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" class="pricing">
+    <div class="section-header" style="margin-bottom: 48px;">
+      <h2 class="section-title">Plans</h2>
+      <p class="section-desc" style="margin-bottom: 28px;">Every paid plan includes domain + storage + email + hosting + CDN + SSL. No hidden line items.</p>
+      <div class="billing-toggle">
+        <button class="toggle-btn active" id="btn-monthly" onclick="setBilling('monthly')">Monthly</button>
+        <button class="toggle-btn" id="btn-yearly" onclick="setBilling('yearly')">Yearly · save ~15%</button>
+      </div>
+    </div>
+    
+    <div class="pricing-grid" id="pricing-grid"></div>
+
+    <div style="margin-top: 32px; padding: 20px 24px; border-radius: 12px; background: rgba(14,165,233,0.05); border: 1px solid rgba(14,165,233,0.12); max-width: 860px; margin: 32px auto 0;">
+      <p style="font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.7; margin: 0; text-align: center;">
+        <strong style="color: rgba(255,255,255,0.65);">Storage overage:</strong> If you exceed your plan's storage limit, additional storage is billed at <strong style="color: #38bdf8;">$0.03/GB/month</strong>. You'll receive an email notification at 80% usage before any overage charge occurs. All prices USD · Cancel anytime · Domain custody held by AURA on paid plans.
+      </p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="faq">
+    <div class="section-header" style="margin-bottom: 52px;">
+      <h2 class="section-title">Common questions</h2>
+      <p class="section-desc">Still have questions? Email us at cloud@aurame.ca</p>
+    </div>
+    <div class="faq-container" id="faq-container"></div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="cta-container">
+      <h2 class="cta-title">Your full stack, for $9/month.</h2>
+      <p class="cta-desc">Storage. Email. Hosting. Domain. CDN. All of it. Free tier to start, no credit card required.</p>
+      <div class="hero-btns">
+        <a href="/login/" class="btn-hero-primary">Create AURA Identity — it's free</a>
+        <a href="/" class="btn-hero-secondary">← Back to AURA</a>
+      </div>
+      <p style="margin-top: 24px; font-size: 12px; color: rgba(255,255,255,0.18); letter-spacing: 0.04em; text-transform: uppercase;">No credit card required · Cancel anytime · Canadian company</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-container">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <svg width="18" height="18" viewBox="0 0 1000 850">
+          <defs>
+            <linearGradient id="cfg" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#7dd3fc"/><stop offset="100%" stopColor="#0284c7"/>
+            </linearGradient>
+            <mask id="cfm"><path d="M 430 150 L 570 150 L 740 650 L 590 650 L 545 510 L 455 510 L 410 650 L 260 650 Z M 500 260 L 440 445 L 560 445 Z" fill="white" fill-rule="evenodd"/></mask>
+          </defs>
+          <g mask="url(#cfm)"><rect x="0" y="0" width="1000" height="850" fill="url(#cfg)"/></g>
+        </svg>
+        <span style="font-size: 13px; color: rgba(255,255,255,0.25); font-weight: 500;">AURA Cloud · aurame.ca</span>
+      </div>
+      <div class="footer-links">
+        <a href="/" class="footer-link">Home</a>
+        <a href="#pricing" class="footer-link">Pricing</a>
+        <a href="#faq" class="footer-link">FAQ</a>
+        <a href="mailto:cloud@aurame.ca" class="footer-link">Contact</a>
+      </div>
+      <span style="font-size: 12px; color: rgba(255,255,255,0.15); letter-spacing: 0.04em;">SOVEREIGN · PRIVATE · CANADIAN</span>
+    </div>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script>
+    const PLANS = [
+      { id: "interior", name: "Interior", tagline: "Your private sovereign space", monthly: 0, yearly: 0, badge: "FREE", badgeColor: "#059669", highlight: false, storage: "500 MB", email: 0, apps: 1, domains: 0, features: ["yourname.aurame.ca private subdomain", "500 MB secure object storage", "1 Studio app — private access only", "AURA CDN + SSL included", "Invite-only — not publicly indexed"], cta: "Start free" },
+      { id: "spark", name: "Spark", tagline: "Your digital presence, started", monthly: 9, yearly: 79, badge: "STARTER", badgeColor: "#0891b2", highlight: false, storage: "5 GB", email: 1, apps: 3, domains: 1, features: ["1 custom domain (.ca, .com, .io, .dev…)", "10-year registration held by AURA", "5 GB object storage", "3 public-facing Studio apps", "1 business email inbox", "AURA CDN + SSL"], cta: "Get Spark" },
+      { id: "launch", name: "Launch", tagline: "Professional, fully owned", monthly: 39, yearly: 349, badge: "MOST POPULAR", badgeColor: "#7c3aed", highlight: true, storage: "25 GB", email: 3, apps: 10, domains: 1, features: ["1 custom domain + 10-year registration", "25 GB object storage", "10 Studio apps hosted publicly", "3 business email inboxes", "Analytics + version history", "AURA CDN + SSL + priority builds"], cta: "Get Launch" },
+      { id: "studio", name: "Studio", tagline: "Multi-domain pro builder", monthly: 79, yearly: 699, badge: "BEST VALUE", badgeColor: "#d97706", highlight: false, storage: "100 GB", email: 5, apps: -1, domains: 3, features: ["3 custom domains + 10-year registration", "100 GB object storage", "Unlimited Studio apps", "5 business email inboxes", "API access + advanced analytics", "Priority compute + faster AI"], cta: "Get Studio" },
+      { id: "agency", name: "Agency", tagline: "Multi-client white-label platform", monthly: 199, yearly: 1799, badge: "AGENCY", badgeColor: "#dc2626", highlight: false, storage: "500 GB", email: 10, apps: -1, domains: 10, features: ["10 custom domains + 10-year registration", "500 GB object storage", "Unlimited apps + white-label branding", "10 business email inboxes", "Dedicated CDN nodes + SLA uptime", "Reseller licence — sell plans to clients"], cta: "Get Agency" },
+      { id: "sovereign", name: "Sovereign", tagline: "Dedicated sovereign infrastructure", monthly: 499, yearly: 4499, badge: "ELITE", badgeColor: "#6d28d9", highlight: false, storage: "2 TB", email: -1, apps: -1, domains: -1, features: ["Unlimited domains + 10-year registration", "2 TB object storage", "Dedicated compute cluster (not shared)", "Unlimited email inboxes + routing", "Multi-region failover · 99.99% SLA", "Custom AI routing + private pipeline"], cta: "Get Sovereign" }
+    ];
+
+    let currentBilling = 'monthly';
+    function setBilling(mode) {
+      currentBilling = mode;
+      document.getElementById('btn-monthly').classList.toggle('active', mode === 'monthly');
+      document.getElementById('btn-yearly').classList.toggle('active', mode === 'yearly');
+      renderPricing();
+    }
+
+    function renderPricing() {
+      const grid = document.getElementById('pricing-grid');
+      grid.innerHTML = PLANS.map(p => {
+        const price = currentBilling === 'monthly' ? p.monthly : p.yearly;
+        const period = currentBilling === 'monthly' ? '/mo' : '/yr';
+        
+        let style = '';
+        if(p.highlight) {
+          style = `border-color: rgba(14,165,233,0.45); background: rgba(14,165,233,0.05); box-shadow: 0 0 40px rgba(14,165,233,0.1);`;
+        }
+        
+        let yearlySub = price > 0 && currentBilling === 'yearly' 
+          ? `<div class="price-yearly-sub">≈ $${Math.round(price/12)}/mo billed annually</div>` 
+          : `<div class="price-yearly-sub"></div>`;
+
+        let btnStyle = p.highlight 
+          ? `background: #0ea5e9; color: #fff;` 
+          : (price === 0 ? `background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);` 
+                         : `background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.25); color: #38bdf8;`);
+
+        return `
+          <div class="price-card" style="${style}">
+            <div class="price-badge" style="background: ${p.badgeColor}20; border: 1px solid ${p.badgeColor}40; color: ${p.badgeColor};">${p.badge}</div>
+            <div class="price-name">${p.name}</div>
+            <div class="price-tagline">${p.tagline}</div>
+            <div class="price-amount">
+              <span class="price-num">${price === 0 ? 'Free' : '$'+price}</span>
+              ${price > 0 ? `<span class="price-period">${period}</span>` : ''}
+            </div>
+            ${yearlySub}
+            
+            <div class="price-stats">
+              <span class="price-stat-chip">${p.storage}</span>
+              <span class="price-stat-chip">${p.domains===-1?'∞':p.domains} domain${p.domains!==1?'s':''}</span>
+              <span class="price-stat-chip">${p.email===-1?'∞':p.email} email${p.email!==1?'s':''}</span>
+              <span class="price-stat-chip">${p.apps===-1?'∞':p.apps} app${p.apps!==1?'s':''}</span>
+            </div>
+
+            <ul class="feature-list">
+              ${p.features.map(f => `<li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2.5" style="margin-top:2px; flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>${f}</li>`).join('')}
+            </ul>
+
+            <a href="/" class="price-btn" style="${btnStyle}">${p.cta}</a>
+          </div>
+        `;
+      }).join('');
+    }
+    renderPricing();
+
+    const FAQS = [
+      { q: "What is AURA Cloud exactly?", a: "AURA Cloud is a bundled sovereign infrastructure platform. One monthly plan gives you object storage, business email inboxes, app hosting, a domain, CDN delivery, and SSL. You don't need separate accounts at AWS, Google Workspace, GoDaddy, and Vercel — it's all one bill." },
+      { q: "How does the storage work? Is it like Dropbox or like S3?", a: "It's S3-compatible object storage — designed for apps and developers, not personal file sync. You can store uploads, media, backups, and static assets. Files are accessible via the AURA dashboard or API. It's not a desktop sync client." },
+      { q: "What does 'business email' mean — is this Zoho or something AURA built?", a: "AURA mail runs on Zoho infrastructure behind the scenes. Your inbox is at you@yourdomain.com, you access it via standard IMAP/SMTP (works with any mail client), and it includes spam filtering. From the outside it's just your branded email — Zoho handles the delivery." },
+      { q: "What kind of apps can I host?", a: "React, Next.js, Vue, Svelte, Node.js APIs, Python (Flask/FastAPI), static HTML sites — if it runs on Linux, AURA can host it. You push your code, we build and deploy. No Docker knowledge required." },
+      { q: "What does the 10-year domain registration actually cover me against?", a: "Every year, thousands of websites go dark because the owner forgot to renew the domain. AURA registers your domain for the full 10-year maximum upfront — we handle all renewal admin. As long as your plan is active, your domain cannot lapse. If your plan cancels, AURA holds the domain in custody for 90 days while contacting you." },
+      { q: "Can I add more storage if I hit my limit?", a: "Yes. You can upgrade to a higher tier, or purchase additional storage as a one-time add-on. Overages are billed at $0.03/GB per month — we notify you before charging." },
+      { q: "Is AURA Cloud a Canadian company?", a: "Yes. AURA (aurame.ca) is a Canadian company. Your data and domain records are subject to Canadian law. We do not sell data, share user information with third parties, or run surveillance analytics." }
+    ];
+    
+    const faqContainer = document.getElementById('faq-container');
+    function toggleFaq(index) {
+      const btn = document.getElementById(`faq-btn-${index}`);
+      const content = document.getElementById(`faq-a-${index}`);
+      const isOpen = btn.classList.contains('open');
+      
+      document.querySelectorAll('.faq-btn').forEach(b => b.classList.remove('open'));
+      document.querySelectorAll('.faq-a').forEach(a => a.style.display = 'none');
+      
+      if (!isOpen) {
+        btn.classList.add('open');
+        content.style.display = 'block';
+      }
+    }
+
+    faqContainer.innerHTML = FAQS.map((f, i) => `
+      <div class="faq-item">
+        <button class="faq-btn" id="faq-btn-${i}" onclick="toggleFaq(${i})">
+          <span class="faq-q">${f.q}</span>
+          <svg class="faq-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-a" id="faq-a-${i}">${f.a}</div>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>

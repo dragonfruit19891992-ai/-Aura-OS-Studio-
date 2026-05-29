@@ -1,0 +1,16 @@
+{
+  "rules": {
+    // Secure by default: Deny all reads and writes
+    ".read": false,
+    ".write": false,
+    
+    // Sovereign Workspace Rules
+    // Only users holding a custom token with a matching workspaceId can read/write inside their path
+    "workspaces": {
+      "$workspaceId": {
+        ".read": "auth != null && auth.token.workspaceId === $workspaceId",
+        ".write": "auth != null && auth.token.workspaceId === $workspaceId"
+      }
+    }
+  }
+}

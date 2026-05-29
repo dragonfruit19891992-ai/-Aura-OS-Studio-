@@ -1,0 +1,26 @@
+{
+  "total_users": 3,
+  "registry": [
+    {
+      "id": "AURA-NODE-001",
+      "username": "AdminCore",
+      "role": "Sovereign Administrator",
+      "status": "Active",
+      "encryption": "AES-256"
+    },
+    {
+      "id": "AURA-NODE-002",
+      "username": "DevTest",
+      "role": "Node Operator",
+      "status": "Active",
+      "encryption": "AES-256"
+    },
+    {
+      "id": "AURA-NODE-003",
+      "username": "BetaUser01",
+      "role": "Citizen",
+      "status": "Pending Verification",
+      "encryption": "AES-256"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "users": {
+    "bill@gmail.com": {
+      "companies": [
+        { "company_id": "comp_1", "role": "owner" },
+        { "company_id": "comp_2", "role": "owner" },
+        { "company_id": "comp_3", "role": "employee" }
+      ]
+    }
+  }
+}

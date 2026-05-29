@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA Personal — Sovereign OS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #fff;
+      color: #0f172a;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* ── REVEAL CLASSES ── */
+    .reveal-up { opacity: 0; transform: translateY(36px); transition: all 1.1s cubic-bezier(0.16,1,0.3,1); }
+    .reveal-visible { opacity: 1; transform: translate(0,0); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      background: rgba(255,255,255,0.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: space-between;
+      padding: 0 36px; height: 58px;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+    .nav-brand-text { font-weight: 900; font-size: 15px; letter-spacing: -0.02em; color: #0f172a; }
+    .nav-brand-text span { color: #5e5ce6; }
+    
+    .nav-center { display: flex; flex-direction: column; align-items: center; }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-link {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8;
+      text-decoration: none; transition: color 0.15s; padding-bottom: 2px; border-bottom: 1.5px solid transparent;
+    }
+    .nav-link:hover, .nav-link.active { color: #5e5ce6; }
+    .nav-link.active { border-bottom-color: #5e5ce6; }
+    .nav-subtitle { font-size: 9px; font-weight: 800; color: #cbd5e1; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 1px; }
+
+    .nav-cta {
+      padding: 9px 22px; background: #0f172a; color: #fff; border-radius: 9999px;
+      font-size: 12px; font-weight: 700; text-decoration: none; letter-spacing: 0.01em; transition: background 0.15s;
+    }
+    .nav-cta:hover { background: #5e5ce6; }
+
+    /* ── HERO ── */
+    .hero { position: relative; height: 100vh; overflow: hidden; background: #0f172a; }
+    .hero-slide { position: absolute; inset: 0; z-index: 1; opacity: 0; transition: opacity 1.2s cubic-bezier(0.4,0,0.2,1); }
+    .hero-slide.active { opacity: 1; z-index: 2; }
+    .hero-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,12,30,0.88) 0%, rgba(10,12,30,0.62) 55%, rgba(10,12,30,0.22) 100%); }
+
+    .hero-content { position: absolute; inset: 0; z-index: 3; display: flex; align-items: center; padding: 0 60px; pointer-events: none; }
+    .hero-content-inner { max-width: 640px; pointer-events: auto; }
+    
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px; padding: 5px 14px; margin-bottom: 26px; border-radius: 9999px;
+      background: rgba(94,92,230,0.28); backdrop-filter: blur(8px);
+      border: 1px solid rgba(196,181,253,0.25);
+      font-size: 9px; font-weight: 800; color: #c4b5fd; letter-spacing: 0.22em; text-transform: uppercase;
+    }
+    .hero-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: #a78bfa; display: inline-block; animation: ping 1.5s ease-in-out infinite; }
+    @keyframes ping { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.4; } }
+
+    .hero-title { font-size: clamp(40px, 5.5vw, 68px); font-weight: 900; color: #fff; line-height: 0.97; letter-spacing: -0.03em; margin-bottom: 10px; }
+    .hero-title-accent { background: linear-gradient(135deg, #a78bfa, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 22px; display: block; font-size: clamp(40px, 5.5vw, 68px); font-weight: 900; line-height: 0.97; letter-spacing: -0.03em; }
+    .hero-desc { font-size: 17px; color: rgba(255,255,255,0.75); line-height: 1.7; margin-bottom: 36px; max-width: 520px; }
+
+    .hero-btns { display: flex; gap: 12px; }
+    .btn-hero-primary { display: inline-block; padding: 14px 28px; background: #5e5ce6; color: #fff; border-radius: 14px; font-weight: 700; font-size: 15px; text-decoration: none; box-shadow: 0 16px 40px -8px rgba(94,92,230,0.5); transition: opacity 0.15s; }
+    .btn-hero-primary:hover { opacity: 0.85; }
+    .btn-hero-secondary { display: inline-block; padding: 14px 22px; background: rgba(255,255,255,0.12); backdrop-filter: blur(10px); color: #fff; border-radius: 14px; font-weight: 600; font-size: 15px; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: background 0.15s; }
+    .btn-hero-secondary:hover { background: rgba(255,255,255,0.2); }
+
+    .hero-stats { display: flex; gap: 32px; margin-top: 40px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,0.12); }
+    .hero-stat-val { font-size: 18px; font-weight: 900; color: #fff; letter-spacing: -0.02em; }
+    .hero-stat-label { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; font-weight: 600; }
+
+    .hero-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(255,255,255,0.12); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: background 0.15s;
+    }
+    .hero-arrow:hover { background: rgba(255,255,255,0.25); }
+    .hero-arrow.prev { left: 24px; } .hero-arrow.next { right: 24px; }
+
+    .slider-dots { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 10px; }
+    .slider-dot { width: 8px; height: 8px; border-radius: 9999px; background: rgba(255,255,255,0.35); border: none; cursor: pointer; transition: all 0.35s cubic-bezier(0.16,1,0.3,1); }
+    .slider-dot.active { width: 28px; background: #5e5ce6; }
+    
+    .progress-bar-container { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: rgba(255,255,255,0.1); z-index: 10; }
+    .progress-bar { height: 100%; background: #5e5ce6; transition: width 0.4s ease; }
+
+    /* ── PLATFORM ── */
+    .platform-section { padding: 96px 36px; background: #fff; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .section-header { text-align: center; margin-bottom: 56px; }
+    .section-tag { font-size: 10px; font-weight: 800; color: #5e5ce6; text-transform: uppercase; letter-spacing: 0.24em; margin-bottom: 12px; }
+    .section-title { font-size: clamp(26px, 3.5vw, 48px); font-weight: 900; color: #0f172a; margin: 0 0 14px; letter-spacing: -0.03em; line-height: 1.05; }
+    .section-desc { font-size: 15px; color: #64748b; max-width: 480px; margin: 0 auto; line-height: 1.7; }
+
+    .platform-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .platform-card {
+      background: #f8fafc; border-radius: 24px; padding: 28px 24px; border: 1px solid #f1f5f9;
+      height: 100%; box-sizing: border-box; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    .platform-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(94,92,230,0.1); border-color: #e0d9ff; }
+    .plat-icon {
+      width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #eef2ff, #ede9fe);
+      display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px;
+    }
+    .plat-title { font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 8px; letter-spacing: -0.01em; }
+    .plat-desc { font-size: 13px; color: #64748b; line-height: 1.7; }
+
+    /* ── PRICING ── */
+    .pricing-section { padding: 96px 36px; background: #f8fafc; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1040px; margin: 0 auto; }
+    
+    .price-card {
+      background: #fff; border-radius: 28px; padding: 36px 32px; border: 1.5px solid #e2e8f0;
+      position: relative; height: 100%; box-sizing: border-box; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .price-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px -12px rgba(0,0,0,0.1); }
+    
+    .price-card.primary {
+      background: #0f172a; border: none; box-shadow: 0 32px 72px -16px rgba(94,92,230,0.3);
+    }
+    .price-card.primary:hover { box-shadow: 0 40px 88px -16px rgba(94,92,230,0.42); }
+
+    .price-badge {
+      position: absolute; top: 24px; right: 24px; background: #5e5ce6; color: #fff; font-size: 9px; font-weight: 800;
+      letter-spacing: 0.16em; text-transform: uppercase; padding: 5px 12px; border-radius: 9999px;
+    }
+
+    .price-tier { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 14px; color: #5e5ce6; }
+    .price-card.primary .price-tier { color: #a78bfa; }
+    
+    .price-amount { display: flex; align-items: flex-end; gap: 6px; margin-bottom: 6px; }
+    .price-card.primary .price-amount { margin-bottom: 4px; }
+    .price-num { font-size: 52px; font-weight: 900; color: #0f172a; letter-spacing: -0.04em; line-height: 1; }
+    .price-card.primary .price-num { color: #fff; }
+    .price-period { font-size: 14px; color: #64748b; font-weight: 600; padding-bottom: 9px; }
+    .price-card.primary .price-period { color: #94a3b8; }
+
+    .price-desc { font-size: 13px; color: #64748b; margin-bottom: 28px; line-height: 1.65; }
+    .price-card.primary .price-desc { color: #94a3b8; }
+
+    .price-features { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .price-feature { display: flex; align-items: center; gap: 10px; }
+    .price-feature-text { font-size: 13px; font-weight: 600; color: #475569; }
+    .price-card.primary .price-feature-text { color: #e2d9f3; }
+
+    .price-btn {
+      display: block; text-align: center; padding: 13px 0; background: #f8fafc; color: #0f172a;
+      border-radius: 12px; font-weight: 700; font-size: 14px; text-decoration: none; border: 1.5px solid #e2e8f0;
+      transition: opacity 0.15s, border-color 0.15s;
+    }
+    .price-btn:hover { border-color: #5e5ce6; }
+    .price-card.primary .price-btn {
+      background: #5e5ce6; color: #fff; border: none; box-shadow: 0 12px 32px -8px rgba(94,92,230,0.45);
+    }
+    .price-card.primary .price-btn:hover { opacity: 0.85; border-color: #5e5ce6; }
+
+    /* ── CTA ── */
+    .cta-section { padding: 80px 36px; text-align: center; background: #fff; }
+    
+    /* ── FOOTER ── */
+    footer { background: #040711; border-top: 1px solid rgba(255,255,255,0.05); padding: 36px 24px; }
+    .footer-container { max-width: 1120px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="/" class="nav-brand">
+      <svg width="32" height="32" viewBox="0 0 100 100" fill="none">
+        <rect width="100" height="100" rx="20" fill="#0f172a" />
+        <path d="M30 70L50 30L70 70" stroke="url(#paint0_linear)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M40 55H60" stroke="url(#paint0_linear)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+        <defs><linearGradient id="paint0_linear" x1="30" y1="30" x2="70" y2="70" gradientUnits="userSpaceOnUse"><stop stop-color="#a78bfa" /><stop offset="1" stop-color="#5e5ce6" /></linearGradient></defs>
+      </svg>
+      <span class="nav-brand-text">AURA <span>PERSONAL</span></span>
+    </a>
+    
+    <div class="nav-center">
+      <div class="nav-links">
+        <a href="#platform" class="nav-link active" onclick="setActiveNav(this)">Platform</a>
+        <a href="#pricing" class="nav-link" onclick="setActiveNav(this)">Pricing</a>
+      </div>
+      <div class="nav-subtitle">Sovereign OS</div>
+    </div>
+
+    <a href="/" class="nav-cta">Create Account</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <!-- Slides will be injected by JS -->
+    <div id="hero-slides"></div>
+
+    <!-- Static Overlays -->
+    <button class="hero-arrow prev" onclick="prevSlide()">‹</button>
+    <button class="hero-arrow next" onclick="nextSlide()">›</button>
+    <div class="slider-dots" id="hero-dots"></div>
+    <div class="progress-bar-container"><div class="progress-bar" id="progress-bar"></div></div>
+  </section>
+
+  <!-- PLATFORM -->
+  <section id="platform" class="platform-section">
+    <div class="container">
+      <div class="section-header reveal-up">
+        <div class="section-tag">Platform</div>
+        <h2 class="section-title">One platform. Complete sovereignty.</h2>
+        <p class="section-desc">Replace twelve apps with one private platform that you actually own — no data harvesting, no third parties, no compromise.</p>
+      </div>
+
+      <div class="platform-grid">
+        <div class="platform-card reveal-up" style="transition-delay: 0ms;">
+          <div class="plat-icon">🪪</div><div class="plat-title">Digital Identity</div><div class="plat-desc">Your AURA ID is your sovereign digital identity. One secure credential for everything — no third-party logins, no data harvesting.</div>
+        </div>
+        <div class="platform-card reveal-up" style="transition-delay: 60ms;">
+          <div class="plat-icon">🔐</div><div class="plat-title">Private Vault</div><div class="plat-desc">Store your most important documents — ID cards, passports, contracts, photos — encrypted and accessible only to you.</div>
+        </div>
+        <div class="platform-card reveal-up" style="transition-delay: 120ms;">
+          <div class="plat-icon">💳</div><div class="plat-title">Personal Finance</div><div class="plat-desc">Track spending, manage your AURA card, monitor your Sovereign Reserve, and keep full sight of your financial picture.</div>
+        </div>
+        <div class="platform-card reveal-up" style="transition-delay: 180ms;">
+          <div class="plat-icon">📧</div><div class="plat-title">Sovereign Mail</div><div class="plat-desc">Your AURA email (@aurame.ca) is end-to-end encrypted. No scanning, no ads, no profiling. Just your mail.</div>
+        </div>
+        <div class="platform-card reveal-up" style="transition-delay: 240ms;">
+          <div class="plat-icon">📋</div><div class="plat-title">Contacts & Calendar</div><div class="plat-desc">Manage your personal network and schedule in one place — fully private, no Google, no Apple sync required.</div>
+        </div>
+        <div class="platform-card reveal-up" style="transition-delay: 300ms;">
+          <div class="plat-icon">🗂️</div><div class="plat-title">Document Hub</div><div class="plat-desc">Create, sign, and store personal documents. Lease agreements, legal letters, notes — all organized and searchable.</div>
+        </div>
+        <div class="platform-card reveal-up" style="transition-delay: 360ms;">
+          <div class="plat-icon">☎️</div><div class="plat-title">AURA Phone</div><div class="plat-desc">A real Canadian number with voicemail, call recording consent, and full sovereignty over your communications.</div>
+        </div>
+        <div class="platform-card reveal-up" style="transition-delay: 420ms;">
+          <div class="plat-icon">🌐</div><div class="plat-title">Personal Storefront</div><div class="plat-desc">Sell your services or products with an AURA Personal Storefront. Built-in payments, no commission, yours to keep.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" class="pricing-section">
+    <div class="container" style="max-width: 1040px;">
+      <div class="section-header reveal-up">
+        <div class="section-tag">Pricing</div>
+        <h2 class="section-title">Simple, honest pricing.</h2>
+        <p class="section-desc">No hidden fees. No data harvesting. Start free and upgrade when you're ready.</p>
+        <p style="font-size: 11px; font-weight: 700; color: #94a3b8; margin-top: 10px; letter-spacing: 0.05em;">1 SOV$ = 1 CAD</p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Essential -->
+        <div class="price-card reveal-up" style="transition-delay: 0ms;">
+          <div class="price-tier">Essential</div>
+          <div class="price-amount"><span class="price-num">$0</span><span class="price-period">free forever</span></div>
+          <div class="price-desc">Your sovereign digital identity — no credit card required.</div>
+          <div class="price-features">
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5e5ce6" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">AURA ID</span></div>
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5e5ce6" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">Sovereign Mail (@aurame.ca)</span></div>
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5e5ce6" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">Basic Contacts & Calendar</span></div>
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5e5ce6" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">1 GB Private Vault</span></div>
+          </div>
+          <a href="/" class="price-btn">Start Free →</a>
+        </div>
+
+        <!-- Sovereign -->
+        <div class="price-card primary reveal-up" style="transition-delay: 100ms;">
+          <div class="price-badge">Most Popular</div>
+          <div class="price-tier">Sovereign</div>
+          <div class="price-amount"><span class="price-num">$9</span><span class="price-period">SOV$/mo</span></div>
+          <p style="font-size: 11px; color: #5e5ce6; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.05em;">1 SOV$ = 1 CAD</p>
+          <div class="price-desc">Your full personal digital operating system.</div>
+          <div class="price-features">
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">Everything in Essential</span></div>
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">AURA Phone Number</span></div>
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">50 GB Vault Storage</span></div>
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">Personal Finance Dashboard</span></div>
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">Document Hub & e-Signing</span></div>
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">Personal Storefront</span></div>
+          </div>
+          <a href="/" class="price-btn">Get Sovereign →</a>
+        </div>
+
+        <!-- Elite -->
+        <div class="price-card reveal-up" style="transition-delay: 200ms;">
+          <div class="price-tier">Elite</div>
+          <div class="price-amount"><span class="price-num">$19</span><span class="price-period">SOV$/mo</span></div>
+          <div class="price-desc">Premium sovereignty with unlimited storage and priority support.</div>
+          <div class="price-features">
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5e5ce6" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">Everything in Sovereign</span></div>
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5e5ce6" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">Unlimited Vault Storage</span></div>
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5e5ce6" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">Priority Support</span></div>
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5e5ce6" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">Advanced Analytics</span></div>
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5e5ce6" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">Custom Domain Mail</span></div>
+            <div class="price-feature"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5e5ce6" stroke-width="2.5"><polyline points="20 6 9 17 4 12" /></svg><span class="price-feature-text">Early Feature Access</span></div>
+          </div>
+          <a href="/" class="price-btn">Go Elite →</a>
+        </div>
+      </div>
+
+      <div class="reveal-up" style="transition-delay: 300ms; margin-top: 28px; border-radius: 16px; background: #fff; border: 1px solid #f1f5f9; padding: 16px 24px; display: flex; align-items: center; justify-content: center; gap: 32px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #64748b; font-weight: 600;"><span>🆓</span> No credit card for Essential</div>
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #64748b; font-weight: 600;"><span>🔒</span> Your data never sold</div>
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #64748b; font-weight: 600;"><span>❌</span> Cancel anytime</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="reveal-up">
+      <h2 style="font-size: clamp(24px, 3vw, 40px); font-weight: 900; color: #0f172a; margin: 0 0 14px; letter-spacing: -0.03em;">Start free. Stay sovereign.</h2>
+      <p style="font-size: 15px; color: #64748b; margin-bottom: 32px; max-width: 400px; margin: 0 auto 32px;">No credit card required for the Essential plan. Get your AURA ID today.</p>
+      <a href="/" style="display: inline-block; padding: 14px 36px; background: #0f172a; color: #fff; border-radius: 14px; font-weight: 700; font-size: 15px; text-decoration: none; transition: background 0.15s;" onmouseenter="this.style.background='#5e5ce6'" onmouseleave="this.style.background='#0f172a'">Create Free Account →</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-container">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <svg width="20" height="20" viewBox="0 0 100 100" fill="none">
+          <rect width="100" height="100" rx="20" fill="#0f172a" />
+          <path d="M30 70L50 30L70 70" stroke="url(#paint0_linear)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M40 55H60" stroke="url(#paint0_linear)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span style="font-size: 13px; color: rgba(255,255,255,0.3); font-weight: 500;">AURA Personal · aurame.ca</span>
+      </div>
+      <span style="font-size: 12px; color: rgba(255,255,255,0.2); letter-spacing: 0.04em;">SOVEREIGN · PRIVATE · CANADIAN</span>
+    </div>
+  </footer>
+
+  <script>
+    // Reveal Animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('reveal-visible');
+      });
+    }, { threshold: 0.07 });
+    document.querySelectorAll('.reveal-up').forEach(el => observer.observe(el));
+
+    // Nav active state
+    function setActiveNav(el) {
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    // Slideshow Logic
+    const SLIDES = [
+      { photo: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1600&auto=format&fit=crop", headline: "Your Digital Life.", accent: "Completely Yours.", sub: "AURA Personal gives you a sovereign digital identity, private communications, personal finance tools, and encrypted storage — all in one platform.", badge: "SOVEREIGN PERSONAL OS" },
+      { photo: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=1600&auto=format&fit=crop", headline: "Your Data.", accent: "Your Rules.", sub: "Everything you store is end-to-end encrypted. No scanning. No ads. No third parties. Your vault, your identity — private by default.", badge: "PRIVATE BY DEFAULT" },
+      { photo: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1600&auto=format&fit=crop", headline: "One Platform.", accent: "Every Tool.", sub: "Mail, phone, documents, finance, calendar, and your personal storefront — replace twelve apps with one sovereign operating system built for you.", badge: "ALL IN ONE PLATFORM" }
+    ];
+
+    const heroSlides = document.getElementById('hero-slides');
+    const heroDots = document.getElementById('hero-dots');
+    
+    // Build slides DOM
+    heroSlides.innerHTML = SLIDES.map((s, i) => `
+      <div class="hero-slide" id="slide-${i}">
+        <img src="${s.photo}" alt="">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div class="hero-content-inner">
+            <div class="hero-badge"><span class="hero-badge-dot"></span>${s.badge}</div>
+            <h1 class="hero-title">${s.headline}</h1>
+            <h1 class="hero-title-accent">${s.accent}</h1>
+            <p class="hero-desc">${s.sub}</p>
+            <div class="hero-btns">
+              <a href="/" class="btn-hero-primary">Create Your AURA Account →</a>
+              <a href="#platform" class="btn-hero-secondary">See the Platform</a>
+            </div>
+            <div class="hero-stats">
+              <div><div class="hero-stat-val">256-bit</div><div class="hero-stat-label">Encryption</div></div>
+              <div><div class="hero-stat-val">8 Apps</div><div class="hero-stat-label">Replaced</div></div>
+              <div><div class="hero-stat-val">$0</div><div class="hero-stat-label">To Start</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    heroDots.innerHTML = SLIDES.map((_, i) => `<button class="slider-dot" id="dot-${i}" onclick="setSlide(${i})"></button>`).join('');
+
+    let currentSlide = 0;
+    let timer;
+    
+    function renderSlide() {
+      SLIDES.forEach((_, i) => {
+        document.getElementById(`slide-${i}`).classList.toggle('active', i === currentSlide);
+        document.getElementById(`dot-${i}`).classList.toggle('active', i === currentSlide);
+      });
+      document.getElementById('progress-bar').style.width = `${((currentSlide + 1) / SLIDES.length) * 100}%`;
+    }
+    
+    function nextSlide() { currentSlide = (currentSlide + 1) % SLIDES.length; renderSlide(); resetTimer(); }
+    function prevSlide() { currentSlide = (currentSlide - 1 + SLIDES.length) % SLIDES.length; renderSlide(); resetTimer(); }
+    function setSlide(i) { currentSlide = i; renderSlide(); resetTimer(); }
+    function resetTimer() { clearInterval(timer); timer = setInterval(nextSlide, 5000); }
+    
+    renderSlide();
+    resetTimer();
+  </script>
+</body>
+</html>

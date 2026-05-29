@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>True Oath - AURA SSO</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+  body { background: #050508; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+
+  /* Ambient Glows */
+  .glow-1 { position: absolute; top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 60%); pointer-events: none; }
+  .glow-2 { position: absolute; bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, rgba(168,85,247,0.06) 0%, transparent 60%); pointer-events: none; }
+
+  .login-card {
+      width: 100%; max-width: 420px;
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      position: relative; z-index: 10;
+  }
+
+  .brand { display: flex; flex-direction: column; align-items: center; margin-bottom: 40px; }
+  .logo-box {
+      width: 56px; height: 56px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #4f46e5, #9333ea);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3), inset 0 2px 4px rgba(255,255,255,0.3);
+      margin-bottom: 20px;
+  }
+  .title { font-size: 24px; font-weight: 900; letter-spacing: -0.03em; color: #fff; margin-bottom: 6px; }
+  .subtitle { font-size: 13px; font-weight: 500; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .input-group { margin-bottom: 24px; }
+  .input-label { display: block; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .input-field {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s;
+  }
+  .input-field:focus { border-color: rgba(99, 102, 241, 0.5); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
+  .input-field::placeholder { color: #475569; }
+
+  .btn-submit {
+      width: 100%;
+      padding: 16px;
+      border-radius: 12px;
+      background: #fff;
+      color: #0f172a;
+      border: none;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all 0.2s;
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255,255,255,0.1); }
+  .btn-submit:active { transform: translateY(0); }
+
+  .divider { display: flex; align-items: center; text-align: center; margin: 24px 0; }
+  .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .divider:not(:empty)::before { margin-right: .25em; }
+  .divider:not(:empty)::after { margin-left: .25em; }
+  .divider-text { font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.1em; padding: 0 12px; }
+
+  .btn-secondary {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: rgba(255, 255, 255, 0.06); }
+
+  .secure-badge { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 32px; font-size: 10px; font-weight: 700; color: #10b981; text-transform: uppercase; letter-spacing: 0.08em; }
+  .secure-dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981; }
+
+  /* Loading State */
+  .loader { border: 2px solid rgba(15,23,42,0.1); border-left-color: #0f172a; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: none; }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
+
+  <div class="login-card" style="display: flex; flex-direction: column; align-items: center;">
+      <div class="brand">
+          <div class="logo-box">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="title">True Oath</div>
+          <div class="subtitle">Sovereign Identity Protocol</div>
+      </div>
+
+      <!-- Clerk will mount the secure authentication UI here -->
+      <div id="aura-clerk-mount"></div>
+
+      <div class="secure-badge">
+          <div class="secure-dot"></div>
+          256-BIT ENCRYPTED CONNECTION
+      </div>
+  </div>
+
+  <!-- Load Frontend Core Layer -->
+  <script src="../core/config.js"></script>
+  <script src="../core/sessionManager.js"></script>
+
+  <script>
+      async function mountSovereignAuth() {
+          try {
+              // 1. Initialize the Clerk SDK
+              const Clerk = await window.AuraSession.init();
+
+              // 2. If user is already logged in, redirect them immediately to the console
+              if (Clerk.user) {
+                  window.location.href = '/console/';
+                  return;
+              }
+
+              // 3. Mount the Clerk UI
+              const clerkMountDiv = document.getElementById('aura-clerk-mount');
+              Clerk.mountSignIn(clerkMountDiv, {
+                  routing: 'hash',
+                  appearance: {
+                      variables: {
+                          colorPrimary: '#4f46e5',
+                          colorBackground: 'transparent',
+                          colorText: '#ffffff',
+                          colorInputBackground: 'rgba(0, 0, 0, 0.3)',
+                          colorInputText: '#ffffff',
+                          colorTextOnPrimaryBackground: '#ffffff'
+                      },
+                      elements: {
+                          card: { background: 'transparent', boxShadow: 'none' },
+                          headerTitle: { display: 'none' },
+                          headerSubtitle: { display: 'none' },
+                          footer: { display: 'none' },
+                          socialButtonsBlockButton: { border: '1px solid rgba(255,255,255,0.1)' },
+                          dividerLine: { background: 'rgba(255,255,255,0.1)' }
+                      }
+                  }
+              });
+
+              // Listen for successful authentication and redirect
+              Clerk.addListener((payload) => {
+                  if (payload.user) {
+                      window.location.href = '/console/';
+                  }
+              });
+
+          } catch (error) {
+              console.error("Failed to initialize True Oath Identity Protocol:", error);
+          }
+      }
+
+      // Boot the auth system
+      mountSovereignAuth();
+  </script>
+</body>
+</html>

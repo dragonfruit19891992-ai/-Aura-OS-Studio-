@@ -1,0 +1,20 @@
+# apphosting.yaml
+# Firebase App Hosting Configuration for Aura OS Sovereign Ecosystem
+
+# 1. HTTP Response Headers
+# Enforce security configurations on all dynamic paths
+headers:
+  - paths: ["/**"]
+    headers:
+      - key: "X-Frame-Options"
+        value: "DENY"
+      - key: "X-Content-Type-Options"
+        value: "nosniff"
+      - key: "Referrer-Policy"
+        value: "strict-origin-when-cross-origin"
+
+# 2. Build Settings & Environment
+# Force Node.js version 20 to align with backend serverless cloud run targets
+runtime:
+  node:
+    version: "20"

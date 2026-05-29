@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Me Chat - Studio Canvas</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+  body { background: #08080f; color: #f1f5f9; height: 100vh; display: flex; overflow: hidden; }
+  
+  /* Layout */
+  .sidebar { width: 260px; background: rgba(255,255,255,0.02); border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; }
+  .chat-wrapper { flex: 1; display: flex; flex-direction: column; max-width: 900px; margin: 0 auto; position: relative; }
+  .canvas-panel { width: 0; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: #0a0a14; border-left: 1px solid rgba(255,255,255,0.05); overflow: hidden; display: flex; flex-direction: column; }
+  .canvas-panel.open { width: 50%; } /* Canvas is huge */
+
+  /* Sidebar */
+  .sb-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between; }
+  .sb-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; }
+  .sb-add { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; border: none; width: 28px; height: 28px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .sb-list { flex: 1; overflow-y: auto; padding: 12px; }
+  .sb-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; cursor: pointer; transition: all 0.2s; color: #cbd5e1; }
+  .sb-item:hover, .sb-item.active { background: rgba(255,255,255,0.05); color: #fff; }
+  .sb-item.active { box-shadow: inset 3px 0 0 #818cf8; }
+  .sb-item-icon { color: #818cf8; }
+  .sb-item-name { flex: 1; font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sb-item-trash { opacity: 0; color: #ef4444; padding: 4px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+  .sb-item:hover .sb-item-trash { opacity: 1; }
+  .sb-item-trash:hover { background: rgba(239,68,68,0.2); }
+
+  /* Chat Area */
+  .header { padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; z-index: 10; }
+  .branding { display: flex; align-items: center; gap: 12px; }
+  .logo { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #4f46e5, #7c3aed); display: flex; align-items: center; justify-content: center; font-weight: 900; }
+  .title { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; }
+  .project-badge { padding: 6px 12px; border-radius: 8px; background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); font-size: 11px; font-weight: 700; color: #818cf8; text-transform: uppercase; letter-spacing: 0.1em; }
+  .clear-btn { padding: 8px 16px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+  .clear-btn:hover { background: rgba(255,255,255,0.1); color: #f1f5f9; }
+  
+  .chat-area { flex: 1; overflow-y: auto; padding: 40px; display: flex; flex-direction: column; gap: 20px; width: 100%; }
+  .msg-row { display: flex; gap: 16px; align-items: flex-start; max-width: 80%; }
+  .msg-row.user { align-self: flex-end; flex-direction: row-reverse; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; }
+  .avatar.ai { background: linear-gradient(135deg, #7c3aed, #db2777); }
+  .avatar.user { background: linear-gradient(135deg, #4f46e5, #7c3aed); }
+  .bubble { padding: 14px 20px; border-radius: 18px; font-size: 14px; line-height: 1.6; color: #f1f5f9; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+  .bubble.ai { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px 18px 18px 18px; }
+  .bubble.user { background: linear-gradient(135deg, #4f46e5, #7c3aed); border-radius: 18px 4px 18px 18px; }
+  
+  .input-area { padding: 30px 40px; background: linear-gradient(to top, #08080f 50%, transparent); display: flex; justify-content: center; }
+  .input-box { width: 100%; max-width: 900px; background: rgba(255,255,255,0.05); border: 1px solid rgba(139,92,246,0.3); border-radius: 24px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); transition: all 0.3s; }
+  .input-box:focus-within { border-color: #818cf8; background: rgba(255,255,255,0.08); box-shadow: 0 10px 50px rgba(99,102,241,0.2); }
+  .mic-btn { width: 40px; height: 40px; border-radius: 50%; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.3); color: #a78bfa; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+  .inp { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 15px; font-family: inherit; }
+  .send-btn { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #7c3aed, #db2777); border: none; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+
+  /* Canvas */
+  .canvas-header { padding: 24px 32px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between; }
+  .canvas-title { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 700; color: #fff; }
+  .open-studio-btn { padding: 8px 16px; border-radius: 8px; background: #818cf8; color: #000; font-size: 12px; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+  .open-studio-btn:hover { background: #6366f1; color: #fff; }
+  .canvas-content { flex: 1; padding: 40px; overflow-y: auto; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(139,92,246,0.1) 0%, transparent 70%); }
+  
+  .mockup-frame {
+      width: 100%; max-width: 500px; aspect-ratio: 9/16; max-height: 800px; 
+      border-radius: 40px; border: 8px solid #1e293b; background: #0f172a; 
+      position: relative; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+      display: flex; flex-col;
+  }
+  .mockup-inner { padding: 32px 24px; color: #fff; flex: 1; display: flex; flex-direction: column; }
+  .skeleton { background: rgba(255,255,255,0.1); border-radius: 8px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 100; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+  .modal { background: #1e1e2d; border: 1px solid rgba(255,255,255,0.1); padding: 32px; border-radius: 24px; width: 400px; max-width: 90%; transform: scale(0.95); transition: transform 0.3s; }
+  .modal-title { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 12px; }
+  .modal-text { color: #94a3b8; font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
+  .modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
+  .btn { padding: 10px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; font-size: 14px; }
+  .btn-cancel { background: rgba(255,255,255,0.1); color: #fff; }
+  .btn-danger { background: #ef4444; color: #fff; }
+  .btn-primary { background: #4f46e5; color: #fff; }
+</style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+      <div class="sb-header">
+          <div class="sb-title">My Projects</div>
+          <button class="sb-add" onclick="openNewProjectModal()"><i class="ti ti-plus"></i></button>
+      </div>
+      <div class="sb-list" id="project-list">
+          <!-- Populated by JS -->
+      </div>
+  </div>
+
+  <!-- Chat Area -->
+  <div class="chat-wrapper">
+      <div class="header">
+          <div class="branding">
+              <div class="logo">P</div>
+              <div class="title">Me Chat</div>
+              <div class="project-badge" id="project-name-display">Global Whiteboard</div>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: center;">
+              <button class="clear-btn" onclick="clearScreen()"><i class="ti ti-eraser"></i> Clear</button>
+              <a href="/console/" style="color:#64748b; text-decoration:none; margin-left:10px;"><i class="ti ti-x" style="font-size:20px;"></i></a>
+          </div>
+      </div>
+    
+      <div class="chat-area" id="chat-box"></div>
+    
+      <div class="input-area">
+          <div class="input-box">
+              <button class="mic-btn"><i class="ti ti-microphone"></i></button>
+              <input type="text" class="inp" id="chat-input" placeholder="Start thinking...">
+              <button class="send-btn" onclick="sendMsg()"><i class="ti ti-send"></i></button>
+          </div>
+      </div>
+  </div>
+
+  <!-- Right Canvas Panel -->
+  <div class="canvas-panel" id="canvas-panel">
+      <div class="canvas-header">
+          <div class="canvas-title">
+              <i class="ti ti-device-desktop-analytics text-indigo-400" style="font-size:24px;"></i>
+              <span id="canvas-title-text">Live Preview</span>
+          </div>
+          <a href="#" id="canvas-studio-btn" class="open-studio-btn">
+              <i class="ti ti-code"></i> Open Studio
+          </a>
+      </div>
+      <div class="canvas-content">
+          <div class="mockup-frame">
+              <!-- Notch -->
+              <div style="position:absolute; top:0; left:50%; transform:translateX(-50%); width:120px; height:24px; background:#1e293b; border-radius:0 0 12px 12px;"></div>
+              
+              <div class="mockup-inner" id="mockup-inner">
+                  <!-- Dynamic Mockup Content -->
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- Modals -->
+  <div class="modal-overlay" id="delete-modal">
+      <div class="modal" id="delete-modal-inner">
+          <div class="modal-title">Delete Project?</div>
+          <div class="modal-text">Are you sure you want to completely erase <b id="del-proj-name" class="text-white"></b>? This will purge its isolated sandbox database and all associated code. This cannot be undone.</div>
+          <div class="modal-actions">
+              <button class="btn btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+              <button class="btn btn-danger" onclick="confirmDeleteProject()">Yes, Delete</button>
+          </div>
+      </div>
+  </div>
+
+  <div class="modal-overlay" id="new-modal">
+      <div class="modal" id="new-modal-inner">
+          <div class="modal-title">New Sovereign Project</div>
+          <input type="text" id="new-proj-input" class="w-full bg-black/30 border border-white/10 rounded-lg p-3 text-white mb-4" placeholder="e.g. Health Tracker AI" style="width:100%; box-sizing:border-box;">
+          <div class="modal-actions">
+              <button class="btn btn-cancel" onclick="closeNewModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="confirmNewProject()">Create</button>
+          </div>
+      </div>
+  </div>
+
+  <script>
+      const ACTIVE_USER_ID = "uid_x8f92ma"; // 100,000% Isolated
+      const STORAGE_KEY = `aura_projects_${ACTIVE_USER_ID}`;
+      
+      let projects = [];
+      let activeProjectId = null;
+      let deleteTargetId = null;
+
+      function loadProjects() {
+          projects = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if (!projects || projects.length === 0) {
+              projects = [{ id: 'app_59281X', name: 'My First Project', type: 'Isolated Sandbox', created: Date.now() }];
+              saveProjects();
+          }
+          renderSidebar();
+      }
+
+      window.addEventListener('storage', (e) => {
+          if (e.key === STORAGE_KEY) {
+              projects = JSON.parse(e.newValue) || [];
+              renderSidebar();
+              if (activeProjectId && !projects.find(p => p.id === activeProjectId)) {
+                  document.getElementById('canvas-panel').classList.remove('open');
+                  document.getElementById('project-name-display').textContent = 'Global Whiteboard';
+                  activeProjectId = null;
+              }
+          }
+      });
+
+      function saveProjects() {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+      }
+
+      function renderSidebar() {
+          const list = document.getElementById('project-list');
+          list.innerHTML = '';
+          projects.forEach(p => {
+              const div = document.createElement('div');
+              div.className = `sb-item ${activeProjectId === p.id ? 'active' : ''}`;
+              div.innerHTML = `
+                  <i class="ti ti-box sb-item-icon"></i>
+                  <div class="sb-item-name">${p.name}</div>
+                  <i class="ti ti-trash sb-item-trash" onclick="openDeleteModal('${p.id}', '${p.name.replace(/'/g, "\\'")}', event)"></i>
+              `;
+              div.onclick = () => openProjectCanvas(p);
+              list.appendChild(div);
+          });
+      }
+
+      function openProjectCanvas(project) {
+          activeProjectId = project.id;
+          renderSidebar();
+          
+          document.getElementById('project-name-display').textContent = project.name;
+          document.getElementById('canvas-title-text').textContent = project.name;
+          document.getElementById('canvas-studio-btn').href = `/mycodes/dashboard/?appId=${project.id}`;
+          
+          // Open Canvas Panel
+          document.getElementById('canvas-panel').classList.add('open');
+
+          // Generate a gorgeous dynamic mockup based on the name
+          const inner = document.getElementById('mockup-inner');
+          inner.innerHTML = `
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 10px; margin-bottom: 30px;">
+                  <div class="skeleton" style="width: 40px; height: 40px; border-radius: 50%;"></div>
+                  <div class="skeleton" style="width: 24px; height: 24px;"></div>
+              </div>
+              <h2 style="font-size:24px; font-weight:800; margin-bottom:10px;">${project.name}</h2>
+              <p style="color:#94a3b8; font-size:14px; margin-bottom:30px;">Live UI Sandbox Rendering...</p>
+              
+              <div class="skeleton" style="width: 100%; height: 120px; border-radius: 16px; margin-bottom: 20px;"></div>
+              
+              <div style="display:flex; gap:16px; margin-bottom:20px;">
+                  <div class="skeleton" style="flex:1; height: 100px; border-radius: 16px;"></div>
+                  <div class="skeleton" style="flex:1; height: 100px; border-radius: 16px;"></div>
+              </div>
+              
+              <div class="skeleton" style="width: 100%; height: 60px; border-radius: 12px; margin-bottom: 12px;"></div>
+              <div class="skeleton" style="width: 100%; height: 60px; border-radius: 12px; margin-bottom: 12px;"></div>
+              
+              <div style="margin-top:auto; padding-top:20px; display:flex; justify-content:space-around; border-top:1px solid rgba(255,255,255,0.1);">
+                  <div class="skeleton" style="width: 24px; height: 24px; border-radius:4px;"></div>
+                  <div class="skeleton" style="width: 24px; height: 24px; border-radius:4px;"></div>
+                  <div class="skeleton" style="width: 24px; height: 24px; border-radius:4px;"></div>
+              </div>
+          `;
+      }
+
+      // Modals
+      function openDeleteModal(id, name, e) {
+          e.stopPropagation();
+          deleteTargetId = id;
+          document.getElementById('del-proj-name').textContent = name;
+          const overlay = document.getElementById('delete-modal');
+          overlay.style.display = 'flex';
+          void overlay.offsetWidth;
+          overlay.style.opacity = '1';
+          document.getElementById('delete-modal-inner').style.transform = 'scale(1)';
+      }
+
+      function closeDeleteModal() {
+          const overlay = document.getElementById('delete-modal');
+          overlay.style.opacity = '0';
+          document.getElementById('delete-modal-inner').style.transform = 'scale(0.95)';
+          setTimeout(() => { overlay.style.display = 'none'; }, 300);
+      }
+
+      function confirmDeleteProject() {
+          projects = projects.filter(p => p.id !== deleteTargetId);
+          saveProjects();
+          if (activeProjectId === deleteTargetId) {
+              document.getElementById('canvas-panel').classList.remove('open');
+              document.getElementById('project-name-display').textContent = 'Global Whiteboard';
+              activeProjectId = null;
+          }
+          renderSidebar();
+          closeDeleteModal();
+          
+          appendMsg('ai', `I have permanently purged that project's isolated sandbox.`);
+      }
+
+      function openNewProjectModal() {
+          document.getElementById('new-proj-input').value = '';
+          const overlay = document.getElementById('new-modal');
+          overlay.style.display = 'flex';
+          void overlay.offsetWidth;
+          overlay.style.opacity = '1';
+          document.getElementById('new-modal-inner').style.transform = 'scale(1)';
+          document.getElementById('new-proj-input').focus();
+      }
+
+      function closeNewModal() {
+          const overlay = document.getElementById('new-modal');
+          overlay.style.opacity = '0';
+          document.getElementById('new-modal-inner').style.transform = 'scale(0.95)';
+          setTimeout(() => { overlay.style.display = 'none'; }, 300);
+      }
+
+      function confirmNewProject() {
+          const name = document.getElementById('new-proj-input').value.trim() || 'Untitled Sandbox';
+          const newId = 'app_' + Math.random().toString(36).substr(2, 6).toUpperCase();
+          const newProj = { id: newId, name: name, type: 'Isolated Sandbox', created: Date.now() };
+          projects.unshift(newProj);
+          saveProjects();
+          closeNewModal();
+          openProjectCanvas(newProj);
+          
+          appendMsg('ai', `I've initialized a new sovereign environment for "${name}". It's fully isolated.`);
+      }
+
+      // Chat Logic
+      const chatBox = document.getElementById('chat-box');
+      function appendMsg(role, text) {
+          const row = document.createElement('div');
+          if (role === 'user') {
+              row.className = 'msg-row user';
+              row.innerHTML = `<div class="avatar user">A</div><div class="bubble user">${text}</div>`;
+          } else {
+              row.className = 'msg-row';
+              row.innerHTML = `<div class="avatar ai">P</div><div class="bubble ai">${text}</div>`;
+          }
+          chatBox.appendChild(row);
+          chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      function sendMsg(forceText) {
+          const inp = document.getElementById('chat-input');
+          const text = forceText || inp.value.trim();
+          if (!text) return;
+
+          appendMsg('user', text);
+          inp.value = '';
+
+          // If they typed something and we have no project active, let's pretend to build one!
+          setTimeout(() => {
+              if(!activeProjectId && (text.toLowerCase().includes('build') || text.toLowerCase().includes('create'))) {
+                  appendMsg('ai', "I'll create an isolated environment for that right now. Generating UI architecture...");
+                  setTimeout(() => {
+                      const newId = 'app_' + Math.random().toString(36).substr(2, 6).toUpperCase();
+                      const newProj = { id: newId, name: text.substring(0, 20) + '...', type: 'Isolated Sandbox', created: Date.now() };
+                      projects.unshift(newProj);
+                      saveProjects();
+                      openProjectCanvas(newProj);
+                  }, 1500);
+              } else {
+                  appendMsg('ai', "I have stored that in your Lasso Memory for this workspace. Updating the live view now.");
+              }
+          }, 800);
+      }
+
+      document.getElementById('chat-input').addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') sendMsg();
+      });
+
+      function clearScreen() {
+          chatBox.innerHTML = '';
+          appendMsg('ai', "Whiteboard cleared. I still remember everything. What are we working on?");
+      }
+
+      window.onload = () => {
+          loadProjects();
+          
+          const urlParams = new URLSearchParams(window.location.search);
+          const passedId = urlParams.get('id');
+          if (passedId) {
+              const p = projects.find(x => x.id === passedId);
+              if (p) openProjectCanvas(p);
+          }
+          
+          const initPrompt = sessionStorage.getItem('initial_prompt');
+          if (initPrompt) {
+              sessionStorage.removeItem('initial_prompt');
+              sendMsg(initPrompt);
+          } else if (!passedId) {
+              appendMsg('ai', "Your sovereign ecosystem is online. Select a project or describe a new one to begin.");
+          }
+      };
+  </script>
+</body>
+</html>

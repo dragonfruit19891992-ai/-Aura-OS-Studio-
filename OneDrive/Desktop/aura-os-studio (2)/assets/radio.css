@@ -1,0 +1,534 @@
+/* AuraRadio CSS Stylesheet — Premium Holographic Theme */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* Floating Holographic Audio Capsule */
+.aura-radio-capsule {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  height: 44px;
+  padding: 0 0.85rem;
+  background: rgba(9, 9, 14, 0.72);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  z-index: 9999;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  max-width: 260px;
+}
+
+.aura-radio-capsule:hover {
+  transform: translateY(-1.5px);
+  border-color: rgba(6, 182, 212, 0.35);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(6, 182, 212, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: rgba(9, 9, 14, 0.8);
+}
+
+.aura-radio-capsule.playing {
+  border-color: rgba(16, 185, 129, 0.25);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(16, 185, 129, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.aura-radio-capsule.loading {
+  animation: pulseLoading 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseLoading {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.5; }
+}
+
+/* Micro-visualizer waves */
+.aura-radio-visualizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5px;
+  width: 16px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.aura-radio-bar {
+  width: 2px;
+  height: 25%;
+  background: linear-gradient(to top, #10b981, #06b6d4);
+  border-radius: 99px;
+  transition: height 0.3s ease;
+}
+
+/* Waves animation when playing */
+.aura-radio-capsule.playing .aura-radio-bar:nth-child(1) { animation: danceWave 0.6s infinite ease-in-out alternate; }
+.aura-radio-capsule.playing .aura-radio-bar:nth-child(2) { animation: danceWave 0.9s infinite ease-in-out alternate 0.15s; }
+.aura-radio-capsule.playing .aura-radio-bar:nth-child(3) { animation: danceWave 0.7s infinite ease-in-out alternate 0.3s; }
+.aura-radio-capsule.playing .aura-radio-bar:nth-child(4) { animation: danceWave 0.8s infinite ease-in-out alternate 0.05s; }
+
+@keyframes danceWave {
+  0% { height: 20%; }
+  100% { height: 100%; }
+}
+
+/* Now Playing Information Text */
+.aura-radio-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  width: 110px;
+}
+
+.aura-radio-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.aura-radio-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+/* Control buttons inside capsule */
+.aura-radio-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
+  padding-left: 0.45rem;
+}
+
+.aura-radio-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aura-radio-btn:hover {
+  background: #ffffff;
+  color: #09090e;
+  transform: scale(1.08);
+}
+
+/* Sliding Glassmorphic Panel */
+.aura-radio-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 440px;
+  height: 100vh;
+  background: rgba(9, 9, 14, 0.94);
+  backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 20px 0 60px rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: 'Inter', sans-serif;
+  color: #f4f4f6;
+  overflow: hidden;
+}
+
+.aura-radio-panel.active {
+  transform: translateX(0);
+}
+
+.aura-radio-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 5, 10, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.aura-radio-panel-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Header inside Panel */
+.aura-radio-panel-header {
+  padding: 1.75rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.aura-radio-panel-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #ffffff, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Navigation tabs inside Panel */
+.aura-radio-tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0.75rem;
+  padding: 4px;
+  margin: 1.5rem 2rem 1rem;
+}
+
+.aura-radio-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.65rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.aura-radio-tab.active {
+  background: #ffffff;
+  color: #09090e;
+}
+
+/* Search bar & filter inputs */
+.aura-radio-search-box {
+  padding: 0 2rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.aura-radio-search-input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.aura-radio-search-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  padding: 0.8rem 1rem 0.8rem 2.5rem;
+  font-size: 0.85rem;
+  color: #ffffff;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.aura-radio-search-input:focus {
+  border-color: rgba(6, 182, 212, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.aura-radio-search-icon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  pointer-events: none;
+}
+
+.aura-radio-filters-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.aura-radio-select {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.75rem;
+  font-size: 0.78rem;
+  color: #f4f4f6;
+  outline: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.aura-radio-select option {
+  background: #141423;
+  color: #fff;
+}
+
+/* Category Quick Tags */
+.aura-radio-tags-row {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding: 0 2rem 1.25rem;
+  scrollbar-width: none;
+}
+
+.aura-radio-tags-row::-webkit-scrollbar {
+  display: none;
+}
+
+.aura-radio-tag-pill {
+  padding: 0.45rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.aura-radio-tag-pill.active, .aura-radio-tag-pill:hover {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.3);
+  color: #c084fc;
+}
+
+/* Scrollable station catalog list */
+.aura-radio-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.aura-radio-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.aura-radio-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.aura-radio-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+}
+
+/* Station Card items */
+.aura-radio-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aura-radio-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(139, 92, 246, 0.2);
+  transform: translateY(-1.5px);
+}
+
+.aura-radio-card.active {
+  background: rgba(139, 92, 246, 0.08);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.aura-radio-card-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.2));
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.aura-radio-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.aura-radio-card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aura-radio-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 2px;
+  font-size: 0.65rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.aura-radio-card-tag {
+  background: rgba(139, 92, 246, 0.1);
+  color: #c084fc;
+  padding: 1px 6px;
+  border-radius: 99px;
+  font-weight: 700;
+}
+
+.aura-radio-card-play {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.aura-radio-card:hover .aura-radio-card-play {
+  background: #ffffff;
+  color: #09090e;
+  transform: scale(1.08);
+}
+
+.aura-radio-card.active .aura-radio-card-play {
+  background: #06b6d4;
+  color: #ffffff;
+}
+
+/* Volume Slider Overlay */
+.aura-radio-volume-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.5rem 1rem;
+  border-radius: 99px;
+  margin: 0 2rem 1.5rem;
+}
+
+.aura-radio-volume-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+  outline: none;
+}
+
+.aura-radio-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #06b6d4;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(6, 182, 212, 0.4);
+}
+
+/* AURA Live broadcast simulation widgets */
+.aura-radio-live-banner {
+  background: linear-gradient(135deg, #09090e 0%, #1e1b4b 100%);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  margin: 0 2rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.aura-radio-pulse-circle {
+  width: 8px;
+  height: 8px;
+  background: #f43f5e;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #f43f5e;
+  animation: visualizerPulse 1.2s infinite alternate;
+}
+
+@keyframes visualizerPulse {
+  0% { transform: scale(0.95); opacity: 0.6; }
+  100% { transform: scale(1.3); opacity: 1; }
+}
+
+.aura-radio-btn-live {
+  background: linear-gradient(135deg, #f43f5e 0%, #7c3aed 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.65rem 1.25rem;
+  border-radius: 99px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(244, 63, 94, 0.3);
+  transition: all 0.25s ease;
+}
+
+.aura-radio-btn-live:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 20px rgba(244, 63, 94, 0.45);
+}
+
+.aura-radio-schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.aura-radio-schedule-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+

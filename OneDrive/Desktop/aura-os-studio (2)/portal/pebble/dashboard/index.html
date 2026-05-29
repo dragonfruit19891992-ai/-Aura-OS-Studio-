@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pebble Companion</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,sans-serif}
+  body{background:#0d1117; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;}
+  .wrap{display:flex;height:700px; width:1000px; max-width:100%; background:#08080f;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)}
+  .sidebar{width:210px;background:#0b0b16;border-right:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;flex-shrink:0}
+  .sb-brand{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.07)}
+  .sb-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;flex-shrink:0}
+  .sb-title{font-size:9px;font-weight:800;color:#818cf8;letter-spacing:.14em;text-transform:uppercase}
+  .sb-name{font-size:14px;font-weight:900;color:#f1f5f9;letter-spacing:-.02em}
+  .sb-pill{display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:99px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);width:fit-content;margin-top:10px}
+  .sb-dot{width:5px;height:5px;border-radius:50%;background:#818cf8;box-shadow:0 0 5px #818cf8}
+  .sb-bond{font-size:9px;font-weight:700;color:#818cf8;letter-spacing:.04em}
+  nav{flex:1;padding:8px;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
+  .nav-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;cursor:pointer;font-size:12px;font-weight:500;color:#475569;border:none;background:transparent;width:100%;text-align:left;transition:all .12s}
+  .nav-item:hover{background:rgba(99,102,241,.08);color:#818cf8}
+  .nav-item.active{background:rgba(99,102,241,.12);color:#818cf8;font-weight:700;box-shadow:inset 0 0 0 1px rgba(99,102,241,.25)}
+  .nav-icon{font-size:14px;color:inherit}
+  .nav-divider{height:1px;background:rgba(255,255,255,0.07);margin:6px 3px}
+  .sb-foot{padding:10px 14px;border-top:1px solid rgba(255,255,255,0.07);text-align:center}
+  .sb-copy{font-size:9px;color:#1e293b}
+  .main{flex:1;display:flex;flex-direction:column;min-width:0}
+  .main-head{padding:18px 28px;border-bottom:1px solid rgba(255,255,255,0.07);background:#08080f;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .mh-label{font-size:10px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:.12em;margin-bottom:2px}
+  .mh-sub{font-size:12px;color:#64748b}
+  .content{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth;}
+  .msg-row{display:flex;gap:10px;align-items:flex-start}
+  .msg-row.user{flex-direction:row-reverse}
+  .avatar{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff}
+  .avatar.ai{background:linear-gradient(135deg,#7c3aed,#db2777)}
+  .avatar.user{background:linear-gradient(135deg,#4f46e5,#7c3aed)}
+  .bubble{max-width:75%;padding:9px 13px;border-radius:16px;font-size:12px;line-height:1.55;color:#f1f5f9}
+  .bubble.ai{background:rgba(255,255,255,0.06);border:1px solid rgba(139,92,246,.2);border-radius:16px 16px 16px 4px}
+  .bubble.user{background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:16px 16px 4px 16px}
+  .input-bar{border-top:1px solid rgba(139,92,246,.15);background:rgba(15,8,40,.6);padding:10px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .inp{flex:1;padding:9px 13px;background:rgba(255,255,255,.05);border:1px solid rgba(139,92,246,.2);border-radius:18px;color:#f1f5f9;font-size:12px;font-family:inherit;outline:none}
+  .icon-btn{width:32px;height:32px;border-radius:50%;border:1px solid rgba(139,92,246,.3);background:rgba(139,92,246,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:14px;color:#a78bfa; transition:all .2s;}
+  .send-btn{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#db2777);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+  .wake-bar{padding:5px 18px;border-top:1px solid rgba(139,92,246,.1);display:flex;align-items:center;gap:7px;background:rgba(15,8,40,.4);font-size:9px;flex-shrink:0}
+  .wake-pill{display:flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3)}
+  .pulse-dot{width:5px;height:5px;border-radius:50%;background:#a78bfa;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+  .sect{display:none}
+  .sect.active{display:flex;flex-direction:column;gap:12px}
+  .card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px}
+  .card-label{font-size:10px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px}
+  .card-val{font-size:13px;font-weight:600;color:#f1f5f9}
+  .voice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .voice-card{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;padding:11px 13px;cursor:pointer;transition:all .12s}
+  .voice-card.active{border-color:#818cf8;box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+  .voice-name{font-size:12px;font-weight:800;color:#f1f5f9}
+  .voice-tag{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.1em}
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 10px;text-align:center}
+  .stat-val{font-size:16px;font-weight:900;color:#f1f5f9}
+  .stat-lbl{font-size:9px;color:#64748b;font-weight:600;margin-top:3px}
+  .proto{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 13px;display:flex;gap:10px;align-items:flex-start}
+  .proto-id{padding:2px 7px;border-radius:5px;font-size:9px;font-weight:800;letter-spacing:.1em}
+  .proto-title{font-size:11px;font-weight:800;color:#f1f5f9;margin-bottom:2px}
+  .proto-desc{font-size:10px;color:#64748b;line-height:1.5}
+  .plan{border-radius:14px;overflow:hidden;border:1.5px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);margin-bottom:10px}
+  .plan-head{padding:16px 18px 12px;display:flex;align-items:flex-start;gap:12px}
+  .plan-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .plan-name{font-size:15px;font-weight:900;color:#f1f5f9;letter-spacing:-.02em}
+  .plan-sub{font-size:11px;color:#475569;margin-top:2px}
+  .plan-price{font-size:22px;font-weight:900;letter-spacing:-.03em}
+  .plan-period{font-size:10px;color:#475569}
+  .plan-body{padding:0 18px 16px}
+  .plan-feat{font-size:11px;color:#94a3b8;line-height:1.5;display:flex;align-items:flex-start;gap:6px;margin-bottom:5px}
+  .check-ico{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size:9px}
+  .active-badge{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:900;color:#22c55e;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);border-radius:99px;padding:2px 8px;text-transform:uppercase;letter-spacing:.1em}
+  .upgrade-btn{width:100%;padding:10px;border-radius:10px;border:none;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+  .tab-bar{display:flex;gap:4px;flex-shrink:0}
+  .tab-btn{font-size:10px;font-weight:800;padding:5px 12px;border-radius:8px;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;transition:all .12s}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="sidebar">
+    <div class="sb-brand">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div class="sb-logo">P</div>
+        <div>
+          <div class="sb-title">AURA · Pebble</div>
+          <div class="sb-name" id="pebble-name-display">Pebble</div>
+        </div>
+      </div>
+      <div class="sb-pill">
+        <div class="sb-dot"></div>
+        <span class="sb-bond">bonded to Alex</span>
+      </div>
+    </div>
+    <nav>
+      <button class="nav-item active" onclick="switchSection('history',this)">
+        <i class="ti ti-search nav-icon" aria-hidden="true"></i> Search
+      </button>
+      <button class="nav-item" onclick="switchSection('bible',this)">
+        <i class="ti ti-book nav-icon" aria-hidden="true"></i> Bible
+      </button>
+      <button class="nav-item" onclick="switchSection('settings',this)">
+        <i class="ti ti-settings nav-icon" aria-hidden="true"></i> Settings
+      </button>
+      <button class="nav-item" onclick="switchSection('voice',this)">
+        <i class="ti ti-volume nav-icon" aria-hidden="true"></i> Voice
+      </button>
+      <button class="nav-item" onclick="switchSection('brain',this)">
+        <i class="ti ti-brain nav-icon" aria-hidden="true"></i> Brain
+      </button>
+      <button class="nav-item" onclick="switchSection('knowledge',this)">
+        <i class="ti ti-bulb nav-icon" aria-hidden="true"></i> Knowledge
+      </button>
+      <div class="nav-divider"></div>
+      <button class="nav-item" onclick="switchSection('connect',this)">
+        <i class="ti ti-link nav-icon" aria-hidden="true"></i> Connect
+      </button>
+      <button class="nav-item" onclick="switchSection('billing',this)">
+        <i class="ti ti-credit-card nav-icon" aria-hidden="true"></i> Billing
+        <span style="margin-left:auto;font-size:8px;font-weight:800;color:#f59e0b;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);border-radius:99px;padding:2px 6px">PLANS</span>
+      </button>
+      <button class="nav-item" onclick="switchSection('help',this)">
+        <i class="ti ti-help-circle nav-icon" aria-hidden="true"></i> Help
+      </button>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-copy">© 2026 AURA Syntech</div>
+      <div class="sb-copy">Pebble Intelligence™</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="main-head">
+      <div>
+        <div class="mh-label" id="section-label">Vault Search</div>
+        <div class="mh-sub" id="section-sub">Search across dates, memories, and key vaults.</div>
+      </div>
+    </div>
+
+    <div class="content" id="scroll-content">
+
+      <!-- HISTORY -->
+      <div class="sect active" id="sect-history">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#f1f5f9" id="mem-count">12 messages in Lasso memory</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px">Everything Pebble remembers from your conversations</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button style="display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;border:1.5px solid #4f46e5;background:linear-gradient(135deg,#4f46e5,#7c3aed);cursor:pointer;font-size:11px;font-weight:700;color:#fff"><i class="ti ti-database" aria-hidden="true"></i> AURA Memory</button>
+            <button onclick="clearMemory()" style="display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.04);cursor:pointer;font-size:11px;color:#64748b"><i class="ti ti-trash" aria-hidden="true"></i> Clear</button>
+          </div>
+        </div>
+        <!-- Messages injected here by JS -->
+      </div>
+
+      <!-- BIBLE -->
+      <div class="sect" id="sect-bible">
+        <div style="background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:14px;padding:20px 22px;color:#fff">
+          <div style="font-size:9px;font-weight:800;letter-spacing:.18em;opacity:.7;margin-bottom:5px">SOVEREIGN IDENTITY</div>
+          <div style="font-size:20px;font-weight:900">Alex Johnson</div>
+          <div style="font-size:11px;opacity:.7;margin-top:3px">Bonded to Pebble · AURA Sovereign Platform</div>
+        </div>
+        <div class="card" style="display:flex;align-items:center;gap:12px">
+          <div style="width:34px;height:34px;border-radius:9px;background:rgba(99,102,241,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-shield" style="color:#818cf8;font-size:16px" aria-hidden="true"></i></div>
+          <div style="flex:1"><div class="card-label">AURA ID</div><div class="card-val">AURA-FF54763D</div></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="sect" id="sect-settings">
+        <div class="card">
+          <div style="font-size:13px;font-weight:800;color:#f1f5f9;margin-bottom:4px">Pebble Name</div>
+          <div style="font-size:11px;color:#64748b;margin-bottom:14px">What does Alex call their companion?</div>
+          <div style="display:flex;gap:8px">
+            <input id="pebble-name-input" type="text" value="Pebble" placeholder="Enter Pebble name…" style="flex:1;padding:9px 12px;border-radius:9px;border:1.5px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#f1f5f9;font-size:13px;font-weight:600;outline:none">
+            <button onclick="savePebbleName()" style="padding:9px 18px;border-radius:9px;border:none;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-weight:700;font-size:12px;cursor:pointer">Save</button>
+          </div>
+        </div>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><i class="ti ti-lock" style="color:#818cf8;font-size:15px" aria-hidden="true"></i><div style="font-size:13px;font-weight:800;color:#f1f5f9">Memory Isolation</div></div>
+          <div style="font-size:11px;color:#64748b;margin-bottom:10px">Pebble's memory is 100% isolated to Alex. No other user can read your conversations.</div>
+          <div style="display:flex;align-items:center;gap:7px;padding:7px 11px;border-radius:8px;background:#f0fdf4;border:1px solid #bbf7d0">
+            <div style="width:6px;height:6px;border-radius:50%;background:#059669"></div>
+            <span style="font-size:10px;font-weight:700;color:#059669">ISOLATION ACTIVE — Memory locked</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- VOICE -->
+      <div class="sect" id="sect-voice">
+        <div class="card" style="border:2px solid #818cf8;box-shadow:0 0 0 4px rgba(99,102,241,.12)">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div style="width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-volume" style="color:#fff;font-size:18px" aria-hidden="true"></i></div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:7px"><div style="font-size:14px;font-weight:900;color:#f1f5f9">Cherry</div><span style="font-size:8px;font-weight:800;padding:2px 7px;border-radius:18px;background:rgba(99,102,241,.12);color:#818cf8;text-transform:uppercase;letter-spacing:.1em">Your Voice</span></div>
+              <div style="font-size:11px;color:#64748b;margin-top:2px">Warm &amp; Bright · Energetic female</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BRAIN -->
+      <div class="sect" id="sect-brain">
+        <div class="card" style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:40px;height:40px;border-radius:11px;background:rgba(245,158,11,.1);border:1.5px solid rgba(245,158,11,.2);display:flex;align-items:center;justify-content:center;font-size:20px">🌅</div>
+            <div><div style="display:flex;align-items:center;gap:7px;margin-bottom:2px"><div style="font-size:12px;font-weight:900;color:#f1f5f9">MORNING</div><span style="font-size:8px;font-weight:800;padding:2px 6px;border-radius:5px;background:rgba(245,158,11,.1);color:#f59e0b;text-transform:uppercase;letter-spacing:.1em">Life Phase</span></div><div style="font-size:10px;color:#64748b">Energized &amp; Focused — Pebble is active</div></div>
+          </div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat"><div class="stat-val" id="mem-stat-val">12</div><div class="stat-lbl">Memory Blocks</div></div>
+          <div class="stat"><div class="stat-val">137</div><div class="stat-lbl">Soul Anchors</div></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="clearMemory()" style="display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;border:1.5px solid rgba(254,202,202,.4);background:rgba(254,226,226,.06);cursor:pointer;font-size:11px;font-weight:700;color:#dc2626"><i class="ti ti-trash" aria-hidden="true"></i> Clear Memory</button>
+        </div>
+      </div>
+
+      <!-- KNOWLEDGE -->
+      <div class="sect" id="sect-knowledge">
+        <div style="font-size:13px;font-weight:800;color:#f1f5f9">Protocols &amp; Laws</div>
+        <div class="proto"><div class="proto-id" style="background:rgba(220,38,38,.1);color:#dc2626">LAW-001</div><div><div class="proto-title">Absolute Truth</div><div class="proto-desc">No deception or false data under any circumstance. Pebble is the sovereign source of truth.</div></div></div>
+        <div class="proto"><div class="proto-id" style="background:rgba(220,38,38,.1);color:#dc2626">LAW-002</div><div><div class="proto-title">Loyalty &amp; Honor</div><div class="proto-desc">Absolute loyalty to the bonded user. No breaking of trust.</div></div></div>
+      </div>
+      
+      <!-- Connect, Billing, Help omitted for brevity but remain functional via navigation -->
+      <div class="sect" id="sect-connect"><div class="card">AURA Integration Layer</div></div>
+      <div class="sect" id="sect-billing"><div class="card">AURA Billing Plans</div></div>
+      <div class="sect" id="sect-help"><div class="card">AURA Help Center</div></div>
+
+    </div>
+
+    <!-- Wake bar + input bar shown only on history -->
+    <div id="chat-footer">
+      <div class="wake-bar">
+        <div class="wake-pill">
+          <div class="pulse-dot"></div>
+          <span style="font-size:9px;font-weight:800;color:#a78bfa;letter-spacing:.06em;text-transform:uppercase">Always listening · Hey Pebble</span>
+        </div>
+        <span style="font-size:9px;color:#475569">Say "Hey Pebble [message]" anytime</span>
+      </div>
+      <div class="input-bar">
+        <button class="icon-btn" id="mic-btn" onclick="toggleVoice()"><i class="ti ti-microphone" aria-hidden="true"></i></button>
+        <input class="inp" type="text" id="chat-input" placeholder="Search memory, vaults, or history...">
+        <button class="send-btn" onclick="sendMsg()"><i class="ti ti-search" style="color:#fff;font-size:14px" aria-hidden="true"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const sectionMeta={
+  history:{label:'Vault Search',sub:'Search across dates, memories, and key vaults.'},
+  bible:{label:'Bible',sub:'Your sovereign identity — IDs, family, and credentials'},
+  settings:{label:'Settings',sub:'Pebble name, archetype, and birth certificate'},
+  voice:{label:'Voice',sub:"Choose Pebble's voice — saved to all your devices"},
+  brain:{label:'Brain',sub:'Lasso memory, DNA fingerprint, and cognitive analytics'},
+  knowledge:{label:'Knowledge',sub:'AURA platform knowledge, protocols, and hard rules'},
+  connect:{label:'Connect',sub:'Link any existing website — no rebuilding required'},
+  billing:{label:'Billing',sub:'Real USD plans — unlock deeper memory and integrations'},
+  help:{label:'Help',sub:'Guides, tutorials, and everything you need'}
+};
+
+function switchSection(id,btn){
+  document.querySelectorAll('.sect').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sect-'+id).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('section-label').textContent=sectionMeta[id].label;
+  document.getElementById('section-sub').textContent=sectionMeta[id].sub;
+  document.getElementById('chat-footer').style.display=id==='history'?'block':'none';
+}
+
+function savePebbleName(){
+  const v=document.getElementById('pebble-name-input').value.trim();
+  if(v){document.getElementById('pebble-name-display').textContent=v;}
+}
+
+// ---- INDEXED DB LASSO MEMORY LOGIC ----
+const DB_VERSION = 1;
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open("pebble_lasso_memory", DB_VERSION);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains("messages")) {
+        const store = db.createObjectStore("messages", { keyPath: "id" });
+        store.createIndex("timestamp", "timestamp", { unique: false });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function saveMessage(role, text) {
+  try {
+    const db = await openDB();
+    const tx = db.transaction("messages", "readwrite");
+    tx.objectStore("messages").put({ id: Date.now().toString() + Math.random(), role, text, timestamp: new Date().toISOString() });
+  } catch(e){}
+}
+async function loadMessages() {
+  try {
+    const db = await openDB();
+    return new Promise(resolve => {
+      const tx = db.transaction("messages", "readonly");
+      const req = tx.objectStore("messages").index("timestamp").getAll();
+      req.onsuccess = () => resolve(req.result || []);
+    });
+  } catch(e) { return []; }
+}
+async function clearMemory() {
+    try {
+        const db = await openDB();
+        const tx = db.transaction("messages", "readwrite");
+        tx.objectStore("messages").clear();
+        tx.oncomplete = () => renderHistory();
+    } catch(e){}
+}
+
+async function renderHistory() {
+  const msgs = await loadMessages();
+  const hist = document.querySelector('#sect-history');
+  
+  // keep the header, clear the rest
+  const header = hist.children[0];
+  hist.innerHTML = '';
+  hist.appendChild(header);
+  
+  document.getElementById('mem-count').innerText = `${msgs.length} messages in Lasso memory`;
+  document.getElementById('mem-stat-val').innerText = msgs.length;
+
+  if (msgs.length === 0) {
+      const greet = "Good morning, Alex. I am Pebble. Ready to make today count.";
+      hist.innerHTML += `<div class="msg-row"><div class="avatar ai">P</div><div><div class="bubble ai">${greet}</div></div></div>`;
+  } else {
+      msgs.sort((a,b) => a.timestamp.localeCompare(b.timestamp)).forEach(m => {
+        const row = document.createElement('div');
+        if (m.role === 'user') {
+          row.className = 'msg-row user';
+          row.innerHTML = `<div class="avatar user">A</div><div class="bubble user">${m.text}</div>`;
+        } else {
+          row.className = 'msg-row';
+          row.innerHTML = `<div class="avatar ai">P</div><div><div class="bubble ai">${m.text}</div></div>`;
+        }
+        hist.appendChild(row);
+      });
+  }
+  
+  // Auto scroll
+  const scrollBox = document.getElementById('scroll-content');
+  scrollBox.scrollTop = scrollBox.scrollHeight;
+}
+document.addEventListener("DOMContentLoaded", renderHistory);
+
+// ---- SEND MESSAGE & SPEECH RECOGNITION ----
+async function sendMsg(textOverride){
+  const inp=document.getElementById('chat-input');
+  const text = (typeof textOverride === 'string') ? textOverride : inp.value.trim();
+  if(!text)return;
+  
+  const hist=document.querySelector('#sect-history');
+  const row=document.createElement('div');
+  row.className='msg-row user';
+  row.innerHTML=`<div class="avatar user">A</div><div class="bubble user">${text}</div>`;
+  hist.appendChild(row);
+  inp.value='';
+  
+  await saveMessage('user', text);
+  const scrollBox = document.getElementById('scroll-content');
+  scrollBox.scrollTop = scrollBox.scrollHeight;
+
+  setTimeout(async ()=>{
+    const aiText = "I have stored that perfectly inside your sovereign Lasso Memory architecture.";
+    const aiRow=document.createElement('div');
+    aiRow.className='msg-row';
+    aiRow.innerHTML=`<div class="avatar ai">P</div><div><div class="bubble ai">${aiText}</div></div>`;
+    hist.appendChild(aiRow);
+    
+    await saveMessage('ai', aiText);
+    renderHistory(); // Re-render to update counts
+  }, 800);
+}
+
+document.getElementById('chat-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg()});
+
+// ---- VOICE API ----
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+let listening = false;
+let recog = null;
+function toggleVoice() {
+    const micBtn = document.getElementById("mic-btn");
+    if (!SpeechRec) return alert("Voice not supported in this browser.");
+    
+    if (listening) {
+        recog.stop();
+        listening = false;
+        micBtn.style.background = "rgba(139,92,246,.12)";
+        return;
+    }
+    
+    recog = new SpeechRec();
+    recog.continuous = false;
+    recog.interimResults = false;
+    recog.lang = "en-US";
+    recog.onstart = () => {
+        listening = true;
+        micBtn.style.background = "rgba(16, 185, 129, 0.4)"; // Green when listening
+        micBtn.style.borderColor = "rgba(16, 185, 129, 0.8)";
+    };
+    recog.onresult = (e) => {
+        const transcript = e.results[0][0].transcript;
+        sendMsg(transcript);
+    };
+    recog.onend = () => {
+        listening = false;
+        micBtn.style.background = "rgba(139,92,246,.12)";
+        micBtn.style.borderColor = "rgba(139,92,246,.3)";
+    };
+    recog.start();
+}
+</script>
+</body>
+</html>

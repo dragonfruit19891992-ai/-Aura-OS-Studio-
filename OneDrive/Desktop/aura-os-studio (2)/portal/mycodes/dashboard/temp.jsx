@@ -1,0 +1,888 @@
+
+    const { useState, useEffect, useRef, useMemo } = React;
+
+    const Icon = ({ name, className = "w-4 h-4" }) => {
+      useEffect(() => { if (window.lucide) window.lucide.createIcons(); });
+      return <i data-lucide={name} className={className}></i>;
+    };
+
+    const TOOLS = [
+      { id: 'editor', name: 'Code Editor', icon: 'code-2', section: 'Core' },
+      { id: 'integrations', name: 'Integrations', icon: 'layers', section: 'Core' },
+      { id: 'database', name: 'Database', icon: 'database', section: 'Suggested' },
+      { id: 'storage', name: 'App Storage', icon: 'hard-drive', section: 'Suggested' },
+      { id: 'auth', name: 'Auth', icon: 'users', section: 'Suggested' },
+      { id: 'security', name: 'Security Center', icon: 'shield-check', section: 'Suggested' },
+      { id: 'secrets', name: 'Secrets', icon: 'key', section: 'Suggested' },
+      { id: 'skills', name: 'Agent Skills', icon: 'wrench', section: 'Suggested' },
+      { id: 'analytics', name: 'Analytics', icon: 'bar-chart', section: 'Suggested' },
+      { id: 'canvas', name: 'Canvas', icon: 'palette', section: 'Suggested' },
+      { id: 'validation', name: 'Validation', icon: 'check-circle', section: 'Suggested' },
+    ];
+
+    const MOCK_SCHEMA = [
+      { name: 'active_sessions', rows: 12, size: '16 KB' },
+      { name: 'monthly_usage', rows: 2450, size: '1.2 MB' },
+      { name: 'system_logs', rows: 8960, size: '4.5 MB' },
+      { name: 'billing_plans', rows: 4, size: '8 KB' },
+      { name: 'api_requests', rows: 832, size: '256 KB' },
+      { name: 'compute_usage', rows: 142, size: '64 KB' },
+      { name: 'discount_codes', rows: 15, size: '16 KB' },
+      { name: 'connected_devices', rows: 78, size: '32 KB' },
+      { name: 'app_users', rows: 523, size: '128 KB' },
+      { name: 'tenant_accounts', rows: 22, size: '24 KB' },
+    ];
+
+    const generateMockData = (tableName, numRows) => {
+      const rows = [];
+      const columns = ['id', 'created_at', 'status'];
+      
+      if (tableName.includes('users') || tableName.includes('accounts')) {
+        columns.push('email', 'name', 'last_login');
+      } else if (tableName.includes('billing') || tableName.includes('usage')) {
+        columns.push('amount', 'currency', 'billing_period');
+      } else {
+        columns.push('reference_id', 'metadata');
+      }
+
+      for (let i = 0; i < Math.min(numRows, 50); i++) {
+        const row = {
+          id: 'rc_' + Math.random().toString(36).substr(2, 9),
+          created_at: new Date(Date.now() - Math.random() * 10000000000).toISOString().split('T')[0],
+          status: Math.random() > 0.2 ? 'active' : 'inactive',
+        };
+        if (columns.includes('email')) {
+          row.email = "user" + i + "@project.local";
+          row.name = "Test User " + i;
+          row.last_login = '2026-05-27';
+        }
+        if (columns.includes('amount')) {
+          row.amount = (Math.random() * 100).toFixed(2);
+          row.currency = 'USD';
+          row.billing_period = 'May 2026';
+        }
+        if (columns.includes('reference_id')) {
+          row.reference_id = 'ref_' + Math.floor(Math.random() * 10000);
+          row.metadata = '{"source": "api"}';
+        }
+        rows.push(row);
+      }
+      return { columns, rows };
+    };
+
+    function App() {
+      const [mode, setMode] = useState('build'); // 'build' | 'audit'
+      const [activeWorkspace, setActiveWorkspace] = useState('editor');
+      const [dbTab, setDbTab] = useState('overview');
+      const [selectedDbTable, setSelectedDbTable] = useState(MOCK_SCHEMA[0].name);
+      const [dbSearch, setDbSearch] = useState('');
+      const [dbLoading, setDbLoading] = useState(false);
+      const [copiedUrl, setCopiedUrl] = useState(false);
+      const [authTab, setAuthTab] = useState('users');
+      const [chatInput, setChatInput] = useState('');
+      const [chat, setChat] = useState([
+        { role: 'pebble', text: "Workspace initialized. I'm actively monitoring your architecture. Switch to Audit Mode anytime to run a deep integrity scan." }
+      ]);
+      const chatEndRef = useRef(null);
+
+      // Audit Mode State
+      const [isScanning, setIsScanning] = useState(false);
+      const [scanProgress, setScanProgress] = useState(0);
+      const [toolStatus, setToolStatus] = useState(
+        TOOLS.reduce((acc, tool) => ({ ...acc, [tool.id]: 'idle' }), {})
+      );
+      const [auditLogs, setAuditLogs] = useState([]);
+
+      useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [chat]);
+
+      const handleSendMessage = (e) => {
+        if ((e.key === 'Enter' || e.type === 'click') && chatInput.trim()) {
+          const userMsg = chatInput.trim();
+          setChat(prev => [...prev, { role: 'user', text: userMsg }]);
+          setChatInput('');
+          setTimeout(() => {
+            setChat(prev => [...prev, { role: 'pebble', text: "I've noted that requirement in your Lasso memory. Running a background sync." }]);
+          }, 800);
+        }
+      };
+
+      const handleFixWithPebble = () => {
+        setMode('build');
+        setActiveWorkspace('auth');
+        setTimeout(() => {
+          setChat(prev => [...prev, { role: 'pebble', text: "I've analyzed the auth issue. We have two Auth systems here: one using Firebase Auth in the main app, and a separate custom JWT session manager inside the /admin route. They are both trying to manage the user state, which causes conflicts. Should I merge the /admin route to use the main Firebase Auth path so we don't break the app?" }]);
+        }, 500);
+      };
+
+      const startAuditScan = () => {
+        setIsScanning(true);
+        setScanProgress(0);
+        setAuditLogs([]);
+        const statuses = { ...toolStatus };
+        
+        // Reset all
+        Object.keys(statuses).forEach(k => statuses[k] = 'idle');
+        setToolStatus({...statuses});
+
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += 5;
+          setScanProgress(progress);
+
+          // Simulated Scanning logic
+          if (progress === 10) { statuses.database = 'scanning'; statuses.storage = 'scanning'; setAuditLogs(p => [...p, "Phase 1: Mapping Database schemas and Object Storage..."]); }
+          if (progress === 30) { statuses.database = 'healthy'; statuses.storage = 'healthy'; statuses.auth = 'scanning'; setAuditLogs(p => [...p, "Database: Healthy. No orphaned tables. Storage: Secured.", "Phase 2: Verifying Authentication Integrity..."]); }
+          if (progress === 50) { statuses.auth = 'warning'; statuses.security = 'scanning'; statuses.secrets = 'scanning'; setAuditLogs(p => [...p, "Auth: [WARNING] Duplicate session manager detected in route /admin.", "Phase 3: Deep checking Security Center and Vault Secrets..."]); }
+          if (progress === 70) { statuses.security = 'healthy'; statuses.secrets = 'healthy'; statuses.editor = 'scanning'; statuses.integrations = 'scanning'; setAuditLogs(p => [...p, "Secrets: Vault locked. No exposed keys. Security: Passing.", "Phase 4: Scanning codebase for Ghost Logic & Dependency Conflicts..."]); }
+          if (progress === 90) { statuses.editor = 'healthy'; statuses.integrations = 'healthy'; statuses.skills = 'healthy'; statuses.canvas = 'healthy'; statuses.validation = 'healthy'; statuses.analytics = 'healthy'; setAuditLogs(p => [...p, "Dependencies: Optimized. Ghost Logic: None detected.", "Finalizing System Health Report..."]); }
+
+          setToolStatus({...statuses});
+
+          if (progress >= 100) {
+            clearInterval(interval);
+            setIsScanning(false);
+            setAuditLogs(p => [...p, "SCAN COMPLETE. Architecture Integrity Validated. 1 Warning found."]);
+          }
+        }, 300);
+      };
+
+      const toggleMode = (newMode) => {
+        setMode(newMode);
+        if (newMode === 'audit') {
+          setTimeout(startAuditScan, 500);
+        }
+      };
+
+      const renderStatusDot = (status) => {
+        if (status === 'idle') return <div className="w-2 h-2 rounded-full bg-gray-700"></div>;
+        if (status === 'scanning') return <div className="w-2 h-2 rounded-full bg-blue-500 pulse-dot shadow-[0_0_8px_#3b82f6]"></div>;
+        if (status === 'healthy') return <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]"></div>;
+        if (status === 'warning') return <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b]"></div>;
+        if (status === 'error') return <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></div>;
+      };
+
+      const renderBuildWorkspace = () => (
+        <div className="flex-1 flex w-full h-full">
+          {/* Main Code Editor */}
+          {/* Main Code Editor with File Tree */}
+          <div className="flex-1 glass-panel m-4 mr-2 rounded-2xl flex overflow-hidden relative">
+            
+            {/* File Tree Sidebar */}
+            <div className="w-56 border-r border-white/10 bg-black/20 flex flex-col shrink-0">
+              <div className="h-12 border-b border-white/10 flex items-center px-4 shrink-0 justify-between">
+                <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">Repository</span>
+                <button className="text-[10px] bg-indigo-600/50 hover:bg-indigo-500 border border-indigo-500/30 text-white px-2 py-1 rounded transition-colors flex items-center gap-1 font-bold">
+                  <Icon name="upload" className="w-3 h-3" /> ZIP
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-3 text-sm text-gray-400 font-mono">
+                <div className="flex items-center gap-2 p-1.5 hover:bg-white/5 rounded cursor-pointer text-indigo-300 font-semibold mb-1">
+                  <Icon name="folder-open" className="w-4 h-4 text-indigo-400" /> <span className="truncate">aurame-core</span>
+                </div>
+                <div className="pl-4 flex flex-col gap-0.5 border-l border-white/5 ml-2.5">
+                  <div className="flex items-center gap-2 p-1.5 hover:bg-white/5 rounded cursor-pointer text-gray-300">
+                    <Icon name="folder" className="w-4 h-4 text-gray-500" /> <span>src</span>
+                  </div>
+                  <div className="pl-4 flex flex-col gap-0.5 border-l border-white/5 ml-2.5">
+                    <div className="flex items-center gap-2 p-1.5 bg-white/5 rounded cursor-pointer text-indigo-200">
+                      <Icon name="file-code-2" className="w-4 h-4 text-indigo-400" /> <span>index.ts</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-1.5 hover:bg-white/5 rounded cursor-pointer text-gray-400">
+                      <Icon name="file-code-2" className="w-4 h-4 text-gray-500" /> <span>app.tsx</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 p-1.5 hover:bg-white/5 rounded cursor-pointer text-gray-300 mt-1">
+                    <Icon name="folder" className="w-4 h-4 text-gray-500" /> <span>public</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-1.5 hover:bg-white/5 rounded cursor-pointer text-gray-400">
+                    <Icon name="file-json" className="w-4 h-4 text-gray-500" /> <span>package.json</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Editor Area */}
+            <div className="flex-1 flex flex-col min-w-0">
+              <div className="h-12 border-b border-white/10 flex items-center px-4 bg-black/20 shrink-0">
+                <Icon name="code-2" className="text-indigo-400 mr-2" />
+                <span className="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded border border-indigo-500/30 font-mono tracking-wide">src/index.ts</span>
+              </div>
+              <textarea spellCheck="false" defaultValue={"// Aura OS - Live Production Build\nimport { Intelligence, Runtime } from '@aura/core';\n\nexport async function initSovereignEcosystem() {\n    console.log(\"Booting isolated memory space...\");\n    await Runtime.mountVirtualDOM();\n    Intelligence.startLassoSync();\n}\n\n// Actively syncing with Pebble..."} className="flex-1 w-full bg-transparent text-gray-300 font-mono text-sm p-6 outline-none resize-none leading-relaxed" />
+            </div>
+          </div>
+
+          {/* Right Column (Preview + Chat) */}
+          <div className="w-[400px] flex flex-col m-4 ml-2 gap-4">
+            {/* Live Preview */}
+            <div className="flex-1 glass-panel rounded-2xl flex flex-col overflow-hidden relative">
+              <div className="h-10 border-b border-white/10 bg-black/20 flex items-center px-3 shrink-0">
+                <Icon name="globe" className="w-3 h-3 text-green-400 mr-2" />
+                <span className="text-xs font-mono text-gray-400">preview.aura.local:3000</span>
+              </div>
+              <div className="flex-1 bg-gradient-to-br from-indigo-900/20 to-purple-900/20 flex flex-col items-center justify-center p-6 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-2xl font-black text-white shadow-[0_0_30px_rgba(99,102,241,0.5)] mb-4">A</div>
+                <h3 className="text-xl font-bold text-white mb-2">Aura OS</h3>
+                <p className="text-xs text-indigo-200/60 mb-6">Live compilation successful.</p>
+                <button className="px-6 py-2 glass-btn rounded-full text-sm font-bold text-white">Login</button>
+              </div>
+            </div>
+
+            {/* Pebble Chat */}
+            <div className="flex-1 glass-panel rounded-2xl flex flex-col overflow-hidden">
+              <div className="h-12 border-b border-white/10 bg-black/20 flex items-center px-4 shrink-0">
+                <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-md flex items-center justify-center text-white font-bold text-[10px] mr-2 shadow-[0_0_10px_rgba(168,85,247,0.5)]">P</div>
+                <span className="text-sm font-bold text-gray-200">Pebble</span>
+                <span className="ml-2 text-[9px] uppercase tracking-wider font-bold bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30">Intelligence</span>
+              </div>
+              <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-3">
+                {chat.map((msg, i) => (
+                  <div key={i} className={"flex " + (msg.role === 'user' ? 'justify-end' : 'justify-start')}>
+                    <div className={"max-w-[85%] rounded-2xl px-4 py-2 text-sm leading-relaxed " + (msg.role === 'user' ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-tr-sm shadow-lg' : 'bg-white/5 border border-white/10 text-gray-300 rounded-tl-sm')}>
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+                <div ref={chatEndRef} />
+              </div>
+              <div className="p-3 bg-black/20 border-t border-white/10">
+                <div className="relative">
+                  <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={handleSendMessage} placeholder="Ask Pebble to build..." className="w-full bg-black/40 border border-white/10 focus:border-indigo-500 rounded-xl py-2.5 pl-4 pr-10 text-sm text-white outline-none transition-all shadow-inner" />
+                  <button onClick={handleSendMessage} className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-indigo-400 transition-colors"><Icon name="sparkles" className="w-4 h-4" /></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+      const renderStorageWorkspace = () => (
+        <div className="flex-1 flex w-full h-full p-4 pl-0">
+          <div className="flex-1 glass-panel rounded-2xl flex flex-col overflow-hidden relative border-indigo-500/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] z-10 w-full h-full">
+            {/* Particle Container (Simulated with absolute divs for React) */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 opacity-20">
+               <div className="absolute w-4 h-4 bg-teal-500 rounded-full blur-sm top-1/4 left-1/4 animate-pulse"></div>
+               <div className="absolute w-8 h-8 bg-purple-500 rounded-full blur-md top-3/4 left-2/3 animate-pulse" style={{animationDelay: '1s'}}></div>
+               <div className="absolute w-6 h-6 bg-indigo-500 rounded-full blur-sm top-1/2 left-1/2 animate-pulse" style={{animationDelay: '2s'}}></div>
+            </div>
+
+            {/* Header */}
+            <div className="h-14 border-b border-white/10 bg-black/40 flex items-center justify-between px-6 shrink-0 relative z-20">
+              <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <button className="hover:text-white transition-colors p-1 flex items-center justify-center bg-white/5 rounded-md hover:bg-white/10" title="Go Up One Level">
+                          <Icon name="arrow-up" className="w-4 h-4" />
+                      </button>
+                      <div className="h-4 w-px bg-white/20 mx-1"></div>
+                      <div className="flex items-center gap-2 font-mono text-xs text-teal-400 tracking-wider">
+                          <span className="text-white">Anti-Gravity Drive (C:)</span>
+                      </div>
+                  </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded-full border border-teal-500/30">
+                      <div className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
+                      </div>
+                      <span className="text-[10px] font-mono text-teal-300 font-bold tracking-widest">AI COM-LINK: ACTIVE</span>
+                  </div>
+              </div>
+            </div>
+
+            {/* Grid Area */}
+            <div className="flex-1 flex flex-col overflow-hidden relative z-20">
+                <div className="h-10 border-b border-white/5 flex items-center justify-between px-6 bg-white/5 shrink-0">
+                    <div className="text-xs text-gray-400 font-mono">6 items loaded</div>
+                    <div className="flex gap-2">
+                        <button className="text-teal-400 p-1 bg-white/5 rounded"><Icon name="grid" className="w-4 h-4" /></button>
+                        <button className="text-gray-400 p-1 hover:text-white hover:bg-white/5 rounded"><Icon name="list" className="w-4 h-4" /></button>
+                    </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 content-start">
+                    {/* Folders & Files */}
+                    {[
+                      {name: "Dev", type: "folder", icon: "folder", color: "text-teal-400"},
+                      {name: "Documents", type: "folder", icon: "folder", color: "text-teal-400"},
+                      {name: "System32", type: "folder", icon: "folder", color: "text-teal-400"},
+                      {name: "AI_Agent_Core", type: "folder", icon: "folder", color: "text-pink-400"},
+                      {name: "README.md", type: "file", icon: "file-text", color: "text-purple-400"},
+                      {name: "System_Roadmap.pdf", type: "file", icon: "file", color: "text-red-400"}
+                    ].map((item, i) => (
+                      <div key={i} className="anti-gravity-item relative flex flex-col items-center justify-center p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer group shadow-lg" style={{animationDelay: (i * 0.2) + 's'}}>
+                          <div className="w-16 h-16 mb-4 flex items-center justify-center rounded-2xl bg-black/20 group-hover:bg-black/40 transition-colors shadow-inner border border-white/5">
+                              <Icon name={item.icon} className={"w-8 h-8 " + item.color + " drop-shadow-[0_0_8px_currentColor] opacity-80 group-hover:opacity-100 transition-opacity"} />
+                          </div>
+                          <span className="text-sm font-medium text-gray-300 text-center w-full truncate px-1 group-hover:text-white transition-colors">{item.name}</span>
+                      </div>
+                    ))}
+                </div>
+            </div>
+          </div>
+        </div>
+      );
+
+      const renderDatabaseWorkspace = () => {
+        const totalRows = MOCK_SCHEMA.reduce((acc, table) => acc + table.rows, 0);
+        const totalTables = MOCK_SCHEMA.length;
+        const filteredTables = MOCK_SCHEMA.filter(t => t.name.toLowerCase().includes(dbSearch.toLowerCase()));
+        const activeTableData = MOCK_SCHEMA.find(t => t.name === selectedDbTable) || MOCK_SCHEMA[0];
+        
+        const tableContent = useMemo(() => {
+          return generateMockData(activeTableData.name, activeTableData.rows);
+        }, [activeTableData.name]);
+
+        const handleTableSelect = (name) => {
+          if (name === selectedDbTable) return;
+          setDbLoading(true);
+          setSelectedDbTable(name);
+          setTimeout(() => setDbLoading(false), 300);
+        };
+
+        const handleCopy = () => {
+          setCopiedUrl(true);
+          setTimeout(() => setCopiedUrl(false), 2000);
+        };
+
+        return (
+          <div className="flex-1 flex flex-col p-6 overflow-hidden h-full">
+            <div className="flex-1 glass-panel rounded-2xl flex flex-col overflow-hidden relative border-blue-500/20 shadow-[0_0_40px_rgba(59,130,246,0.15)] z-10 w-full h-full">
+              
+              {/* Database Header */}
+              <div className="px-8 py-6 border-b border-white/10 bg-black/40 shrink-0">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-black text-white flex items-center gap-3 tracking-tight">
+                    <Icon name="database" className="text-blue-500 w-6 h-6" /> Database Studio
+                    <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded ml-2 font-bold uppercase tracking-widest flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>Connected</span>
+                  </h2>
+                  <button className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-sm font-medium text-gray-300 transition-colors">
+                    <Icon name="refresh-cw" className="w-4 h-4" /> Sync
+                  </button>
+                </div>
+                
+                <div className="flex gap-6 border-b border-white/10">
+                  <button onClick={() => setDbTab('overview')} className={"pb-3 px-1 text-sm font-semibold transition-colors border-b-2 " + (dbTab === 'overview' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-400 hover:text-white')}>Overview</button>
+                  <button onClick={() => setDbTab('mydata')} className={"pb-3 px-1 text-sm font-semibold transition-colors border-b-2 " + (dbTab === 'mydata' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-400 hover:text-white')}>My Data</button>
+                  <button onClick={() => setDbTab('settings')} className={"pb-3 px-1 text-sm font-semibold transition-colors border-b-2 " + (dbTab === 'settings' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-400 hover:text-white')}>Settings</button>
+                </div>
+              </div>
+
+              {/* Database Content Area */}
+              <div className="flex-1 overflow-y-auto p-8 bg-black/10">
+                
+                {/* OVERVIEW TAB */}
+                {dbTab === 'overview' && (
+                  <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in">
+                    <div>
+                      <h3 className="text-lg font-bold text-white mb-4">Database Overview</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-colors">
+                          <div className="flex items-center gap-3 text-gray-400 mb-2"><Icon name="table-2" className="w-5 h-5 text-blue-500" /><span className="font-medium text-sm">Total Tables</span></div>
+                          <div className="text-3xl font-bold text-white">{totalTables}</div>
+                        </div>
+                        <div className="bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-colors">
+                          <div className="flex items-center gap-3 text-gray-400 mb-2"><Icon name="box" className="w-5 h-5 text-emerald-500" /><span className="font-medium text-sm">Total Rows</span></div>
+                          <div className="text-3xl font-bold text-white">{totalRows.toLocaleString()}</div>
+                        </div>
+                        <div className="bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-colors">
+                          <div className="flex items-center gap-3 text-gray-400 mb-2"><Icon name="hard-drive" className="w-5 h-5 text-purple-500" /><span className="font-medium text-sm">Storage Used</span></div>
+                          <div className="text-3xl font-bold text-white">6.2 MB</div>
+                          <div className="text-xs text-gray-500 mt-1">of 500 MB limit</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-bold text-white">All Tables (public)</h3>
+                        <button className="flex items-center gap-2 text-sm text-blue-500 hover:text-blue-400 font-bold transition-colors"><Icon name="plus" className="w-4 h-4" /> New Table</button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {MOCK_SCHEMA.map((table, i) => (
+                          <div key={i} onClick={() => { setDbTab('mydata'); setSelectedDbTable(table.name); }} className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-start justify-between hover:border-blue-500/50 hover:bg-white/10 transition-all cursor-pointer group shadow-lg">
+                            <div className="flex items-start gap-3 overflow-hidden">
+                              <div className="bg-blue-500/20 p-2 rounded-lg border border-blue-500/30 text-blue-400 shrink-0"><Icon name="table-2" className="w-4 h-4" /></div>
+                              <div className="min-w-0">
+                                <h3 className="text-sm font-bold text-gray-200 group-hover:text-blue-400 transition-colors truncate">{table.name}</h3>
+                                <div className="flex items-center gap-2 text-xs text-gray-500 mt-1 font-mono"><span>{table.rows.toLocaleString()} rows</span><span>•</span><span>{table.size}</span></div>
+                              </div>
+                            </div>
+                            <Icon name="chevron-right" className="w-4 h-4 text-gray-600 group-hover:text-blue-500 shrink-0 mt-2" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* MY DATA TAB */}
+                {dbTab === 'mydata' && (
+                  <div className="flex h-[600px] bg-black/40 border border-white/10 rounded-2xl overflow-hidden animate-in fade-in shadow-2xl">
+                    {/* Left Sidebar */}
+                    <div className="w-72 border-r border-white/10 bg-white/5 flex flex-col shrink-0">
+                      <div className="p-4 border-b border-white/10">
+                        <div className="relative">
+                          <Icon name="search" className="w-4 h-4 absolute left-3 top-2.5 text-gray-500" />
+                          <input type="text" placeholder="Search tables..." value={dbSearch} onChange={(e) => setDbSearch(e.target.value)} className="w-full pl-9 pr-3 py-2 bg-black/50 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500 transition-colors" />
+                        </div>
+                      </div>
+                      <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                        {filteredTables.length > 0 ? filteredTables.map((table, i) => (
+                          <button key={i} onClick={() => handleTableSelect(table.name)} className={"w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors " + (selectedDbTable === table.name ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30 font-bold' : 'text-gray-400 hover:bg-white/10 hover:text-white border border-transparent')}>
+                            <div className="flex items-center gap-2 overflow-hidden">
+                              <Icon name="table-2" className={"w-4 h-4 shrink-0 " + (selectedDbTable === table.name ? 'text-blue-400' : 'text-gray-500')} />
+                              <span className="truncate">{table.name}</span>
+                            </div>
+                          </button>
+                        )) : (
+                          <div className="p-4 text-center text-sm text-gray-500">No tables found.</div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Main Content Grid */}
+                    <div className="flex-1 flex flex-col min-w-0 bg-black/20">
+                      <div className="flex items-center justify-between p-4 border-b border-white/10 bg-black/40 shrink-0">
+                        <div className="flex items-center gap-3">
+                          <h2 className="text-lg font-bold text-white">{activeTableData.name}</h2>
+                          <span className="bg-white/10 text-gray-300 py-0.5 px-2 rounded font-mono text-xs border border-white/10 shadow-inner">{activeTableData.rows.toLocaleString()} rows</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button className="flex items-center gap-2 px-3 py-1.5 border border-white/10 rounded-lg text-sm font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-colors"><Icon name="plus" className="w-4 h-4" /> Insert Row</button>
+                          <button className="flex items-center gap-2 px-3 py-1.5 border border-white/10 rounded-lg text-sm font-bold text-gray-300 hover:bg-white/10 hover:text-white transition-colors"><Icon name="download" className="w-4 h-4" /> Export</button>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 overflow-auto p-4">
+                        {dbLoading ? (
+                          <div className="flex h-full items-center justify-center">
+                            <Icon name="refresh-cw" className="w-6 h-6 text-blue-500 animate-spin" />
+                          </div>
+                        ) : (
+                          <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden shadow-lg h-full flex flex-col">
+                            <div className="overflow-x-auto flex-1">
+                              <table className="w-full text-left text-sm whitespace-nowrap">
+                                <thead className="bg-black/40 text-gray-400 border-b border-white/10 sticky top-0 z-10">
+                                  <tr>
+                                    <th className="w-10 px-4 py-3 text-center"><input type="checkbox" className="rounded border-white/20 bg-black/50 accent-blue-500" /></th>
+                                    {tableContent.columns.map((col, idx) => (
+                                      <th key={idx} className="px-4 py-3 font-bold text-xs uppercase tracking-wider">{col}</th>
+                                    ))}
+                                    <th className="px-4 py-3 w-16"></th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                  {tableContent.rows.length > 0 ? tableContent.rows.map((row, rowIndex) => (
+                                    <tr key={rowIndex} className="hover:bg-blue-500/10 transition-colors group">
+                                      <td className="px-4 py-3 text-center"><input type="checkbox" className="rounded border-white/20 bg-black/50 accent-blue-500" /></td>
+                                      {tableContent.columns.map((col, colIndex) => (
+                                        <td key={colIndex} className="px-4 py-3 text-gray-300 font-mono text-xs">
+                                          {col === 'status' ? (
+                                            <span className={"px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest border " + (row[col] === 'active' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-white/10 text-gray-400 border-white/20')}>
+                                              {row[col]}
+                                            </span>
+                                          ) : (
+                                            row[col]
+                                          )}
+                                        </td>
+                                      ))}
+                                      <td className="px-4 py-3 text-right">
+                                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                          <button className="p-1.5 text-gray-500 hover:text-blue-400 hover:bg-blue-500/20 rounded-md transition-colors"><Icon name="edit-2" className="w-3.5 h-3.5" /></button>
+                                          <button className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/20 rounded-md transition-colors"><Icon name="trash-2" className="w-3.5 h-3.5" /></button>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  )) : (
+                                    <tr><td colSpan={tableContent.columns.length + 2} className="px-4 py-8 text-center text-gray-500">No records found.</td></tr>
+                                  )}
+                                </tbody>
+                              </table>
+                            </div>
+                            <div className="bg-black/40 px-4 py-3 border-t border-white/10 text-xs text-gray-500 flex justify-between items-center shrink-0">
+                              <span>Showing min({tableContent.rows.length}, 50) of {activeTableData.rows} rows</span>
+                              <div className="flex gap-1">
+                                <button className="px-2 py-1 border border-white/10 rounded bg-white/5 hover:bg-white/10 disabled:opacity-50 text-gray-300" disabled>Previous</button>
+                                <button className="px-2 py-1 border border-white/10 rounded bg-white/5 hover:bg-white/10 text-gray-300">Next</button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* SETTINGS TAB */}
+                {dbTab === 'settings' && (
+                  <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in">
+                    <div>
+                      <h2 className="text-2xl font-bold text-white">Database Settings</h2>
+                      <p className="text-sm text-gray-400 mt-1">Manage connection strings, environments, and credentials.</p>
+                    </div>
+
+                    <section className="bg-white/5 border border-white/10 rounded-xl overflow-hidden shadow-lg">
+                      <div className="px-6 py-4 border-b border-white/10 bg-black/40 flex justify-between items-center">
+                        <div className="flex items-center gap-2"><Icon name="terminal-square" className="w-5 h-5 text-gray-400" /><h3 className="text-sm font-bold text-white">Connection Details</h3></div>
+                        <div className="flex gap-2 bg-black/40 p-1 rounded-lg border border-white/5">
+                          <button className="px-3 py-1 bg-white/10 shadow-sm rounded-md text-xs font-bold text-white border border-white/10">Development</button>
+                          <button className="px-3 py-1 rounded-md text-xs font-bold text-gray-500 hover:text-white">Production</button>
+                        </div>
+                      </div>
+                      <div className="p-6 space-y-6">
+                        <div>
+                          <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Connection URL</label>
+                          <div className="flex items-center relative">
+                            <input type="text" readOnly value="postgresql://project_dev:****************@db.project.local:5432/main_dev" className="w-full pl-3 pr-24 py-3 bg-black/50 border border-white/10 rounded-lg text-sm text-gray-300 font-mono outline-none focus:border-blue-500 transition-colors" />
+                            <button onClick={handleCopy} className="absolute right-2 top-2 bottom-2 px-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-md text-xs font-bold text-white flex items-center gap-1 transition-colors">
+                              {copiedUrl ? <Icon name="check" className="w-3.5 h-3.5 text-emerald-400" /> : <Icon name="copy" className="w-3.5 h-3.5" />}
+                              <span>{copiedUrl ? 'Copied' : 'Copy'}</span>
+                            </button>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-2">Use this URL to connect directly via ORMs (Prisma, Drizzle) or external tools.</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                          <div><label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Host</label><div className="text-sm font-mono text-gray-300 bg-black/30 px-3 py-2 border border-white/10 rounded-lg">db.project.local</div></div>
+                          <div><label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Port</label><div className="text-sm font-mono text-gray-300 bg-black/30 px-3 py-2 border border-white/10 rounded-lg">5432</div></div>
+                          <div><label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">User</label><div className="text-sm font-mono text-gray-300 bg-black/30 px-3 py-2 border border-white/10 rounded-lg">project_dev</div></div>
+                          <div><label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Password</label><div className="flex justify-between items-center text-sm font-mono text-gray-300 bg-black/30 px-3 py-2 border border-white/10 rounded-lg"><span>****************</span><button className="text-blue-400 text-xs font-sans hover:underline font-bold">Reveal</button></div></div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section className="bg-white/5 border border-white/10 rounded-xl overflow-hidden shadow-lg">
+                      <div className="px-6 py-4 border-b border-white/10 bg-black/40 flex items-center gap-2"><Icon name="shield" className="w-5 h-5 text-gray-400" /><h3 className="text-sm font-bold text-white">Access Control</h3></div>
+                      <div className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div><h4 className="text-sm font-bold text-white">Public Network Access</h4><p className="text-xs text-gray-500 mt-1">Allow connections from anywhere on the internet.</p></div>
+                          <div className="w-11 h-6 bg-blue-600 rounded-full relative cursor-pointer shadow-inner border border-blue-500"><div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm"></div></div>
+                        </div>
+                        <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
+                          <div><h4 className="text-sm font-bold text-white">Require SSL</h4><p className="text-xs text-gray-500 mt-1">Enforce encrypted connections for all incoming traffic.</p></div>
+                          <div className="w-11 h-6 bg-blue-600 rounded-full relative cursor-pointer shadow-inner border border-blue-500"><div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm"></div></div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section className="bg-rose-900/10 border border-rose-500/20 rounded-xl overflow-hidden">
+                      <div className="px-6 py-4 border-b border-rose-500/20 bg-rose-900/20"><h3 className="text-sm font-bold text-rose-500">Danger Zone</h3></div>
+                      <div className="p-6 space-y-6">
+                        <div className="flex items-center justify-between">
+                          <div><h4 className="text-sm font-bold text-white">Reset Database</h4><p className="text-xs text-gray-400 mt-1">Drops all tables and data. This action cannot be undone.</p></div>
+                          <button className="px-4 py-2 bg-black/40 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 rounded-lg text-sm font-bold transition-colors shadow-lg">Reset Database</button>
+                        </div>
+                        <div className="pt-6 border-t border-rose-500/20 flex items-center justify-between">
+                          <div><h4 className="text-sm font-bold text-white">Delete Database</h4><p className="text-xs text-gray-400 mt-1">Permanently remove this database and all associated backups.</p></div>
+                          <button className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-sm font-bold transition-colors shadow-lg shadow-rose-900/50 border border-rose-500">Delete Database</button>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const renderAuthWorkspace = () => (
+        <div className="flex-1 flex flex-col p-6 overflow-hidden h-full">
+          <div className="flex-1 glass-panel rounded-2xl flex flex-col overflow-hidden relative border-indigo-500/20 shadow-[0_0_40px_rgba(99,102,241,0.15)] z-10 w-full h-full">
+            {/* Auth Header */}
+            <div className="px-8 py-6 border-b border-white/10 bg-black/40 shrink-0">
+              <h2 className="text-2xl font-black text-white flex items-center gap-3 tracking-tight mb-2">
+                <Icon name="users" className="text-amber-500 w-6 h-6" /> Authentication
+              </h2>
+              <div className="flex gap-6 mt-6 border-b border-white/10">
+                <button onClick={() => setAuthTab('users')} className={"pb-3 px-1 text-sm font-semibold transition-colors border-b-2 " + (authTab === 'users' ? 'border-amber-500 text-amber-500' : 'border-transparent text-gray-400 hover:text-white')}>Users</button>
+                <button onClick={() => setAuthTab('methods')} className={"pb-3 px-1 text-sm font-semibold transition-colors border-b-2 " + (authTab === 'methods' ? 'border-amber-500 text-amber-500' : 'border-transparent text-gray-400 hover:text-white')}>Sign-in method</button>
+                <button onClick={() => setAuthTab('projects')} className={"pb-3 px-1 text-sm font-semibold transition-colors border-b-2 " + (authTab === 'projects' ? 'border-amber-500 text-amber-500' : 'border-transparent text-gray-400 hover:text-white')}>Connected Projects</button>
+              </div>
+            </div>
+
+            {/* Auth Content Area */}
+            <div className="flex-1 overflow-y-auto p-8 bg-black/10">
+              {authTab === 'users' && (
+                <div className="space-y-4">
+                   <div className="flex justify-between items-center bg-blue-900/20 border border-blue-500/30 p-4 rounded-xl">
+                      <div className="flex items-start gap-3">
+                        <Icon name="info" className="text-blue-400 w-5 h-5 mt-0.5" />
+                        <p className="text-sm text-blue-200">The following Authentication features will be enhanced in the next release: Advanced MFA configuration and biometric passkey support for native mobile apps.</p>
+                      </div>
+                   </div>
+
+                   <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden shadow-lg mt-6">
+                      <div className="p-4 border-b border-white/10 flex items-center justify-between bg-black/20">
+                         <div className="relative w-64">
+                            <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input type="text" placeholder="Search by email, phone, or UID" className="w-full bg-black/40 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors" />
+                         </div>
+                         <div className="flex items-center gap-3">
+                           <button className="bg-amber-600 hover:bg-amber-500 text-white text-sm font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-amber-900/50"><Icon name="user-plus" className="w-4 h-4"/> Add user</button>
+                           <button className="p-2 text-gray-400 hover:text-white transition-colors"><Icon name="refresh-cw" className="w-4 h-4" /></button>
+                         </div>
+                      </div>
+                      <table className="w-full text-left text-sm text-gray-300">
+                        <thead className="text-xs uppercase bg-black/30 text-gray-400 font-semibold tracking-wider border-b border-white/10">
+                          <tr>
+                            <th className="px-6 py-4">Identifier</th>
+                            <th className="px-6 py-4">Providers</th>
+                            <th className="px-6 py-4">Created <Icon name="arrow-down" className="inline w-3 h-3" /></th>
+                            <th className="px-6 py-4">Signed In</th>
+                            <th className="px-6 py-4">User UID</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          <tr className="hover:bg-white/5 transition-colors group">
+                            <td className="px-6 py-4 font-medium text-white flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-green-500"></div>bouchard.j@aura.local</td>
+                            <td className="px-6 py-4"><Icon name="mail" className="w-4 h-4 text-gray-400 group-hover:text-amber-400 transition-colors" /></td>
+                            <td className="px-6 py-4 text-gray-400">May 27, 2026</td>
+                            <td className="px-6 py-4 text-gray-400">May 27, 2026</td>
+                            <td className="px-6 py-4 font-mono text-xs text-indigo-300">tKzOo2sqrpY5T...</td>
+                          </tr>
+                          <tr className="hover:bg-white/5 transition-colors group">
+                            <td className="px-6 py-4 font-medium text-white flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-green-500"></div>admin@aurame.com</td>
+                            <td className="px-6 py-4 flex gap-2"><Icon name="mail" className="w-4 h-4 text-gray-400 group-hover:text-amber-400 transition-colors" /><Icon name="github" className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" /></td>
+                            <td className="px-6 py-4 text-gray-400">May 21, 2026</td>
+                            <td className="px-6 py-4 text-gray-400">May 27, 2026</td>
+                            <td className="px-6 py-4 font-mono text-xs text-indigo-300">xR3Po9LmnQ1B...</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div className="p-4 border-t border-white/10 flex justify-between items-center text-xs text-gray-500 bg-black/20">
+                         <span>Rows per page: 50 <Icon name="chevron-down" className="inline w-3 h-3 ml-1" /></span>
+                         <span>1 - 2 of 2 <Icon name="chevron-left" className="inline w-4 h-4 mx-2 cursor-pointer hover:text-white" /><Icon name="chevron-right" className="inline w-4 h-4 cursor-pointer hover:text-white" /></span>
+                      </div>
+                   </div>
+                </div>
+              )}
+
+              {authTab === 'methods' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                   <div className="bg-white/5 border border-amber-500/30 rounded-xl p-5 hover:bg-white/10 transition-colors cursor-pointer group shadow-[0_0_20px_rgba(245,158,11,0.05)]">
+                      <div className="flex justify-between items-start mb-4">
+                         <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center border border-amber-500/30">
+                            <Icon name="mail" className="w-5 h-5 text-amber-400" />
+                         </div>
+                         <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-green-500/20 text-green-400 border border-green-500/30">Enabled</span>
+                      </div>
+                      <h3 className="text-white font-bold text-lg mb-1">Email/Password</h3>
+                      <p className="text-sm text-gray-400">Allow users to sign up using their email address and a password.</p>
+                   </div>
+                   
+                   <div className="bg-white/5 border border-indigo-500/30 rounded-xl p-5 hover:bg-white/10 transition-colors cursor-pointer group">
+                      <div className="flex justify-between items-start mb-4">
+                         <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
+                            <Icon name="chrome" className="w-5 h-5 text-indigo-400" />
+                         </div>
+                         <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-green-500/20 text-green-400 border border-green-500/30">Enabled</span>
+                      </div>
+                      <h3 className="text-white font-bold text-lg mb-1">Google</h3>
+                      <p className="text-sm text-gray-400">Allow users to sign in automatically with their Google account.</p>
+                   </div>
+
+                   <div className="bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-colors cursor-pointer group opacity-60">
+                      <div className="flex justify-between items-start mb-4">
+                         <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center border border-gray-700">
+                            <Icon name="github" className="w-5 h-5 text-gray-400" />
+                         </div>
+                         <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-white/5 text-gray-400 border border-white/10">Disabled</span>
+                      </div>
+                      <h3 className="text-white font-bold text-lg mb-1">GitHub</h3>
+                      <p className="text-sm text-gray-400">Allow users to authenticate using their GitHub developer account.</p>
+                   </div>
+                </div>
+              )}
+
+              {authTab === 'projects' && (
+                <div className="flex items-center justify-center h-full">
+                   <div className="text-center p-8 bg-black/20 border border-white/5 rounded-2xl max-w-md">
+                      <Icon name="zap" className="w-12 h-12 text-amber-500 mx-auto mb-4 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]" />
+                      <h3 className="text-xl font-bold text-white mb-2">Multi-Project Command Center</h3>
+                      <p className="text-sm text-gray-400 mb-6">Currently connected to <span className="font-mono text-amber-400 font-bold">shop-prod-9a2b</span>. The full advanced cross-project environment configuration panel is available via the Integrations tab.</p>
+                      <button className="bg-white/10 hover:bg-white/20 text-white text-sm font-bold py-2 px-6 rounded-lg transition-colors border border-white/20">Manage Configurations</button>
+                   </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+
+      const renderAuditWorkspace = () => (
+        <div className="flex-1 flex flex-col p-6 overflow-hidden">
+          <div className="glass-panel w-full h-full rounded-2xl flex flex-col overflow-hidden relative border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.1)]">
+            {isScanning && <div className="scan-line"></div>}
+            
+            <div className="h-20 border-b border-white/10 bg-black/30 flex items-center justify-between px-8 shrink-0 relative overflow-hidden">
+              <div className="absolute inset-0 bg-indigo-500/5 pulse-dot" style={{animationDuration: '4s'}}></div>
+              <div>
+                <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                  <Icon name="radar" className={isScanning ? "text-indigo-400 animate-spin" : "text-indigo-400"} />
+                  Live System Intelligence Surface
+                </h2>
+                <p className="text-sm text-indigo-300/70 font-medium mt-1">Full Architectural Pre-Scan & Integrity Validation</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <div className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">Status</div>
+                    <div className={"text-sm font-bold " + (isScanning ? 'text-blue-400 pulse-dot' : 'text-green-400')}>
+                      {isScanning ? 'ANALYZING...' : 'SYSTEM HEALTHY'}
+                    </div>
+                </div>
+                {/* Progress Circle */}
+                <div className="relative w-12 h-12 flex items-center justify-center bg-black/40 rounded-full border border-white/10">
+                  <span className="text-xs font-bold">{scanProgress}%</span>
+                  <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                      <path strokeDasharray={scanProgress + ", 100"} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" strokeWidth="2" className={isScanning ? "text-indigo-500" : "text-green-500"} />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1 flex">
+              {/* Architecture Map Visualization */}
+              <div className="w-2/3 border-r border-white/10 p-8 flex flex-col items-center justify-center bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-opacity-10 relative">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/80 pointer-events-none"></div>
+                <div className="grid grid-cols-3 gap-8 relative z-10 w-full max-w-2xl">
+                  {/* Mock Nodes */}
+                    {['Database Schema', 'Auth Flows', 'Storage Buckets', 'Security Rules', 'API Endpoints', 'Ghost Logic'].map((node, i) => {
+                      const isActive = isScanning && (scanProgress > i * 15 && scanProgress < (i+2)*15);
+                      const isDone = scanProgress >= (i+2)*15;
+                      const baseClass = "glass-panel p-6 rounded-2xl border flex flex-col items-center text-center transition-all duration-500 ";
+                      const activeClass = isActive ? "border-indigo-500 shadow-[0_0_30px_rgba(99,102,241,0.4)] scale-105" : (isDone ? "border-green-500/50 bg-green-500/5" : "border-white/5 opacity-50");
+                      const iconBase = "w-8 h-8 mb-3 ";
+                      const iconActive = isActive ? "text-indigo-400" : (isDone ? "text-green-400" : "text-gray-500");
+                      return (
+                        <div key={node} className={baseClass + activeClass}>
+                          <Icon name={i%2==0?'database':'shield'} className={iconBase + iconActive} />
+                          <span className="text-xs font-bold text-gray-300">{node}</span>
+                          {isActive && <div className="mt-3 w-full h-1 bg-indigo-500/20 rounded-full overflow-hidden"><div className="h-full bg-indigo-500 w-full origin-left animate-pulse"></div></div>}
+                          {isDone && <div className="mt-3 text-[10px] text-green-400 font-bold uppercase tracking-widest">Verified</div>}
+                        </div>
+                      )
+                    })}
+                </div>
+
+                {/* ACTIONABLE ALERT CARD */}
+                {!isScanning && scanProgress === 100 && (
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md glass-panel p-6 rounded-2xl border border-amber-500/50 shadow-[0_20px_60px_rgba(245,158,11,0.2)] z-50 flex flex-col items-center text-center animate-in fade-in zoom-in duration-500 bg-[#0f0f1a]/95">
+                    <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mb-4 border border-amber-500/30">
+                      <Icon name="alert-triangle" className="w-6 h-6 text-amber-500" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">Auth Integrity Warning</h3>
+                    <p className="text-sm text-gray-300 mb-6">Duplicate session manager detected in route <span className="font-mono text-amber-400">/admin</span>.</p>
+                    <button onClick={handleFixWithPebble} className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 rounded-xl text-sm font-bold text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] border border-indigo-400/50">
+                      <Icon name="sparkles" className="w-4 h-4" /> Fix with Pebble
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Live Audit Log */}
+              <div className="w-1/3 bg-black/20 flex flex-col">
+                <div className="p-4 border-b border-white/10 bg-black/40 text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center justify-between">
+                  <span>Terminal Logs</span>
+                  <Icon name="terminal" className="w-4 h-4" />
+                </div>
+                <div className="flex-1 p-4 font-mono text-[11px] leading-relaxed text-gray-400 overflow-y-auto space-y-2">
+                  {auditLogs.map((log, i) => {
+                    const isWarning = log.includes("[WARNING]");
+                    const isAlert = log.includes("SCAN COMPLETE");
+                    return (
+                      <div key={i} className={"pb-2 border-b border-white/5 " + (isWarning ? 'text-amber-400' : isAlert ? 'text-indigo-400 font-bold' : '')}>
+                        <span className="text-gray-600 mr-2">[{new Date().toLocaleTimeString()}]</span>
+                        {log}
+                      </div>
+                    )
+                  })}
+                  {isScanning && <div className="text-indigo-400 animate-pulse">_</div>}
+                </div>
+                {!isScanning && scanProgress === 100 && (
+                  <div className="p-4 bg-indigo-900/20 border-t border-indigo-500/30">
+                    <button className="w-full glass-btn py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-indigo-600/80 to-purple-600/80 shadow-[0_0_20px_rgba(99,102,241,0.3)]">Generate Health Report</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+      return (
+        <div className="flex flex-col h-screen w-full relative z-10 text-gray-200">
+          {/* Header */}
+          <header className="h-16 glass-panel border-b border-white/10 flex items-center justify-between px-6 shrink-0 z-20 rounded-b-2xl mx-2">
+            <div className="flex items-center space-x-6">
+              <a href="/console/" className="flex items-center text-white hover:text-indigo-400 transition-colors">
+                <Icon name="chevron-left" className="w-5 h-5 mr-1" />
+                <span className="font-black tracking-widest text-sm uppercase">AURA STUDIO</span>
+              </a>
+              <div className="h-6 w-px bg-white/10"></div>
+              
+              {/* Mode Toggle */}
+              <div className="flex bg-black/40 p-1 rounded-xl border border-white/5">
+                <button 
+                  onClick={() => setMode('build')} 
+                  className={"px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all " + (mode === 'build' ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.5)]' : 'text-gray-500 hover:text-gray-300')}>
+                  Workspace Mode
+                </button>
+                <button 
+                  onClick={() => toggleMode('audit')} 
+                  className={"px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2 " + (mode === 'audit' ? 'bg-amber-600 text-white shadow-[0_0_15px_rgba(217,119,6,0.5)]' : 'text-gray-500 hover:text-gray-300')}>
+                  System Audit Mode
+                  {mode === 'audit' && isScanning && <div className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></div>}
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <button className="glass-btn px-4 py-2 text-xs font-bold text-gray-300 rounded-xl flex items-center gap-2 hover:text-white">
+                <Icon name="users" className="w-4 h-4" /> Invite
+              </button>
+              <button className="bg-white/10 border border-white/20 hover:bg-white/20 text-white px-4 py-2 text-xs font-bold rounded-xl flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                <Icon name="globe" className="w-4 h-4" /> Republish
+              </button>
+            </div>
+          </header>
+
+          <div className="flex flex-1 overflow-hidden pt-2">
+            {/* Cinematic Sidebar */}
+            <div className="w-64 glass-panel border-r border-white/10 flex flex-col shrink-0 overflow-y-auto m-2 rounded-2xl">
+              <div className="p-4 space-y-6">
+                {['Core', 'Suggested', 'Advanced'].map(section => (
+                  <div key={section}>
+                    <h4 className="text-[10px] uppercase text-indigo-400/60 font-black tracking-widest mb-3 px-3">{section}</h4>
+                    <ul className="space-y-1">
+                      {TOOLS.filter(t => t.section === section).map(tool => (
+                        <li key={tool.id}>
+                          <button 
+                            onClick={() => setActiveWorkspace(tool.id)} 
+                            className={"w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all " + (activeWorkspace === tool.id ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 shadow-[inset_0_0_20px_rgba(99,102,241,0.1)]' : 'text-gray-400 hover:bg-white/5 hover:text-gray-200 border border-transparent')}>
+                            <div className="flex items-center space-x-3">
+                              <Icon name={tool.icon} className={activeWorkspace === tool.id ? 'text-indigo-400' : ''} />
+                              <span>{tool.name}</span>
+                            </div>
+                            {/* Dot appears in Audit mode */}
+                            {mode === 'audit' && renderStatusDot(toolStatus[tool.id])}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Dynamic Center Area based on Mode */}
+            {mode === 'build' ? (activeWorkspace === 'database' ? renderDatabaseWorkspace() : activeWorkspace === 'auth' ? renderAuthWorkspace() : activeWorkspace === 'security' ? renderSecurityWorkspace() : activeWorkspace === 'storage' ? renderStorageWorkspace() : renderBuildWorkspace()) : renderAuditWorkspace()}
+
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  
